@@ -14,7 +14,7 @@
     <meta name="application-name" content="Arrows Stats">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#020617">
-    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22RAF%20Leeming%20Arrows%22%2C%22short_name%22%3A%22Arrows%20Stats%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23020617%22%2C%22theme_color%22%3A%22%23020617%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%2C%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D'>
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22RAF%20Leeming%20Arrows%22%2C%22short_name%22%3A%22Arrows%20Stats%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%2C%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D'>
 
     <!-- Tailwind CSS, Google Fonts, Font Awesome, Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -108,7 +108,11 @@
             <div id="shockwave2" class="pointer-events-none absolute top-1/2 left-1/2 w-48 h-48 rounded-full border-sky-400 opacity-0 z-20 fixed"></div>
 
             <div id="logoWrapper" class="relative z-10 flex flex-col items-center max-w-xl w-full cursor-pointer mt-8" onclick="startApp()">
-                <img id="homeLogoImg" src="logo.jpg" alt="RAF Leeming Arrows" class="logo-idle w-full max-w-[280px] sm:max-w-[400px] object-contain mb-8 shadow-2xl" onerror="this.src='https://placehold.co/400x400/000000/F59E0B?text=Missing+logo.jpg'"/>
+                <!-- Enhanced logo with pure black square background -->
+                <div class="logo-idle w-full max-w-[280px] sm:max-w-[400px] aspect-square bg-black rounded-3xl overflow-hidden shadow-2xl mb-8 flex items-center justify-center border border-slate-900">
+                    <img id="homeLogoImg" src="logo.jpg" alt="RAF Leeming Arrows" class="w-full h-full object-contain p-2" onerror="this.src='https://placehold.co/400x400/000000/F59E0B?text=Missing+logo.jpg'"/>
+                </div>
+                
                 <button onclick="startApp(); event.stopPropagation();" class="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-raf-blue to-amber-500 p-[2px] shadow-[0_0_40px_rgba(245,158,11,0.4)] hover:shadow-[0_0_60px_rgba(245,158,11,0.8)] transition-all active:scale-95 z-30">
                     <div class="flex items-center gap-3 rounded-[14px] bg-black px-6 sm:px-8 py-3 sm:py-4 transition group-hover:bg-zinc-900">
                         <i class="fa-solid fa-bullseye text-amber-400 text-lg sm:text-xl group-hover:rotate-90 transition-transform duration-500"></i>
@@ -133,7 +137,6 @@
                         <span class="font-display font-bold text-white tracking-wider text-[10px] sm:text-sm text-center block w-full uppercase">LOCAL TOURNAMENT</span>
                     </div>
                 </button>
-                <!-- New 100,000 Points Tracker -->
                 <button onclick="openExternalLink('https://townsendb102.github.io/100000points/', '100,000 Points Tracker')" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-indigo-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
                     <img src="100k.jpg" alt="100K Tracker" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e1b4b/818cf8?text=100K+Tracker'">
                     <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
@@ -630,14 +633,12 @@
             const playerStats = {};
             appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0, ave: 0 });
 
-            // Analyze Match Data & build statistics
             gamesToRender.forEach(g => {
                 if (g.status === 'WIN') wins++;
                 if (g.status === 'LOSS') losses++;
                 if (g.status === 'RESCHEDULE') reschedules++;
                 
                 Object.entries(g.scores || {}).forEach(([pName, score]) => {
-                    // Only count stats for active roster members in the summary!
                     if (!appData.players.includes(pName)) return;
 
                     const num = Number(score);
@@ -654,8 +655,8 @@
                 });
             });
 
-            Object.keys(playerStats).forEach(pName => {
-                if (playerStats[pName].played > 0) {
+            appData.players.forEach(pName => {
+                if (playerStats[pName] && playerStats[pName].played > 0) {
                     playerStats[pName].ave = playerStats[pName].sum / playerStats[pName].played;
                     if (playerStats[pName].ave > highestSeasonAve) {
                         highestSeasonAve = playerStats[pName].ave;
@@ -664,24 +665,20 @@
                 }
             });
 
-            // UPDATE DOM HEADERS IMMEDIATELY
             document.getElementById('statWins').textContent = wins;
             document.getElementById('statLosses').textContent = losses;
             document.getElementById('statReschedule').textContent = reschedules;
             document.getElementById('statBestSingle').textContent = bestSingleGame.toFixed(2);
             document.getElementById('statBestSinglePlayer').textContent = bestSinglePlayer;
             document.getElementById('statTeamAve').textContent = totalScoreCount > 0 ? (totalScoreSum / totalScoreCount).toFixed(2) : "0.00";
-            
             document.getElementById('statBestOverall').textContent = highestSeasonAve > 0 ? highestSeasonAve.toFixed(2) : "0.00";
             document.getElementById('statBestOverallPlayer').textContent = highestSeasonPlayer;
 
-            // Sorting logic
             let displayOrder = [...appData.players];
             if (sortMode === 'ranked') {
                 displayOrder.sort((a, b) => playerStats[b].ave - playerStats[a].ave);
             }
 
-            // Headers
             const thead = document.getElementById('matrixThead');
             let headHTML = `<tr class="border-b border-slate-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                 <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[150px] sm:min-w-[210px] border-r border-slate-800 leading-tight">PLAYER NAME<br><span class="text-[9px] font-normal text-sky-400/80 normal-case tracking-normal">(Click name for Profile & Stats)</span></th>
@@ -704,7 +701,6 @@
             });
             thead.innerHTML = headHTML + `</tr>`;
 
-            // Body
             const tbody = document.getElementById('matrixTbody');
             const tableWrap = document.getElementById('tableWrapper');
             if (isAdmin && !viewingArchive) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
@@ -744,7 +740,6 @@
             });
             tbody.innerHTML = bodyHTML;
 
-            // Footer Average
             const tfoot = document.getElementById('matrixTfoot');
             let footHTML = `<tr class="bg-slate-950 border-t-2 border-slate-700 font-mono text-[11px] font-bold">
                 <td class="sticky-col-1 bg-slate-950 text-raf-light py-3 px-3 border-r border-slate-800 uppercase font-sans">TEAM GAME AVE</td>
@@ -752,7 +747,6 @@
                 <td class="bg-slate-950 border-r border-slate-800"></td>
                 <td class="bg-slate-950 border-r border-slate-800"></td>`;
             gamesToRender.forEach((g) => {
-                // Ensure only active players count toward Team Game Average
                 const activeScores = Object.entries(g.scores || {})
                     .filter(([pName]) => appData.players.includes(pName))
                     .map(([, score]) => score);
