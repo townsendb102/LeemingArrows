@@ -116,7 +116,7 @@
         <div id="shockwave2" class="pointer-events-none absolute top-1/2 left-1/2 w-48 h-48 rounded-full border-sky-400 opacity-0 z-20"></div>
 
         <div id="logoWrapper" class="relative z-10 flex flex-col items-center max-w-xl w-full cursor-pointer" onclick="startApp()">
-            <img id="homeLogoImg" src="40810.jpg" alt="RAF Leeming Arrows" class="logo-idle w-full max-w-[400px] object-contain mb-8 shadow-2xl" onerror="this.src='https://placehold.co/400x400/000000/F59E0B?text=40810.jpg+Missing'"/>
+            <img id="homeLogoImg" src="logo.jpg" alt="RAF Leeming Arrows" class="logo-idle w-full max-w-[400px] object-contain mb-8 shadow-2xl" onerror="this.src='https://placehold.co/400x400/000000/F59E0B?text=Missing+logo.jpg'"/>
             
             <button onclick="startApp(); event.stopPropagation();" class="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-raf-blue to-amber-500 p-[2px] shadow-[0_0_40px_rgba(245,158,11,0.4)] hover:shadow-[0_0_60px_rgba(245,158,11,0.8)] transition-all active:scale-95 z-30">
                 <div class="flex items-center gap-3 rounded-[14px] bg-black px-8 py-4 transition group-hover:bg-zinc-900">
@@ -128,17 +128,17 @@
             </button>
         </div>
 
-        <!-- NEW EXTRA LINKS -->
+        <!-- EXTRA LINKS -->
         <div id="extraLinks" class="mt-12 flex flex-row gap-6 z-30 relative">
             <a href="https://townsendb102.github.io/RAFDA/" target="_blank" rel="noopener noreferrer" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-raf-blue shadow-lg transition-all hover:scale-105 flex flex-col items-center w-40 sm:w-48 h-28 sm:h-32">
-                <img src="08885d39-b18a-453c-8066-aff07213f448-1_all_71_2.jpg" alt="RAFDA Scorer" class="w-full h-full object-cover bg-white">
+                <img src="rafda.jpg" alt="RAFDA Scorer" class="w-full h-full object-cover bg-white" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+rafda.jpg'">
                 <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
                     <span class="font-display font-bold text-white tracking-wider text-xs sm:text-sm text-center block w-full uppercase">RAFDA SCORER</span>
                 </div>
             </a>
 
             <a href="https://townsendb102.github.io/Darts-tournament/" target="_blank" rel="noopener noreferrer" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-40 sm:w-48 h-28 sm:h-32">
-                <img src="watermarked_img_1873092218277388308.jpg" alt="Local Tournament" class="w-full h-full object-cover">
+                <img src="tournament.jpg" alt="Local Tournament" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+tournament.jpg'">
                 <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
                     <span class="font-display font-bold text-white tracking-wider text-xs sm:text-sm text-center block w-full uppercase">LOCAL TOURNAMENT</span>
                 </div>
@@ -151,7 +151,7 @@
         <div class="max-w-[1600px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center gap-4">
                 <button onclick="goHome()" title="Back to Home Logo" class="w-12 h-12 rounded-full border border-slate-700 bg-black overflow-hidden hover:border-amber-400 transition hidden sm:block">
-                    <img src="40810.jpg" alt="Logo" class="w-full h-full object-contain" onerror="this.style.display='none'"/>
+                    <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain" onerror="this.style.display='none'"/>
                 </button>
                 <div>
                     <div class="flex items-center gap-2 mb-0.5">
@@ -185,33 +185,52 @@
         
         <!-- Summary Cards -->
         <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div class="bg-slate-900 border border-emerald-500/30 rounded-xl p-4 shadow-lg">
-                <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Games Won</p>
+            <!-- Win / Loss / Reschedule -->
+            <div class="bg-slate-900 border border-emerald-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+                <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Games Won</p>
                 <div class="mt-1 flex items-baseline justify-between">
-                    <span id="statWins" class="font-display text-4xl font-bold text-white">0</span>
-                    <i class="fa-solid fa-trophy text-emerald-500/20 text-3xl"></i>
+                    <span id="statWins" class="font-display text-3xl font-bold text-white">0</span>
+                    <i class="fa-solid fa-trophy text-emerald-500/20 text-2xl"></i>
                 </div>
             </div>
-            <div class="bg-slate-900 border border-rose-500/30 rounded-xl p-4 shadow-lg">
-                <p class="text-xs font-bold text-rose-400 uppercase tracking-wider">Games Lost</p>
+            <div class="bg-slate-900 border border-rose-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+                <p class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Games Lost</p>
                 <div class="mt-1 flex items-baseline justify-between">
-                    <span id="statLosses" class="font-display text-4xl font-bold text-white">0</span>
-                    <i class="fa-solid fa-xmark text-rose-500/20 text-3xl"></i>
+                    <span id="statLosses" class="font-display text-3xl font-bold text-white">0</span>
+                    <i class="fa-solid fa-xmark text-rose-500/20 text-2xl"></i>
                 </div>
             </div>
-            <div class="bg-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-lg">
-                <p class="text-xs font-bold text-amber-400 uppercase tracking-wider">To Reschedule</p>
+            <div class="bg-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+                <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Reschedule</p>
                 <div class="mt-1 flex items-baseline justify-between">
-                    <span id="statReschedule" class="font-display text-4xl font-bold text-white">0</span>
-                    <i class="fa-solid fa-calendar-days text-amber-500/20 text-3xl"></i>
+                    <span id="statReschedule" class="font-display text-3xl font-bold text-white">0</span>
+                    <i class="fa-solid fa-calendar-days text-amber-500/20 text-2xl"></i>
                 </div>
             </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg sm:col-span-3 lg:col-span-3">
-                <p class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">Live Cloud Sync Active</p>
-                <p class="text-sm text-slate-300">
-                    <i class="fa-solid fa-circle-info text-raf-light mr-1"></i> 
-                    Connected to <strong>leeming-arrows-stats</strong>. All edits made in Admin mode are securely saved to the database and update instantly for everyone viewing the site.
-                </p>
+            <!-- Performance Stats -->
+            <div class="bg-slate-900 border border-sky-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+                <p class="text-[10px] font-bold text-sky-400 uppercase tracking-wider">Best Overall Ave</p>
+                <div class="mt-1 flex items-baseline justify-between">
+                    <span id="statBestOverall" class="font-mono text-2xl font-bold text-white">0.00</span>
+                    <i class="fa-solid fa-medal text-sky-500/20 text-2xl"></i>
+                </div>
+                <p id="statBestOverallPlayer" class="text-[11px] text-slate-400 font-semibold truncate mt-1">-</p>
+            </div>
+            <div class="bg-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+                <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Best Logged Game</p>
+                <div class="mt-1 flex items-baseline justify-between">
+                    <span id="statBestSingle" class="font-mono text-2xl font-bold text-white">0.00</span>
+                    <i class="fa-solid fa-fire text-amber-500/20 text-2xl"></i>
+                </div>
+                <p id="statBestSinglePlayer" class="text-[11px] text-slate-400 font-semibold truncate mt-1">-</p>
+            </div>
+            <div class="bg-slate-900 border border-raf-light/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+                <p class="text-[10px] font-bold text-raf-light uppercase tracking-wider">Overall Team Ave</p>
+                <div class="mt-1 flex items-baseline justify-between">
+                    <span id="statTeamAve" class="font-mono text-2xl font-bold text-white">0.00</span>
+                    <i class="fa-solid fa-users text-raf-light/20 text-2xl"></i>
+                </div>
+                <p class="text-[11px] text-slate-400 font-semibold truncate mt-1">Across all matches</p>
             </div>
         </section>
 
@@ -271,21 +290,24 @@
             
             <div class="flex items-center justify-between gap-2">
                 <button onclick="saveCell(null)" class="px-3 py-2.5 rounded-lg bg-black border border-slate-700 text-slate-300 text-xs font-semibold hover:bg-slate-800 transition">
-                    Mark DNP (Clear)
+                    Mark DNP
                 </button>
                 <button onclick="saveCell(document.getElementById('cellScoreInput').value)" class="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg transition">
-                    Save to Cloud
+                    Save Score
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Game Status Edit Modal -->
+    <!-- Game Status & Name Edit Modal -->
     <div id="gameStatusModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-            <h3 class="font-display text-lg font-bold text-white uppercase mb-1">Edit Game Status</h3>
-            <p id="gameStatusTitle" class="text-xs text-raf-light mb-4">Game</p>
+            <h3 class="font-display text-lg font-bold text-white uppercase mb-4">Edit Game Details</h3>
             
+            <label class="block text-xs font-bold text-raf-light uppercase mb-1">Game Name</label>
+            <input type="text" id="gameTitleInput" placeholder="e.g. 28 Sqn" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-sans mb-4 focus:outline-none focus:border-amber-400">
+
+            <label class="block text-xs font-bold text-raf-light uppercase mb-2">Match Status</label>
             <div class="space-y-2 mb-4">
                 <button onclick="saveGameStatus('WIN')" class="w-full text-left px-4 py-3 rounded-xl bg-emerald-900/50 border border-emerald-700 text-emerald-400 font-bold hover:bg-emerald-800/50 transition">WIN</button>
                 <button onclick="saveGameStatus('LOSS')" class="w-full text-left px-4 py-3 rounded-xl bg-rose-900/50 border border-rose-700 text-rose-400 font-bold hover:bg-rose-800/50 transition">LOSS</button>
@@ -293,7 +315,10 @@
                 <button onclick="saveGameStatus('TBD')" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 font-bold hover:bg-slate-700 transition">TBD (Upcoming)</button>
             </div>
             
-            <button onclick="closeModal('gameStatusModal')" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition">Cancel</button>
+            <div class="flex items-center gap-2">
+                <button onclick="closeModal('gameStatusModal')" class="flex-1 px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition">Cancel</button>
+                <button onclick="saveGameStatus(null)" class="flex-1 px-4 py-2 rounded-lg bg-amber-600 text-white font-bold text-sm hover:bg-amber-500 transition shadow-lg">Save Name Only</button>
+            </div>
         </div>
     </div>
 
@@ -303,7 +328,7 @@
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
-        // FIREBASE CONFIGURATION (Provided by User)
+        // FIREBASE CONFIGURATION
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAeEpibfdonVRy6Y2KavSA39h4d9dwf_8Q",
@@ -321,7 +346,7 @@
         let activeGameEdit = null;
         let db, currentUser;
 
-        // EXACT Initial Default Data
+        // EXACT Corrected Initial Default Data
         const DEFAULT_DATA = {
             players: [
                 "Ben Townsend", "Brandon Ledger", "Nathan Lee", "David Goodfellow",
@@ -364,7 +389,7 @@
                 header.classList.remove('hidden');
                 main.classList.remove('hidden');
                 
-                void main.offsetWidth; // trigger reflow
+                void main.offsetWidth;
                 
                 main.classList.add('dashboard-ready');
                 header.classList.add('dashboard-ready');
@@ -387,11 +412,15 @@
         // TABLE RENDERING ENGINE
         // ==========================================
         const renderTable = () => {
-            let wins = 0, losses = 0, reschedules = 0, allMatchValues = [];
+            let wins = 0, losses = 0, reschedules = 0;
+            let highestSeasonAve = 0, highestSeasonPlayer = "-";
+            let bestSingleGame = 0, bestSinglePlayer = "-";
+            let totalScoreSum = 0, totalScoreCount = 0;
+
             const playerStats = {};
             appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0 });
 
-            // Analyze Data
+            // Analyze Match Data
             appData.games.forEach(g => {
                 if (g.status === 'WIN') wins++;
                 if (g.status === 'LOSS') losses++;
@@ -403,17 +432,27 @@
                         playerStats[pName].played++;
                         playerStats[pName].sum += num;
                         if (num > playerStats[pName].high) playerStats[pName].high = num;
-                        allMatchValues.push(num);
+                        
+                        // Global Trackers
+                        if (num > bestSingleGame) {
+                            bestSingleGame = num;
+                            bestSinglePlayer = pName;
+                        }
+                        totalScoreSum += num;
+                        totalScoreCount++;
                     }
                 });
             });
 
-            // Update Summary
+            // Update Header Stats
             document.getElementById('statWins').textContent = wins;
             document.getElementById('statLosses').textContent = losses;
             document.getElementById('statReschedule').textContent = reschedules;
+            document.getElementById('statBestSingle').textContent = bestSingleGame.toFixed(2);
+            document.getElementById('statBestSinglePlayer').textContent = bestSinglePlayer;
+            document.getElementById('statTeamAve').textContent = totalScoreCount > 0 ? (totalScoreSum / totalScoreCount).toFixed(2) : "0.00";
 
-            // Render Header
+            // Render Matrix Header
             const thead = document.getElementById('matrixThead');
             let headHTML = `<tr class="border-b border-slate-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                 <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[140px] sm:min-w-[190px] border-r border-slate-800">PLAYER NAME</th>
@@ -431,7 +470,7 @@
             });
             thead.innerHTML = headHTML + `</tr>`;
 
-            // Render Body
+            // Render Body and calculate highest season average
             const tbody = document.getElementById('matrixTbody');
             const tableWrap = document.getElementById('tableWrapper');
             if (isAdmin) tableWrap.classList.add('admin-active');
@@ -440,12 +479,22 @@
             let bodyHTML = '';
             appData.players.forEach(player => {
                 const stat = playerStats[player];
-                const ave = stat.played > 0 ? (stat.sum / stat.played).toFixed(2) : '--';
+                let aveDisplay = '--';
+                
+                if (stat.played > 0) {
+                    const ave = stat.sum / stat.played;
+                    aveDisplay = ave.toFixed(2);
+                    if (ave > highestSeasonAve) {
+                        highestSeasonAve = ave;
+                        highestSeasonPlayer = player;
+                    }
+                }
+
                 const high = stat.high > 0 ? stat.high.toFixed(2) : '--';
                 
                 bodyHTML += `<tr class="hover:bg-slate-800/40 transition">
                     <td class="sticky-col-1 bg-slate-900 text-slate-100 font-semibold py-2 px-3 border-r border-slate-800 whitespace-nowrap">${player}</td>
-                    <td class="sticky-col-2 bg-slate-900/95 font-mono font-bold text-sky-400 py-2 px-2 text-center border-r border-slate-700">${ave}</td>
+                    <td class="sticky-col-2 bg-slate-900/95 font-mono font-bold text-sky-400 py-2 px-2 text-center border-r border-slate-700">${aveDisplay}</td>
                     <td class="bg-slate-900/50 font-mono text-emerald-400/80 py-2 px-2 text-center border-r border-slate-800">${stat.played}</td>
                     <td class="bg-slate-900/50 font-mono text-amber-400/80 py-2 px-2 text-center border-r border-slate-800">${high}</td>
                 `;
@@ -458,16 +507,18 @@
                     if (rawVal !== undefined && rawVal !== null) {
                         bodyHTML += `<td ${cellClick} class="stat-cell bg-slate-900/40 font-mono text-slate-100 py-2 px-3 text-right border-r border-slate-800">${Number(rawVal).toFixed(2)}</td>`;
                     } else if (gameHasScores && g.status !== 'TBD') {
-                        // Game played, but player didn't -> DNP (Black)
                         bodyHTML += `<td ${cellClick} class="stat-cell cell-dnp py-2 px-3 border-r border-slate-900 text-center text-[10px] uppercase font-bold tracking-widest text-slate-700/50">DNP</td>`;
                     } else {
-                        // Game hasn't been played -> Empty
                         bodyHTML += `<td ${cellClick} class="stat-cell bg-slate-950/30 text-slate-600 py-2 px-3 text-center border-r border-slate-800/70">-</td>`;
                     }
                 });
                 bodyHTML += `</tr>`;
             });
             tbody.innerHTML = bodyHTML;
+
+            // Set final Best Overall stat
+            document.getElementById('statBestOverall').textContent = highestSeasonAve > 0 ? highestSeasonAve.toFixed(2) : "0.00";
+            document.getElementById('statBestOverallPlayer').textContent = highestSeasonPlayer;
 
             // Render Footer
             const tfoot = document.getElementById('matrixTfoot');
@@ -552,11 +603,8 @@
                 game.scores[player] = Number(valueStr);
             }
             
-            // Optimistic update
             renderTable();
             closeModal('cellModal');
-            
-            // Sync to Firebase
             await saveToCloud();
         };
 
@@ -564,13 +612,17 @@
             if (!isAdmin) return;
             activeGameEdit = gameIdx;
             const game = appData.games[gameIdx];
-            document.getElementById('gameStatusTitle').textContent = `Game ${gameIdx + 1}: ${game.title}`;
+            document.getElementById('gameTitleInput').value = game.title;
             document.getElementById('gameStatusModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('gameTitleInput').focus(), 50);
         };
 
         window.saveGameStatus = async (status) => {
             if (activeGameEdit !== null) {
-                appData.games[activeGameEdit].status = status;
+                const newTitle = document.getElementById('gameTitleInput').value.trim();
+                if (newTitle) appData.games[activeGameEdit].title = newTitle;
+                if (status) appData.games[activeGameEdit].status = status;
+                
                 renderTable();
                 closeModal('gameStatusModal');
                 await saveToCloud();
@@ -588,30 +640,25 @@
 
         async function initFirebase() {
             try {
-                // Initialize the app with user's specific config
                 const app = initializeApp(firebaseConfig);
-                
-                // Initialize Auth & Firestore
                 const auth = getAuth(app);
                 db = getFirestore(app);
 
-                // Mandatory Rule: Authenticate first
                 await signInAnonymously(auth);
 
                 onAuthStateChanged(auth, (user) => {
                     currentUser = user;
                     if (user && db) {
-                        // Using a standard artifact path to ensure robust permissions if strictly enforced
-                        const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDoc');
+                        // NOTE: Changed document path to mainDocV2 to push the fresh corrected image data 
+                        // overriding any bad data previously saved in your database
+                        const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDocV2');
                         
-                        // Live Real-Time Listener
                         onSnapshot(docRef, (snapshot) => {
                             if (snapshot.exists()) {
                                 appData = JSON.parse(snapshot.data().payload);
                                 renderTable();
                                 setSyncStatus("Live Sync On", "fa-satellite-dish animate-pulse", "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40");
                             } else {
-                                // If database document doesn't exist yet, push the default spreadsheet data
                                 saveToCloud();
                                 setSyncStatus("Database Created", "fa-check", "bg-sky-500/20 text-sky-400 border border-sky-500/40");
                             }
@@ -624,14 +671,14 @@
             } catch (e) {
                 console.error("Firebase Init Error:", e);
                 setSyncStatus("Local Mode Only", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
-                renderTable(); // Render with local data if Firebase fails
+                renderTable(); 
             }
         }
 
         async function saveToCloud() {
             if (db && currentUser) {
                 try {
-                    const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDoc');
+                    const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDocV2');
                     await setDoc(docRef, { 
                         payload: JSON.stringify(appData), 
                         updatedAt: Date.now(),
@@ -644,7 +691,6 @@
             }
         }
 
-        // Initialize Firebase on load
         document.addEventListener('DOMContentLoaded', initFirebase);
 
     </script>
