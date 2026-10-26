@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PLAYER STATS | RAF LEEMING ARROWS</title>
     
-    <!-- App Icon & PWA Setup pointing to logo.jpg -->
+    <!-- App Icon & PWA Setup -->
     <link rel="icon" type="image/jpeg" href="logo.jpg">
     <link rel="apple-touch-icon" href="logo.jpg">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,17 +14,15 @@
     <meta name="application-name" content="Arrows Stats">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#020617">
-    <!-- Embedded Manifest for Android/Chrome -->
     <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22RAF%20Leeming%20Arrows%22%2C%22short_name%22%3A%22Arrows%20Stats%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23020617%22%2C%22theme_color%22%3A%22%23020617%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%2C%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D'>
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS, Google Fonts, Font Awesome, Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
         tailwind.config = {
@@ -36,85 +34,42 @@
                         display: ['Rajdhani', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                     },
-                    colors: {
-                        raf: {
-                            blue: '#5D8AA8',
-                            light: '#89B0CE',
-                            red: '#D92626',
-                            gold: '#F59E0B'
-                        }
-                    }
+                    colors: { raf: { blue: '#5D8AA8', light: '#89B0CE', red: '#D92626', gold: '#F59E0B' } }
                 }
             }
         }
     </script>
 
     <style>
-        /* Custom Scrollbars */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #5D8AA8; }
 
-        /* Full Screen Splash */
-        #splashScreen {
-            background-color: #000000;
-            perspective: 1000px;
-            transition: visibility 0.8s;
-        }
+        #splashScreen { background-color: #000000; perspective: 1000px; transition: visibility 0.8s; }
+        @keyframes floatLogo { 0%, 100% { transform: translateY(0px) scale(1); } 50% { transform: translateY(-10px) scale(1.02); } }
+        .logo-idle { animation: floatLogo 4s ease-in-out infinite; }
+        @keyframes cinematicLaunch { 0% { transform: scale(1) translateZ(0); filter: brightness(1); opacity: 1; } 30% { transform: scale(0.9) translateZ(-50px); filter: brightness(1.2); } 100% { transform: scale(8) translateZ(300px); filter: brightness(3) blur(10px); opacity: 0; } }
+        @keyframes flashShockwave { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; border-width: 10px; } 100% { transform: translate(-50%, -50%) scale(5); opacity: 0; border-width: 1px; } }
+        @keyframes whiteoutFade { 0% { opacity: 0; } 40% { opacity: 0.8; } 100% { opacity: 0; } }
 
-        /* Splash Animations */
-        @keyframes floatLogo {
-            0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-10px) scale(1.02); }
-        }
-        .logo-idle {
-            animation: floatLogo 4s ease-in-out infinite;
-        }
-
-        @keyframes cinematicLaunch {
-            0% { transform: scale(1) translateZ(0); filter: brightness(1); opacity: 1; }
-            30% { transform: scale(0.9) translateZ(-50px); filter: brightness(1.2); }
-            100% { transform: scale(8) translateZ(300px); filter: brightness(3) blur(10px); opacity: 0; }
-        }
-        @keyframes flashShockwave {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; border-width: 10px; }
-            100% { transform: translate(-50%, -50%) scale(5); opacity: 0; border-width: 1px; }
-        }
-        @keyframes whiteoutFade {
-            0% { opacity: 0; }
-            40% { opacity: 0.8; }
-            100% { opacity: 0; }
-        }
-
-        .launching #homeLogoImg {
-            animation: cinematicLaunch 0.9s cubic-bezier(0.55, 0.05, 0.67, 0.19) forwards !important;
-        }
+        .launching #homeLogoImg { animation: cinematicLaunch 0.9s cubic-bezier(0.55, 0.05, 0.67, 0.19) forwards !important; }
         .launching #shockwave1 { animation: flashShockwave 0.7s ease-out forwards; }
         .launching #shockwave2 { animation: flashShockwave 0.9s 0.1s ease-out forwards; }
         .launching #whiteout { animation: whiteoutFade 1s ease-out forwards; }
-        .launching #extraLinks { opacity: 0; transition: opacity 0.3s ease-out; pointer-events: none; }
-        .launching #installAppBtn { opacity: 0; pointer-events: none; transition: opacity 0.3s ease-out; }
+        .launching #extraLinks, .launching #installAppBtn { opacity: 0; pointer-events: none; transition: opacity 0.3s ease-out; }
 
-        @keyframes dashboardEnter {
-            0% { opacity: 0; transform: translateY(30px) scale(0.98); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .dashboard-ready {
-            animation: dashboardEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+        @keyframes dashboardEnter { 0% { opacity: 0; transform: translateY(30px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        .dashboard-ready { animation: dashboardEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* Matrix Sticky Styling */
         .sticky-col-1 { position: sticky; left: 0; z-index: 20; }
-        .sticky-col-2 { position: sticky; left: 140px; z-index: 20; }
-        @media (min-width: 640px) { .sticky-col-2 { left: 190px; } }
+        .sticky-col-2 { position: sticky; left: 150px; z-index: 20; }
+        @media (min-width: 640px) { .sticky-col-2 { left: 210px; } }
 
-        /* Cell Styling */
         .stat-cell { transition: all 0.15s ease; cursor: default; }
-        .admin-active .stat-cell:hover { outline: 2px solid #5D8AA8; z-index: 10; cursor: pointer; }
+        .admin-active .stat-cell:hover, .admin-active .admin-header:hover { outline: 2px solid #5D8AA8; z-index: 10; cursor: pointer; filter: brightness(1.2); }
         .cell-dnp { background-color: #05070c; color: #1e293b; }
 
-        /* Header Statuses */
         .status-WIN { background: linear-gradient(135deg, #15803d, #166534); border-bottom: 3px solid #4ade80; color: white; }
         .status-LOSS { background: linear-gradient(135deg, #b91c1c, #991b1b); border-bottom: 3px solid #f87171; color: white; }
         .status-RESCHEDULE { background: linear-gradient(135deg, #d97706, #b45309); border-bottom: 3px solid #fbbf24; color: white; }
@@ -123,15 +78,23 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-raf-blue overflow-x-hidden">
 
+    <!-- EXTERNAL IFRAME OVERLAY (Solves Back Button Trapping) -->
+    <div id="iframeOverlay" class="fixed inset-0 z-[100] hidden bg-black flex flex-col">
+        <div class="bg-slate-900 border-b border-slate-700 px-4 py-3 flex items-center justify-between shadow-xl">
+            <h2 id="iframeTitle" class="font-display text-lg font-bold uppercase text-white">External Link</h2>
+            <button onclick="closeExternalLink()" class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm flex items-center gap-2 shadow-lg transition">
+                <i class="fa-solid fa-arrow-left"></i> Back to Stats
+            </button>
+        </div>
+        <iframe id="externalIframe" class="flex-1 w-full border-none bg-slate-950"></iframe>
+    </div>
+
     <!-- SPLASH SCREEN -->
     <div id="splashScreen" class="fixed inset-0 z-50 overflow-y-auto bg-black">
         <div class="flex flex-col items-center justify-center min-h-screen p-4 py-12 relative w-full">
-            
-            <!-- App Install Button on Home Screen -->
             <button id="installAppBtn" onclick="openInstallModal()" class="absolute top-4 right-4 z-40 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-400 hover:text-sky-400 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition">
                 <i class="fa-solid fa-mobile-screen"></i> App Instructions
             </button>
-
             <div id="whiteout" class="pointer-events-none absolute inset-0 bg-white opacity-0 z-20 fixed"></div>
             <div id="shockwave1" class="pointer-events-none absolute top-1/2 left-1/2 w-48 h-48 rounded-full border-amber-400 opacity-0 z-20 fixed"></div>
             <div id="shockwave2" class="pointer-events-none absolute top-1/2 left-1/2 w-48 h-48 rounded-full border-sky-400 opacity-0 z-20 fixed"></div>
@@ -149,21 +112,21 @@
                 </button>
             </div>
 
-            <!-- EXTRA LINKS -->
+            <!-- EXTRA LINKS (Opens in seamless Iframe) -->
             <div id="extraLinks" class="mt-8 sm:mt-12 flex flex-row gap-4 sm:gap-6 z-30 relative">
-                <a href="https://townsendb102.github.io/RAFDA/" target="_blank" rel="noopener noreferrer" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-raf-blue shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
-                    <img src="rafda.jpg" alt="RAFDA Scorer" class="w-full h-full object-cover bg-white" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+rafda.jpg'">
+                <button onclick="openExternalLink('https://townsendb102.github.io/RAFDA/', 'RAFDA Scorer')" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-raf-blue shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
+                    <img src="rafda.jpg" alt="RAFDA" class="w-full h-full object-cover bg-white" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+rafda.jpg'">
                     <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
                         <span class="font-display font-bold text-white tracking-wider text-[10px] sm:text-sm text-center block w-full uppercase">RAFDA SCORER</span>
                     </div>
-                </a>
+                </button>
 
-                <a href="https://townsendb102.github.io/Darts-tournament/" target="_blank" rel="noopener noreferrer" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
-                    <img src="tournament.jpg" alt="Local Tournament" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+tournament.jpg'">
+                <button onclick="openExternalLink('https://townsendb102.github.io/Darts-tournament/', 'Local Tournament')" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
+                    <img src="tournament.jpg" alt="Tournament" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+tournament.jpg'">
                     <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
                         <span class="font-display font-bold text-white tracking-wider text-[10px] sm:text-sm text-center block w-full uppercase">LOCAL TOURNAMENT</span>
                     </div>
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -182,8 +145,7 @@
                         PLAYER STATS <span class="text-raf-light">| LEEMING ARROWS</span>
                     </h1>
                 </div>
-                
-                <!-- Mobile Only Admin Button -->
+                <!-- Mobile Admin Login -->
                 <button onclick="openAuthModal()" class="sm:hidden px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg transition">
                     <i class="fa-solid fa-lock"></i>
                 </button>
@@ -191,14 +153,11 @@
 
             <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end overflow-x-auto pb-1 sm:pb-0">
                 <div id="authStatusPill" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-sm">
-                    <i class="fa-solid fa-eye text-slate-400"></i>
-                    <span class="font-medium text-slate-300">View-Only</span>
+                    <i class="fa-solid fa-eye text-slate-400"></i><span class="font-medium text-slate-300">View-Only</span>
                 </div>
-                
                 <button id="adminBtn" onclick="openAuthModal()" class="hidden sm:flex px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm items-center gap-2 shadow-lg transition whitespace-nowrap">
                     <i class="fa-solid fa-lock"></i> Admin Unlock
                 </button>
-
                 <button onclick="goHome()" class="px-3 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 font-bold text-xs sm:text-sm hover:bg-slate-700 hover:border-raf-light flex items-center justify-center gap-2 transition whitespace-nowrap">
                     <i class="fa-solid fa-house"></i> Home
                 </button>
@@ -211,7 +170,6 @@
         
         <!-- Summary Cards -->
         <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            <!-- Win / Loss / Reschedule -->
             <div class="bg-slate-900 border border-emerald-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
                 <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Games Won</p>
                 <div class="mt-1 flex items-baseline justify-between">
@@ -233,7 +191,6 @@
                     <i class="fa-solid fa-calendar-days text-amber-500/20 text-2xl"></i>
                 </div>
             </div>
-            <!-- Performance Stats -->
             <div class="bg-slate-900 border border-sky-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
                 <p class="text-[10px] font-bold text-sky-400 uppercase tracking-wider">Best Overall Ave</p>
                 <div class="mt-1 flex items-baseline justify-between">
@@ -260,18 +217,29 @@
             </div>
         </section>
 
+        <!-- Admin Toolbox (Hidden by default) -->
+        <section id="adminToolbox" class="hidden bg-slate-900 border border-amber-500/50 rounded-xl p-3 shadow-lg flex flex-wrap items-center gap-3">
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider mr-2"><i class="fa-solid fa-toolbox mr-1"></i> Admin Tools:</span>
+            <button onclick="promptAddPlayer()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-user-plus mr-1 text-sky-400"></i> Add Player</button>
+            <button onclick="promptAddGame()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-calendar-plus mr-1 text-emerald-400"></i> Add Game</button>
+            <button onclick="exportCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition ml-auto"><i class="fa-solid fa-file-csv mr-1 text-raf-light"></i> Backup Excel CSV</button>
+        </section>
+
         <!-- The Spreadsheet -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden relative">
             <div class="px-4 py-3 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between flex-wrap gap-3">
                 <h2 class="font-display text-lg font-bold uppercase text-white flex items-center gap-2">
                     <i class="fa-solid fa-table-cells text-raf-light"></i> Match Matrix
                 </h2>
-                <div class="flex gap-2 text-[10px] sm:text-[11px] font-bold flex-wrap">
+                <div class="flex gap-2 text-[10px] sm:text-[11px] font-bold flex-wrap items-center">
+                    <button id="sortToggleBtn" onclick="toggleSort()" class="px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-sky-400 hover:bg-slate-700 transition flex items-center gap-1.5 mr-2">
+                        <i class="fa-solid fa-sort"></i> <span id="sortLabel">Sort: Roster</span>
+                    </button>
                     <span class="px-2 py-1 rounded bg-emerald-700 text-white">WIN</span>
                     <span class="px-2 py-1 rounded bg-rose-700 text-white">LOSS</span>
                     <span class="px-2 py-1 rounded bg-amber-600 text-white">RESCHEDULE</span>
                     <span class="px-2 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700">TBD</span>
-                    <span class="px-2 py-1 rounded bg-black text-slate-300 border border-slate-700 ml-2">DNP (Did Not Play)</span>
+                    <span class="px-2 py-1 rounded bg-black text-slate-300 border border-slate-700 ml-2">DNP</span>
                 </div>
             </div>
 
@@ -286,57 +254,60 @@
     </main>
 
     <!-- MODALS -->
+
+    <!-- Player Form Graph Modal -->
+    <div id="graphModal" class="fixed inset-0 z-[60] hidden bg-slate-950/90 backdrop-blur flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl p-4 sm:p-6 shadow-2xl relative flex flex-col">
+            <button onclick="closeModal('graphModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition z-10">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="mb-4 pr-8">
+                <h3 id="graphTitle" class="font-display text-xl sm:text-2xl font-bold text-white uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-emerald-400"></i> Player Form
+                </h3>
+                <p class="text-xs text-raf-light">Game-by-game average tracking</p>
+            </div>
+            <div class="relative w-full h-[300px] sm:h-[400px]">
+                <canvas id="playerChart"></canvas>
+            </div>
+            <button onclick="closeModal('graphModal')" class="mt-4 w-full px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition">Close Graph</button>
+        </div>
+    </div>
+
     <!-- App Install Instructions Modal -->
     <div id="installModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all relative">
-            <button onclick="closeModal('installModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-            <h3 class="font-display text-2xl font-bold text-white uppercase mb-6 flex items-center gap-2">
-                <i class="fa-solid fa-mobile-screen text-sky-400"></i> Install as App
-            </h3>
-            
+            <button onclick="closeModal('installModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h3 class="font-display text-2xl font-bold text-white uppercase mb-6 flex items-center gap-2"><i class="fa-solid fa-mobile-screen text-sky-400"></i> Install as App</h3>
             <div class="space-y-6">
-                <!-- Apple Instructions -->
                 <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-                    <h4 class="font-bold text-white flex items-center gap-2 mb-2">
-                        <i class="fa-brands fa-apple text-xl"></i> Apple (iPhone / iPad)
-                    </h4>
+                    <h4 class="font-bold text-white flex items-center gap-2 mb-2"><i class="fa-brands fa-apple text-xl"></i> Apple (iPhone / iPad)</h4>
                     <ol class="list-decimal list-inside text-sm text-slate-300 space-y-1.5 ml-1">
                         <li>Open this page in the <strong class="text-white">Safari</strong> browser.</li>
-                        <li>Tap the <strong class="text-white">Share</strong> icon at the bottom <i class="fa-solid fa-arrow-up-from-bracket mx-1 text-slate-400"></i>.</li>
+                        <li>Tap the <strong class="text-white">Share</strong> icon at the bottom.</li>
                         <li>Scroll down and select <strong class="text-sky-400">"Add to Home Screen"</strong>.</li>
                         <li>Tap <strong>Add</strong> in the top right.</li>
                     </ol>
                 </div>
-
-                <!-- Android Instructions -->
                 <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
-                    <h4 class="font-bold text-white flex items-center gap-2 mb-2">
-                        <i class="fa-brands fa-android text-emerald-400 text-xl"></i> Android
-                    </h4>
+                    <h4 class="font-bold text-white flex items-center gap-2 mb-2"><i class="fa-brands fa-android text-emerald-400 text-xl"></i> Android</h4>
                     <ol class="list-decimal list-inside text-sm text-slate-300 space-y-1.5 ml-1">
                         <li>Open this page in the <strong class="text-white">Chrome</strong> browser.</li>
-                        <li>Tap the <strong class="text-white">Menu</strong> icon (three dots) in the top right <i class="fa-solid fa-ellipsis-vertical mx-1 text-slate-400"></i>.</li>
+                        <li>Tap the <strong class="text-white">Menu</strong> icon (three dots).</li>
                         <li>Select <strong class="text-sky-400">"Add to Home screen"</strong>.</li>
                         <li>Tap <strong>Add</strong> to confirm.</li>
                     </ol>
                 </div>
             </div>
-            
-            <button onclick="closeModal('installModal')" class="mt-6 w-full px-4 py-3 rounded-xl bg-slate-800 text-white font-bold text-sm hover:bg-slate-700 transition">
-                Got it
-            </button>
+            <button onclick="closeModal('installModal')" class="mt-6 w-full px-4 py-3 rounded-xl bg-slate-800 text-white font-bold text-sm hover:bg-slate-700 transition">Got it</button>
         </div>
     </div>
 
     <!-- Auth Modal -->
     <div id="authModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl transform transition-all">
-            <h3 class="font-display text-xl font-bold text-white uppercase mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-lock text-amber-400"></i> Admin Unlock
-            </h3>
-            <input type="password" id="adminPassInput" placeholder="Enter admin password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white mb-2 focus:outline-none focus:border-amber-400">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <h3 class="font-display text-xl font-bold text-white uppercase mb-4 flex items-center gap-2"><i class="fa-solid fa-lock text-amber-400"></i> Admin Unlock</h3>
+            <input type="password" id="adminPassInput" placeholder="Enter password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white mb-2 focus:outline-none focus:border-amber-400">
             <p id="authError" class="text-xs text-rose-400 mb-4 hidden">Incorrect password.</p>
             <div class="flex justify-end gap-2">
                 <button onclick="closeModal('authModal')" class="px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700">Cancel</button>
@@ -355,39 +326,48 @@
                 </div>
                 <button onclick="closeModal('cellModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            
             <input type="number" step="0.01" id="cellScoreInput" placeholder="Enter Average (e.g. 52.40)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-mono text-lg mb-4 focus:outline-none focus:border-emerald-400">
-            
             <div class="flex items-center justify-between gap-2">
-                <button onclick="saveCell(null)" class="px-3 py-2.5 rounded-lg bg-black border border-slate-700 text-slate-300 text-xs font-semibold hover:bg-slate-800 transition">
-                    Mark DNP
-                </button>
-                <button onclick="saveCell(document.getElementById('cellScoreInput').value)" class="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg transition">
-                    Save Score
-                </button>
+                <button onclick="saveCell(null)" class="px-3 py-2.5 rounded-lg bg-black border border-slate-700 text-slate-300 text-xs font-semibold hover:bg-slate-800 transition">Mark DNP</button>
+                <button onclick="saveCell(document.getElementById('cellScoreInput').value)" class="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg transition">Save Score</button>
             </div>
         </div>
     </div>
 
-    <!-- Game Status & Name Edit Modal -->
+    <!-- Game Status & Details Edit Modal -->
     <div id="gameStatusModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-            <h3 class="font-display text-lg font-bold text-white uppercase mb-4">Edit Game Details</h3>
+            <h3 class="font-display text-lg font-bold text-white uppercase mb-4">Edit Fixture</h3>
             
-            <label class="block text-xs font-bold text-raf-light uppercase mb-1">Game Name</label>
-            <input type="text" id="gameTitleInput" placeholder="e.g. 28 Sqn" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-sans mb-4 focus:outline-none focus:border-amber-400">
+            <label class="block text-[10px] font-bold text-raf-light uppercase mb-1">Opponent / Title</label>
+            <input type="text" id="gameTitleInput" placeholder="e.g. 28 Sqn" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-sans mb-3 focus:outline-none focus:border-amber-400 text-sm">
 
-            <label class="block text-xs font-bold text-raf-light uppercase mb-2">Match Status</label>
-            <div class="space-y-2 mb-4">
-                <button onclick="saveGameStatus('WIN')" class="w-full text-left px-4 py-3 rounded-xl bg-emerald-900/50 border border-emerald-700 text-emerald-400 font-bold hover:bg-emerald-800/50 transition">WIN</button>
-                <button onclick="saveGameStatus('LOSS')" class="w-full text-left px-4 py-3 rounded-xl bg-rose-900/50 border border-rose-700 text-rose-400 font-bold hover:bg-rose-800/50 transition">LOSS</button>
-                <button onclick="saveGameStatus('RESCHEDULE')" class="w-full text-left px-4 py-3 rounded-xl bg-amber-900/50 border border-amber-700 text-amber-400 font-bold hover:bg-amber-800/50 transition">RESCHEDULE</button>
-                <button onclick="saveGameStatus('TBD')" class="w-full text-left px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 font-bold hover:bg-slate-700 transition">TBD (Upcoming)</button>
+            <div class="flex gap-3 mb-4">
+                <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-raf-light uppercase mb-1">Date</label>
+                    <input type="date" id="gameDateInput" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-white font-sans focus:outline-none focus:border-amber-400 text-xs">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-raf-light uppercase mb-1">Venue</label>
+                    <select id="gameVenueInput" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-white font-sans focus:outline-none focus:border-amber-400 text-xs">
+                        <option value="">N/A</option>
+                        <option value="Home">Home</option>
+                        <option value="Away">Away</option>
+                    </select>
+                </div>
+            </div>
+
+            <label class="block text-[10px] font-bold text-raf-light uppercase mb-2">Match Status</label>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <button onclick="saveGameStatus('WIN')" class="px-2 py-2 rounded-lg bg-emerald-900/50 border border-emerald-700 text-emerald-400 font-bold hover:bg-emerald-800/50 text-xs transition">WIN</button>
+                <button onclick="saveGameStatus('LOSS')" class="px-2 py-2 rounded-lg bg-rose-900/50 border border-rose-700 text-rose-400 font-bold hover:bg-rose-800/50 text-xs transition">LOSS</button>
+                <button onclick="saveGameStatus('RESCHEDULE')" class="px-2 py-2 rounded-lg bg-amber-900/50 border border-amber-700 text-amber-400 font-bold hover:bg-amber-800/50 text-xs transition">RESCHEDULE</button>
+                <button onclick="saveGameStatus('TBD')" class="px-2 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-bold hover:bg-slate-700 text-xs transition">TBD</button>
             </div>
             
             <div class="flex items-center gap-2">
                 <button onclick="closeModal('gameStatusModal')" class="flex-1 px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition">Cancel</button>
-                <button onclick="saveGameStatus(null)" class="flex-1 px-4 py-2 rounded-lg bg-amber-600 text-white font-bold text-sm hover:bg-amber-500 transition shadow-lg">Save Name Only</button>
+                <button onclick="saveGameStatus(null)" class="flex-1 px-4 py-2 rounded-lg bg-amber-600 text-white font-bold text-sm hover:bg-amber-500 transition shadow-lg">Save Details</button>
             </div>
         </div>
     </div>
@@ -397,9 +377,6 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ==========================================
-        // FIREBASE CONFIGURATION
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAeEpibfdonVRy6Y2KavSA39h4d9dwf_8Q",
             authDomain: "leeming-arrows-stats.firebaseapp.com",
@@ -410,80 +387,97 @@
             appId: "1:139260579419:web:84a7a685e0ba5a130b797e"
         };
 
-        // Application State
         let isAdmin = false;
         let activeEdit = { gameIdx: null, player: null };
         let activeGameEdit = null;
         let db, currentUser;
+        let sortMode = 'roster'; // 'roster' or 'ranked'
 
+        // Backwards compatibility data payload
         const DEFAULT_DATA = {
-            players: [
-                "Ben Townsend", "Brandon Ledger", "Nathan Lee", "David Goodfellow",
-                "Josh Mccarthy", "Marcus Blackmore", "Joseph Moore", "Pat Barron",
-                "Lewis Bell", "Dan Lovett", "Andy Gray"
-            ],
+            players: ["Ben Townsend", "Brandon Ledger", "Nathan Lee", "David Goodfellow", "Josh Mccarthy", "Marcus Blackmore", "Joseph Moore", "Pat Barron", "Lewis Bell", "Dan Lovett", "Andy Gray"],
             games: [
-                { title: "28 Sqn", status: "WIN", scores: { "Ben Townsend": 56.07, "Brandon Ledger": 44.21, "Nathan Lee": 54.88, "David Goodfellow": 48.74, "Josh Mccarthy": 60.12, "Marcus Blackmore": 64.9 } },
-                { title: "RAF Digby", status: "WIN", scores: { "Ben Townsend": 53.82, "Nathan Lee": 52.3, "David Goodfellow": 38.05, "Marcus Blackmore": 53.68, "Joseph Moore": 34.16, "Pat Barron": 49.56, "Lewis Bell": 41.75 } },
-                { title: "Waddington", status: "WIN", scores: { "Ben Townsend": 46.11, "Brandon Ledger": 40.25, "Nathan Lee": 61.35, "Josh Mccarthy": 34.85, "Joseph Moore": 36, "Pat Barron": 44.87, "Andy Gray": 46.97 } },
-                { title: "Lossiemouth", status: "WIN", scores: { "Ben Townsend": 39.59, "David Goodfellow": 52.36, "Pat Barron": 68.32, "Lewis Bell": 49.23, "Dan Lovett": 51.83, "Andy Gray": 47.18 } },
-                { title: "Brize", status: "LOSS", scores: { "Ben Townsend": 51.22, "Brandon Ledger": 45.79, "David Goodfellow": 61.38, "Marcus Blackmore": 61.35, "Pat Barron": 56.86, "Lewis Bell": 39.94, "Andy Gray": 42 } },
-                { title: "Cosford", status: "LOSS", scores: { "Ben Townsend": 42.32, "Marcus Blackmore": 51.81, "Joseph Moore": 42.3, "Lewis Bell": 51.83, "Dan Lovett": 47.57, "Andy Gray": 37.59 } },
-                { title: "Northolt", status: "RESCHEDULE", scores: {} },
-                { title: "Benson (Forfeit)", status: "WIN", scores: { "Nathan Lee": 50, "David Goodfellow": 50, "Josh Mccarthy": 50, "Marcus Blackmore": 50, "Joseph Moore": 50, "Pat Barron": 50, "Lewis Bell": 50, "Dan Lovett": 50, "Andy Gray": 50 } },
-                { title: "Marham", status: "WIN", scores: { "Ben Townsend": 47.73, "Brandon Ledger": 46.01, "David Goodfellow": 50.1, "Marcus Blackmore": 48.97, "Pat Barron": 53.58, "Andy Gray": 48.97 } },
-                { title: "Halton (Forfeit)", status: "WIN", scores: { "Nathan Lee": 50, "David Goodfellow": 50, "Josh Mccarthy": 50, "Marcus Blackmore": 50, "Joseph Moore": 50, "Lewis Bell": 50, "Dan Lovett": 50, "Andy Gray": 50 } },
-                { title: "Game 11", status: "TBD", scores: {} },
-                { title: "Game 12", status: "TBD", scores: {} }
+                { title: "28 Sqn", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 56.07, "Brandon Ledger": 44.21, "Nathan Lee": 54.88, "David Goodfellow": 48.74, "Josh Mccarthy": 60.12, "Marcus Blackmore": 64.9 } },
+                { title: "RAF Digby", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 53.82, "Nathan Lee": 52.3, "David Goodfellow": 38.05, "Marcus Blackmore": 53.68, "Joseph Moore": 34.16, "Pat Barron": 49.56, "Lewis Bell": 41.75 } },
+                { title: "Waddington", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 46.11, "Brandon Ledger": 40.25, "Nathan Lee": 61.35, "Josh Mccarthy": 34.85, "Joseph Moore": 36, "Pat Barron": 44.87, "Andy Gray": 46.97 } },
+                { title: "Lossiemouth", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 39.59, "David Goodfellow": 52.36, "Pat Barron": 68.32, "Lewis Bell": 49.23, "Dan Lovett": 51.83, "Andy Gray": 47.18 } },
+                { title: "Brize", status: "LOSS", date: "", venue: "", scores: { "Ben Townsend": 51.22, "Brandon Ledger": 45.79, "David Goodfellow": 61.38, "Marcus Blackmore": 61.35, "Pat Barron": 56.86, "Lewis Bell": 39.94, "Andy Gray": 42 } },
+                { title: "Cosford", status: "LOSS", date: "", venue: "", scores: { "Ben Townsend": 42.32, "Marcus Blackmore": 51.81, "Joseph Moore": 42.3, "Lewis Bell": 51.83, "Dan Lovett": 47.57, "Andy Gray": 37.59 } },
+                { title: "Northolt", status: "RESCHEDULE", date: "", venue: "", scores: {} },
+                { title: "Benson (Forfeit)", status: "WIN", date: "", venue: "", scores: { "Nathan Lee": 50, "David Goodfellow": 50, "Josh Mccarthy": 50, "Marcus Blackmore": 50, "Joseph Moore": 50, "Pat Barron": 50, "Lewis Bell": 50, "Dan Lovett": 50, "Andy Gray": 50 } },
+                { title: "Marham", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 47.73, "Brandon Ledger": 46.01, "David Goodfellow": 50.1, "Marcus Blackmore": 48.97, "Pat Barron": 53.58, "Andy Gray": 48.97 } },
+                { title: "Halton (Forfeit)", status: "WIN", date: "", venue: "", scores: { "Nathan Lee": 50, "David Goodfellow": 50, "Josh Mccarthy": 50, "Marcus Blackmore": 50, "Joseph Moore": 50, "Lewis Bell": 50, "Dan Lovett": 50, "Andy Gray": 50 } },
+                { title: "Game 11", status: "TBD", date: "", venue: "", scores: {} },
+                { title: "Game 12", status: "TBD", date: "", venue: "", scores: {} }
             ]
         };
 
-        let appData = JSON.parse(JSON.stringify(DEFAULT_DATA)); // Working copy
+        let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
 
         // ==========================================
-        // UI & ANIMATIONS
+        // SPA ROUTING & IFRAME (Back Button Handling)
         // ==========================================
         window.startApp = () => {
-            const splash = document.getElementById('splashScreen');
-            const main = document.getElementById('dashboardMain');
-            const header = document.getElementById('mainHeader');
-            
-            if (splash.classList.contains('launching')) return;
-            splash.classList.add('launching');
-
+            if (document.getElementById('splashScreen').classList.contains('launching')) return;
+            document.getElementById('splashScreen').classList.add('launching');
+            history.pushState({page: 'dashboard'}, "Dashboard", ""); // Add dashboard to history
             setTimeout(() => {
-                splash.style.visibility = 'hidden';
-                splash.classList.remove('launching');
-                
-                header.classList.remove('hidden');
-                main.classList.remove('hidden');
-                
-                void main.offsetWidth;
-                
-                main.classList.add('dashboard-ready');
-                header.classList.add('dashboard-ready');
+                document.getElementById('splashScreen').style.visibility = 'hidden';
+                document.getElementById('splashScreen').classList.remove('launching');
+                document.getElementById('mainHeader').classList.remove('hidden');
+                document.getElementById('dashboardMain').classList.remove('hidden');
+                document.getElementById('dashboardMain').classList.add('dashboard-ready');
+                document.getElementById('mainHeader').classList.add('dashboard-ready');
             }, 900);
         };
 
         window.goHome = () => {
-            const splash = document.getElementById('splashScreen');
-            const main = document.getElementById('dashboardMain');
-            const header = document.getElementById('mainHeader');
-            
-            splash.style.visibility = 'visible';
-            header.classList.add('hidden');
-            main.classList.add('hidden');
-            main.classList.remove('dashboard-ready');
-            header.classList.remove('dashboard-ready');
+            // Push home state so browser doesn't trap us
+            history.pushState({page: 'home'}, "Home", "");
+            triggerHomeUI();
         };
 
-        window.openInstallModal = () => {
-            document.getElementById('installModal').classList.remove('hidden');
+        const triggerHomeUI = () => {
+            document.getElementById('splashScreen').style.visibility = 'visible';
+            document.getElementById('mainHeader').classList.add('hidden');
+            document.getElementById('dashboardMain').classList.add('hidden');
+            document.getElementById('dashboardMain').classList.remove('dashboard-ready');
+            document.getElementById('mainHeader').classList.remove('dashboard-ready');
+            window.scrollTo(0,0);
         };
 
+        window.openExternalLink = (url, title) => {
+            document.getElementById('externalIframe').src = url;
+            document.getElementById('iframeTitle').innerText = title;
+            document.getElementById('iframeOverlay').classList.remove('hidden');
+            history.pushState({iframe: true}, "External", ""); // Hijack back button
+        };
+
+        window.closeExternalLink = () => {
+            document.getElementById('iframeOverlay').classList.add('hidden');
+            document.getElementById('externalIframe').src = "";
+        };
+
+        // Listen for hardware/browser back button
+        window.addEventListener('popstate', (e) => {
+            if (!document.getElementById('iframeOverlay').classList.contains('hidden')) {
+                // If Iframe is open, close it, don't leave site
+                closeExternalLink();
+            } else if (!document.getElementById('dashboardMain').classList.contains('hidden')) {
+                // If Dashboard is open, go back to Splash
+                triggerHomeUI();
+            }
+        });
+
         // ==========================================
-        // TABLE RENDERING ENGINE
+        // DATA RENDERING
         // ==========================================
+        window.toggleSort = () => {
+            sortMode = sortMode === 'roster' ? 'ranked' : 'roster';
+            document.getElementById('sortLabel').innerText = sortMode === 'roster' ? 'Sort: Roster' : 'Sort: Ranked';
+            renderTable();
+        };
+
         const renderTable = () => {
             let wins = 0, losses = 0, reschedules = 0;
             let highestSeasonAve = 0, highestSeasonPlayer = "-";
@@ -491,33 +485,36 @@
             let totalScoreSum = 0, totalScoreCount = 0;
 
             const playerStats = {};
-            appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0 });
+            appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0, ave: 0 });
 
-            // Analyze Match Data
+            // Analyze
             appData.games.forEach(g => {
                 if (g.status === 'WIN') wins++;
                 if (g.status === 'LOSS') losses++;
                 if (g.status === 'RESCHEDULE') reschedules++;
-                
                 Object.entries(g.scores || {}).forEach(([pName, score]) => {
                     const num = Number(score);
                     if (!isNaN(num) && playerStats[pName]) {
                         playerStats[pName].played++;
                         playerStats[pName].sum += num;
                         if (num > playerStats[pName].high) playerStats[pName].high = num;
-                        
-                        // Global Trackers
-                        if (num > bestSingleGame) {
-                            bestSingleGame = num;
-                            bestSinglePlayer = pName;
-                        }
-                        totalScoreSum += num;
-                        totalScoreCount++;
+                        if (num > bestSingleGame) { bestSingleGame = num; bestSinglePlayer = pName; }
+                        totalScoreSum += num; totalScoreCount++;
                     }
                 });
             });
 
-            // Update Header Stats
+            appData.players.forEach(p => {
+                if (playerStats[p].played > 0) {
+                    playerStats[p].ave = playerStats[p].sum / playerStats[p].played;
+                    if (playerStats[p].ave > highestSeasonAve) {
+                        highestSeasonAve = playerStats[p].ave;
+                        highestSeasonPlayer = p;
+                    }
+                }
+            });
+
+            // Update DOM Header
             document.getElementById('statWins').textContent = wins;
             document.getElementById('statLosses').textContent = losses;
             document.getElementById('statReschedule').textContent = reschedules;
@@ -525,51 +522,57 @@
             document.getElementById('statBestSinglePlayer').textContent = bestSinglePlayer;
             document.getElementById('statTeamAve').textContent = totalScoreCount > 0 ? (totalScoreSum / totalScoreCount).toFixed(2) : "0.00";
 
-            // Render Matrix Header
+            // Sorting logic
+            let displayOrder = [...appData.players];
+            if (sortMode === 'ranked') {
+                displayOrder.sort((a, b) => playerStats[b].ave - playerStats[a].ave);
+            }
+
+            // Headers
             const thead = document.getElementById('matrixThead');
             let headHTML = `<tr class="border-b border-slate-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
-                <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[140px] sm:min-w-[190px] border-r border-slate-800">PLAYER NAME</th>
+                <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[150px] sm:min-w-[210px] border-r border-slate-800">PLAYER NAME</th>
                 <th class="sticky-col-2 bg-slate-900 text-raf-light py-3 px-2 text-center min-w-[80px] border-r border-slate-700">SEASON AVE</th>
-                <th class="bg-slate-900 text-emerald-400 py-3 px-2 text-center min-w-[70px] border-r border-slate-700" title="Games Played">GP</th>
+                <th class="bg-slate-900 text-emerald-400 py-3 px-2 text-center min-w-[60px] border-r border-slate-700" title="Games Played">GP</th>
                 <th class="bg-slate-900 text-amber-400 py-3 px-2 text-center min-w-[70px] border-r border-slate-700" title="Best Average">BEST</th>
             `;
             
             appData.games.forEach((g, idx) => {
                 const clickHandler = isAdmin ? `onclick="openEditGameStatus(${idx})"` : '';
-                const cursor = isAdmin ? 'cursor-pointer hover:brightness-110' : '';
-                headHTML += `<th ${clickHandler} class="status-${g.status} ${cursor} py-2 px-2 text-center min-w-[110px] border-r border-slate-900/40 transition">
-                    Game ${idx + 1}<br><span class="text-[10px] font-normal opacity-90">${g.title}</span>
+                const cursor = isAdmin ? 'admin-header' : '';
+                const displayDate = g.date ? new Date(g.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short'}) : '';
+                const detailStr = [displayDate, g.venue].filter(Boolean).join(' • ');
+
+                headHTML += `<th ${clickHandler} class="status-${g.status} ${cursor} py-2 px-2 text-center min-w-[120px] border-r border-slate-900/40 transition">
+                    Game ${idx + 1}<br>
+                    <span class="text-[11px] font-normal opacity-95">${g.title}</span>
+                    ${detailStr ? `<br><span class="text-[9px] font-mono font-normal opacity-70">${detailStr}</span>` : ''}
                 </th>`;
             });
             thead.innerHTML = headHTML + `</tr>`;
 
-            // Render Body and calculate highest season average
+            // Body
             const tbody = document.getElementById('matrixTbody');
             const tableWrap = document.getElementById('tableWrapper');
-            if (isAdmin) tableWrap.classList.add('admin-active');
-            else tableWrap.classList.remove('admin-active');
+            if (isAdmin) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
 
             let bodyHTML = '';
-            appData.players.forEach(player => {
+            displayOrder.forEach((player, rankIdx) => {
                 const stat = playerStats[player];
-                let aveDisplay = '--';
+                const aveDisplay = stat.played > 0 ? stat.ave.toFixed(2) : '--';
+                const highDisplay = stat.high > 0 ? stat.high.toFixed(2) : '--';
                 
-                if (stat.played > 0) {
-                    const ave = stat.sum / stat.played;
-                    aveDisplay = ave.toFixed(2);
-                    if (ave > highestSeasonAve) {
-                        highestSeasonAve = ave;
-                        highestSeasonPlayer = player;
-                    }
-                }
+                // Trophy for #1 in Ranked mode
+                const nameTrophy = (sortMode === 'ranked' && rankIdx === 0 && stat.played > 0) 
+                    ? `<i class="fa-solid fa-trophy text-amber-400 ml-2 shadow-sm" title="#1 Ranked"></i>` : '';
 
-                const high = stat.high > 0 ? stat.high.toFixed(2) : '--';
-                
                 bodyHTML += `<tr class="hover:bg-slate-800/40 transition">
-                    <td class="sticky-col-1 bg-slate-900 text-slate-100 font-semibold py-2 px-3 border-r border-slate-800 whitespace-nowrap">${player}</td>
+                    <td class="sticky-col-1 bg-slate-900 text-slate-100 font-semibold py-2 px-3 border-r border-slate-800 whitespace-nowrap group">
+                        <span class="cursor-pointer hover:text-emerald-400 transition" onclick="openPlayerGraph('${player}')">${player} ${nameTrophy}</span>
+                    </td>
                     <td class="sticky-col-2 bg-slate-900/95 font-mono font-bold text-sky-400 py-2 px-2 text-center border-r border-slate-700">${aveDisplay}</td>
                     <td class="bg-slate-900/50 font-mono text-emerald-400/80 py-2 px-2 text-center border-r border-slate-800">${stat.played}</td>
-                    <td class="bg-slate-900/50 font-mono text-amber-400/80 py-2 px-2 text-center border-r border-slate-800">${high}</td>
+                    <td class="bg-slate-900/50 font-mono text-amber-400/80 py-2 px-2 text-center border-r border-slate-800">${highDisplay}</td>
                 `;
 
                 appData.games.forEach((g, gIdx) => {
@@ -589,18 +592,17 @@
             });
             tbody.innerHTML = bodyHTML;
 
-            // Set final Best Overall stat
+            // Footer Best Stat Match
             document.getElementById('statBestOverall').textContent = highestSeasonAve > 0 ? highestSeasonAve.toFixed(2) : "0.00";
             document.getElementById('statBestOverallPlayer').textContent = highestSeasonPlayer;
 
-            // Render Footer
+            // Footer Average
             const tfoot = document.getElementById('matrixTfoot');
             let footHTML = `<tr class="bg-slate-950 border-t-2 border-slate-700 font-mono text-[11px] font-bold">
                 <td class="sticky-col-1 bg-slate-950 text-raf-light py-3 px-3 border-r border-slate-800 uppercase font-sans">TEAM GAME AVE</td>
                 <td class="sticky-col-2 bg-slate-950 border-r border-slate-700"></td>
                 <td class="bg-slate-950 border-r border-slate-800"></td>
                 <td class="bg-slate-950 border-r border-slate-800"></td>`;
-            
             appData.games.forEach((g) => {
                 const scores = Object.values(g.scores || {});
                 const gameAve = scores.length > 0 ? (scores.reduce((a,b)=>a+Number(b),0)/scores.length).toFixed(2) : '--';
@@ -610,8 +612,60 @@
         };
 
         // ==========================================
+        // CHART.JS FORM GRAPHS
+        // ==========================================
+        let playerChartInstance = null;
+        window.openPlayerGraph = (playerName) => {
+            const labels = [];
+            const dataPts = [];
+            
+            appData.games.forEach((g, idx) => {
+                if (g.scores && g.scores[playerName] !== undefined) {
+                    labels.push(g.title || `Game ${idx+1}`);
+                    dataPts.push(Number(g.scores[playerName]));
+                }
+            });
+
+            document.getElementById('graphTitle').innerHTML = `<i class="fa-solid fa-chart-line text-emerald-400"></i> ${playerName}`;
+            document.getElementById('graphModal').classList.remove('hidden');
+
+            const ctx = document.getElementById('playerChart').getContext('2d');
+            if (playerChartInstance) playerChartInstance.destroy();
+
+            playerChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Match Average',
+                        data: dataPts,
+                        borderColor: '#34d399', // emerald-400
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#f59e0b', // amber-500
+                        pointRadius: 5,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', maxRotation: 45, minRotation: 45 } }
+                    }
+                }
+            });
+        };
+
+        // ==========================================
         // ADMIN & EDITING
         // ==========================================
+        window.openInstallModal = () => document.getElementById('installModal').classList.remove('hidden');
+        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+
         window.openAuthModal = () => {
             if (isAdmin) {
                 isAdmin = false;
@@ -624,8 +678,6 @@
                 setTimeout(() => document.getElementById('adminPassInput').focus(), 50);
             }
         };
-
-        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
 
         window.submitAuth = () => {
             if (document.getElementById('adminPassInput').value === 'Leemingdarts') {
@@ -641,26 +693,76 @@
         const updateAuthUI = () => {
             const btn = document.getElementById('adminBtn');
             const pill = document.getElementById('authStatusPill');
+            const toolbox = document.getElementById('adminToolbox');
             if (isAdmin) {
                 btn.innerHTML = `<i class="fa-solid fa-lock-open"></i> Lock Editing`;
                 btn.className = "hidden sm:flex px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm items-center gap-2 shadow-lg transition whitespace-nowrap";
                 pill.innerHTML = `<i class="fa-solid fa-pen-to-square text-emerald-400"></i><span class="font-bold text-emerald-400">Edit Mode</span>`;
+                toolbox.classList.remove('hidden');
             } else {
                 btn.innerHTML = `<i class="fa-solid fa-lock"></i> Admin Unlock`;
                 btn.className = "hidden sm:flex px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm items-center gap-2 shadow-lg transition whitespace-nowrap";
                 pill.innerHTML = `<i class="fa-solid fa-eye text-slate-400"></i><span class="font-medium text-slate-300">View-Only</span>`;
+                toolbox.classList.add('hidden');
             }
         };
 
+        // ADMIN TOOLBOX FUNCTIONS
+        window.promptAddPlayer = async () => {
+            const name = prompt("Enter new player's full name:");
+            if (name && name.trim()) {
+                appData.players.push(name.trim());
+                renderTable();
+                await saveToCloud();
+            }
+        };
+
+        window.promptAddGame = async () => {
+            const title = prompt("Enter new fixture/opponent name:");
+            if (title && title.trim()) {
+                appData.games.push({ title: title.trim(), status: 'TBD', date: '', venue: '', scores: {} });
+                renderTable();
+                await saveToCloud();
+            }
+        };
+
+        window.exportCSV = () => {
+            let csv = "Player Name,Season Average,Games Played,Best Average";
+            appData.games.forEach((g, i) => csv += `,Game ${i+1} (${g.title})`);
+            csv += "\n";
+
+            appData.players.forEach(p => {
+                let sum = 0, count = 0, best = 0;
+                let rowScores = appData.games.map(g => {
+                    const s = g.scores ? g.scores[p] : undefined;
+                    if (s !== undefined) {
+                        sum += Number(s); count++;
+                        if(Number(s) > best) best = Number(s);
+                        return s;
+                    }
+                    return "DNP";
+                });
+                let ave = count > 0 ? (sum/count).toFixed(2) : "--";
+                let bestStr = best > 0 ? best.toFixed(2) : "--";
+                csv += `"${p}",${ave},${count},${bestStr},` + rowScores.join(",") + "\n";
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "Leeming_Arrows_Stats_Backup.csv";
+            a.click();
+        };
+
+        // CELL & GAME EDITING
         window.openEditCell = (gameIdx, player) => {
             if (!isAdmin) return;
             activeEdit = { gameIdx, player };
             const game = appData.games[gameIdx];
             document.getElementById('cellModalTitle').textContent = player;
             document.getElementById('cellModalSub').textContent = `Game ${gameIdx + 1}: ${game.title}`;
-            
-            const existing = game.scores ? game.scores[player] : null;
-            document.getElementById('cellScoreInput').value = existing || '';
+            document.getElementById('cellScoreInput').value = (game.scores && game.scores[player]) ? game.scores[player] : '';
             document.getElementById('cellModal').classList.remove('hidden');
             setTimeout(() => document.getElementById('cellScoreInput').focus(), 50);
         };
@@ -669,13 +771,8 @@
             const { gameIdx, player } = activeEdit;
             const game = appData.games[gameIdx];
             if (!game.scores) game.scores = {};
-
-            if (valueStr === null || valueStr.trim() === "") {
-                delete game.scores[player];
-            } else {
-                game.scores[player] = Number(valueStr);
-            }
-            
+            if (valueStr === null || valueStr.trim() === "") delete game.scores[player];
+            else game.scores[player] = Number(valueStr);
             renderTable();
             closeModal('cellModal');
             await saveToCloud();
@@ -685,16 +782,24 @@
             if (!isAdmin) return;
             activeGameEdit = gameIdx;
             const game = appData.games[gameIdx];
-            document.getElementById('gameTitleInput').value = game.title;
+            document.getElementById('gameTitleInput').value = game.title || "";
+            document.getElementById('gameDateInput').value = game.date || "";
+            document.getElementById('gameVenueInput').value = game.venue || "";
             document.getElementById('gameStatusModal').classList.remove('hidden');
             setTimeout(() => document.getElementById('gameTitleInput').focus(), 50);
         };
 
         window.saveGameStatus = async (status) => {
             if (activeGameEdit !== null) {
+                const game = appData.games[activeGameEdit];
                 const newTitle = document.getElementById('gameTitleInput').value.trim();
-                if (newTitle) appData.games[activeGameEdit].title = newTitle;
-                if (status) appData.games[activeGameEdit].status = status;
+                const newDate = document.getElementById('gameDateInput').value;
+                const newVenue = document.getElementById('gameVenueInput').value;
+                
+                if (newTitle) game.title = newTitle;
+                game.date = newDate;
+                game.venue = newVenue;
+                if (status) game.status = status;
                 
                 renderTable();
                 closeModal('gameStatusModal');
@@ -703,7 +808,7 @@
         };
 
         // ==========================================
-        // FIREBASE CLOUD SYNC LOGIC
+        // FIREBASE CLOUD SYNC
         // ==========================================
         const setSyncStatus = (status, icon, colorClass) => {
             const badge = document.getElementById('cloudSyncBadge');
@@ -716,17 +821,17 @@
                 const app = initializeApp(firebaseConfig);
                 const auth = getAuth(app);
                 db = getFirestore(app);
-
                 await signInAnonymously(auth);
 
                 onAuthStateChanged(auth, (user) => {
                     currentUser = user;
                     if (user && db) {
                         const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDocV2');
-                        
                         onSnapshot(docRef, (snapshot) => {
                             if (snapshot.exists()) {
                                 appData = JSON.parse(snapshot.data().payload);
+                                // Safety check for old payload formats without date/venue
+                                appData.games.forEach(g => { g.date = g.date || ""; g.venue = g.venue || ""; });
                                 renderTable();
                                 setSyncStatus("Live Sync On", "fa-satellite-dish animate-pulse", "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40");
                             } else {
@@ -750,20 +855,14 @@
             if (db && currentUser) {
                 try {
                     const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDocV2');
-                    await setDoc(docRef, { 
-                        payload: JSON.stringify(appData), 
-                        updatedAt: Date.now(),
-                        updatedBy: currentUser.uid 
-                    });
+                    await setDoc(docRef, { payload: JSON.stringify(appData), updatedAt: Date.now(), updatedBy: currentUser.uid });
                 } catch (e) {
                     console.error("Save Error:", e);
-                    alert("Error saving to cloud. Make sure Firestore Database is created in Test Mode inside your Firebase Console.");
                 }
             }
         }
 
         document.addEventListener('DOMContentLoaded', initFirebase);
-
     </script>
 </body>
 </html>
