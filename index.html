@@ -133,6 +133,7 @@
                         <span class="font-display font-bold text-white tracking-wider text-[10px] sm:text-sm text-center block w-full uppercase">LOCAL TOURNAMENT</span>
                     </div>
                 </button>
+                <!-- New 100,000 Points Tracker -->
                 <button onclick="openExternalLink('https://townsendb102.github.io/100000points/', '100,000 Points Tracker')" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-indigo-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
                     <img src="100k.jpg" alt="100K Tracker" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e1b4b/818cf8?text=100K+Tracker'">
                     <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
@@ -165,6 +166,7 @@
                     <i class="fa-solid fa-bullseye"></i> 100K Tracker
                 </button>
 
+                <!-- Archive Season Selector -->
                 <select id="seasonSelector" onchange="switchSeason()" class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-sky-400 focus:outline-none hidden">
                     <option value="current">Current Season</option>
                 </select>
@@ -635,6 +637,9 @@
                 if (g.status === 'RESCHEDULE') reschedules++;
                 
                 Object.entries(g.scores || {}).forEach(([pName, score]) => {
+                    // Only count stats for active roster members in the summary!
+                    if (!appData.players.includes(pName)) return;
+
                     const num = Number(score);
                     if (!isNaN(num)) {
                         if (!playerStats[pName]) playerStats[pName] = { played: 0, sum: 0, high: 0, ave: 0 };
@@ -649,9 +654,8 @@
                 });
             });
 
-            // Ensure only currently active roster members can hold the "Best Overall" crown
-            appData.players.forEach(pName => {
-                if (playerStats[pName] && playerStats[pName].played > 0) {
+            Object.keys(playerStats).forEach(pName => {
+                if (playerStats[pName].played > 0) {
                     playerStats[pName].ave = playerStats[pName].sum / playerStats[pName].played;
                     if (playerStats[pName].ave > highestSeasonAve) {
                         highestSeasonAve = playerStats[pName].ave;
@@ -748,8 +752,11 @@
                 <td class="bg-slate-950 border-r border-slate-800"></td>
                 <td class="bg-slate-950 border-r border-slate-800"></td>`;
             gamesToRender.forEach((g) => {
-                const scores = Object.values(g.scores || {});
-                const gameAve = scores.length > 0 ? (scores.reduce((a,b)=>a+Number(b),0)/scores.length).toFixed(2) : '--';
+                // Ensure only active players count toward Team Game Average
+                const activeScores = Object.entries(g.scores || {})
+                    .filter(([pName]) => appData.players.includes(pName))
+                    .map(([, score]) => score);
+                const gameAve = activeScores.length > 0 ? (activeScores.reduce((a,b)=>a+Number(b),0)/activeScores.length).toFixed(2) : '--';
                 footHTML += `<td class="py-3 px-3 text-right text-emerald-400 border-r border-slate-800 bg-slate-950/90">${gameAve}</td>`;
             });
             tfoot.innerHTML = footHTML + `</tr>`;
