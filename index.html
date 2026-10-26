@@ -2,8 +2,21 @@
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PLAYER STATS | RAF LEEMING ARROWS</title>
+    
+    <!-- App Icon & PWA Setup pointing to logo.jpg -->
+    <link rel="icon" type="image/jpeg" href="logo.jpg">
+    <link rel="apple-touch-icon" href="logo.jpg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Arrows Stats">
+    <meta name="application-name" content="Arrows Stats">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#020617">
+    <!-- Embedded Manifest for Android/Chrome -->
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22RAF%20Leeming%20Arrows%22%2C%22short_name%22%3A%22Arrows%20Stats%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23020617%22%2C%22theme_color%22%3A%22%23020617%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%2C%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D'>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -148,12 +161,9 @@
 
     <!-- MAIN APP HEADER -->
     <header id="mainHeader" class="bg-slate-900/95 border-b border-slate-800 sticky top-0 z-40 backdrop-blur opacity-0 hidden">
-        <div class="max-w-[1600px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <button onclick="goHome()" title="Back to Home Logo" class="w-12 h-12 rounded-full border border-slate-700 bg-black overflow-hidden hover:border-amber-400 transition hidden sm:block">
-                    <img src="logo.jpg" alt="Logo" class="w-full h-full object-contain" onerror="this.style.display='none'"/>
-                </button>
-                <div>
+        <div class="max-w-[1600px] mx-auto px-4 py-3 flex flex-col sm:flex-row flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex flex-col">
                     <div class="flex items-center gap-2 mb-0.5">
                         <span id="cloudSyncBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center gap-1.5">
                             <i class="fa-solid fa-circle-notch fa-spin"></i> Connecting Database...
@@ -163,18 +173,29 @@
                         PLAYER STATS <span class="text-raf-light">| LEEMING ARROWS</span>
                     </h1>
                 </div>
+                
+                <!-- Mobile Only Admin Button -->
+                <button onclick="openAuthModal()" class="sm:hidden px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg transition">
+                    <i class="fa-solid fa-lock"></i>
+                </button>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end overflow-x-auto pb-1 sm:pb-0">
+                <button onclick="openInstallModal()" class="flex-1 sm:flex-none px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition whitespace-nowrap">
+                    <i class="fa-solid fa-mobile-screen"></i> App Instructions
+                </button>
+                
                 <div id="authStatusPill" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-sm">
                     <i class="fa-solid fa-eye text-slate-400"></i>
                     <span class="font-medium text-slate-300">View-Only</span>
                 </div>
-                <button id="adminBtn" onclick="openAuthModal()" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-lg transition">
+                
+                <button id="adminBtn" onclick="openAuthModal()" class="hidden sm:flex px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm items-center gap-2 shadow-lg transition whitespace-nowrap">
                     <i class="fa-solid fa-lock"></i> Admin Unlock
                 </button>
-                <button onclick="goHome()" class="sm:hidden px-3 py-2 rounded-lg bg-slate-800 text-white border border-slate-700">
-                    <i class="fa-solid fa-house"></i>
+
+                <button onclick="goHome()" class="flex-1 sm:flex-none px-3 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 font-bold text-xs sm:text-sm hover:bg-slate-700 hover:border-raf-light flex items-center justify-center gap-2 transition whitespace-nowrap">
+                    <i class="fa-solid fa-house"></i> Home
                 </button>
             </div>
         </div>
@@ -260,6 +281,50 @@
     </main>
 
     <!-- MODALS -->
+    <!-- App Install Instructions Modal -->
+    <div id="installModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all relative">
+            <button onclick="closeModal('installModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="font-display text-2xl font-bold text-white uppercase mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-mobile-screen text-sky-400"></i> Install as App
+            </h3>
+            
+            <div class="space-y-6">
+                <!-- Apple Instructions -->
+                <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                    <h4 class="font-bold text-white flex items-center gap-2 mb-2">
+                        <i class="fa-brands fa-apple text-xl"></i> Apple (iPhone / iPad)
+                    </h4>
+                    <ol class="list-decimal list-inside text-sm text-slate-300 space-y-1.5 ml-1">
+                        <li>Open this page in the <strong class="text-white">Safari</strong> browser.</li>
+                        <li>Tap the <strong class="text-white">Share</strong> icon at the bottom <i class="fa-solid fa-arrow-up-from-bracket mx-1 text-slate-400"></i>.</li>
+                        <li>Scroll down and select <strong class="text-sky-400">"Add to Home Screen"</strong>.</li>
+                        <li>Tap <strong>Add</strong> in the top right.</li>
+                    </ol>
+                </div>
+
+                <!-- Android Instructions -->
+                <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                    <h4 class="font-bold text-white flex items-center gap-2 mb-2">
+                        <i class="fa-brands fa-android text-emerald-400 text-xl"></i> Android
+                    </h4>
+                    <ol class="list-decimal list-inside text-sm text-slate-300 space-y-1.5 ml-1">
+                        <li>Open this page in the <strong class="text-white">Chrome</strong> browser.</li>
+                        <li>Tap the <strong class="text-white">Menu</strong> icon (three dots) in the top right <i class="fa-solid fa-ellipsis-vertical mx-1 text-slate-400"></i>.</li>
+                        <li>Select <strong class="text-sky-400">"Add to Home screen"</strong>.</li>
+                        <li>Tap <strong>Add</strong> to confirm.</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <button onclick="closeModal('installModal')" class="mt-6 w-full px-4 py-3 rounded-xl bg-slate-800 text-white font-bold text-sm hover:bg-slate-700 transition">
+                Got it
+            </button>
+        </div>
+    </div>
+
     <!-- Auth Modal -->
     <div id="authModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl transform transition-all">
@@ -346,7 +411,6 @@
         let activeGameEdit = null;
         let db, currentUser;
 
-        // EXACT Corrected Initial Default Data
         const DEFAULT_DATA = {
             players: [
                 "Ben Townsend", "Brandon Ledger", "Nathan Lee", "David Goodfellow",
@@ -406,6 +470,10 @@
             main.classList.add('hidden');
             main.classList.remove('dashboard-ready');
             header.classList.remove('dashboard-ready');
+        };
+
+        window.openInstallModal = () => {
+            document.getElementById('installModal').classList.remove('hidden');
         };
 
         // ==========================================
@@ -570,11 +638,11 @@
             const pill = document.getElementById('authStatusPill');
             if (isAdmin) {
                 btn.innerHTML = `<i class="fa-solid fa-lock-open"></i> Lock Editing`;
-                btn.className = "px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm flex items-center gap-2 shadow-lg transition";
+                btn.className = "hidden sm:flex px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm items-center gap-2 shadow-lg transition whitespace-nowrap";
                 pill.innerHTML = `<i class="fa-solid fa-pen-to-square text-emerald-400"></i><span class="font-bold text-emerald-400">Edit Mode</span>`;
             } else {
                 btn.innerHTML = `<i class="fa-solid fa-lock"></i> Admin Unlock`;
-                btn.className = "px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-lg transition";
+                btn.className = "hidden sm:flex px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm items-center gap-2 shadow-lg transition whitespace-nowrap";
                 pill.innerHTML = `<i class="fa-solid fa-eye text-slate-400"></i><span class="font-medium text-slate-300">View-Only</span>`;
             }
         };
@@ -649,8 +717,6 @@
                 onAuthStateChanged(auth, (user) => {
                     currentUser = user;
                     if (user && db) {
-                        // NOTE: Changed document path to mainDocV2 to push the fresh corrected image data 
-                        // overriding any bad data previously saved in your database
                         const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDocV2');
                         
                         onSnapshot(docRef, (snapshot) => {
