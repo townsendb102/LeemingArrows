@@ -94,6 +94,7 @@
         .launching #shockwave2 { animation: flashShockwave 0.9s 0.1s ease-out forwards; }
         .launching #whiteout { animation: whiteoutFade 1s ease-out forwards; }
         .launching #extraLinks { opacity: 0; transition: opacity 0.3s ease-out; pointer-events: none; }
+        .launching #installAppBtn { opacity: 0; pointer-events: none; transition: opacity 0.3s ease-out; }
 
         @keyframes dashboardEnter {
             0% { opacity: 0; transform: translateY(30px) scale(0.98); }
@@ -123,39 +124,47 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-raf-blue overflow-x-hidden">
 
     <!-- SPLASH SCREEN -->
-    <div id="splashScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4">
-        <div id="whiteout" class="pointer-events-none absolute inset-0 bg-white opacity-0 z-20"></div>
-        <div id="shockwave1" class="pointer-events-none absolute top-1/2 left-1/2 w-48 h-48 rounded-full border-amber-400 opacity-0 z-20"></div>
-        <div id="shockwave2" class="pointer-events-none absolute top-1/2 left-1/2 w-48 h-48 rounded-full border-sky-400 opacity-0 z-20"></div>
-
-        <div id="logoWrapper" class="relative z-10 flex flex-col items-center max-w-xl w-full cursor-pointer" onclick="startApp()">
-            <img id="homeLogoImg" src="logo.jpg" alt="RAF Leeming Arrows" class="logo-idle w-full max-w-[400px] object-contain mb-8 shadow-2xl" onerror="this.src='https://placehold.co/400x400/000000/F59E0B?text=Missing+logo.jpg'"/>
+    <div id="splashScreen" class="fixed inset-0 z-50 overflow-y-auto bg-black">
+        <div class="flex flex-col items-center justify-center min-h-screen p-4 py-12 relative w-full">
             
-            <button onclick="startApp(); event.stopPropagation();" class="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-raf-blue to-amber-500 p-[2px] shadow-[0_0_40px_rgba(245,158,11,0.4)] hover:shadow-[0_0_60px_rgba(245,158,11,0.8)] transition-all active:scale-95 z-30">
-                <div class="flex items-center gap-3 rounded-[14px] bg-black px-8 py-4 transition group-hover:bg-zinc-900">
-                    <i class="fa-solid fa-bullseye text-amber-400 text-xl group-hover:rotate-90 transition-transform duration-500"></i>
-                    <span class="font-display text-2xl font-bold tracking-widest uppercase text-white group-hover:text-amber-200">
-                        CLICK FOR CLUB AVERAGES
-                    </span>
-                </div>
+            <!-- App Install Button on Home Screen -->
+            <button id="installAppBtn" onclick="openInstallModal()" class="absolute top-4 right-4 z-40 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-400 hover:text-sky-400 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition">
+                <i class="fa-solid fa-mobile-screen"></i> App Instructions
             </button>
-        </div>
 
-        <!-- EXTRA LINKS -->
-        <div id="extraLinks" class="mt-12 flex flex-row gap-6 z-30 relative">
-            <a href="https://townsendb102.github.io/RAFDA/" target="_blank" rel="noopener noreferrer" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-raf-blue shadow-lg transition-all hover:scale-105 flex flex-col items-center w-40 sm:w-48 h-28 sm:h-32">
-                <img src="rafda.jpg" alt="RAFDA Scorer" class="w-full h-full object-cover bg-white" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+rafda.jpg'">
-                <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
-                    <span class="font-display font-bold text-white tracking-wider text-xs sm:text-sm text-center block w-full uppercase">RAFDA SCORER</span>
-                </div>
-            </a>
+            <div id="whiteout" class="pointer-events-none absolute inset-0 bg-white opacity-0 z-20 fixed"></div>
+            <div id="shockwave1" class="pointer-events-none absolute top-1/2 left-1/2 w-48 h-48 rounded-full border-amber-400 opacity-0 z-20 fixed"></div>
+            <div id="shockwave2" class="pointer-events-none absolute top-1/2 left-1/2 w-48 h-48 rounded-full border-sky-400 opacity-0 z-20 fixed"></div>
 
-            <a href="https://townsendb102.github.io/Darts-tournament/" target="_blank" rel="noopener noreferrer" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-40 sm:w-48 h-28 sm:h-32">
-                <img src="tournament.jpg" alt="Local Tournament" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+tournament.jpg'">
-                <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
-                    <span class="font-display font-bold text-white tracking-wider text-xs sm:text-sm text-center block w-full uppercase">LOCAL TOURNAMENT</span>
-                </div>
-            </a>
+            <div id="logoWrapper" class="relative z-10 flex flex-col items-center max-w-xl w-full cursor-pointer mt-4" onclick="startApp()">
+                <img id="homeLogoImg" src="logo.jpg" alt="RAF Leeming Arrows" class="logo-idle w-full max-w-[280px] sm:max-w-[400px] object-contain mb-8 shadow-2xl" onerror="this.src='https://placehold.co/400x400/000000/F59E0B?text=Missing+logo.jpg'"/>
+                
+                <button onclick="startApp(); event.stopPropagation();" class="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-raf-blue to-amber-500 p-[2px] shadow-[0_0_40px_rgba(245,158,11,0.4)] hover:shadow-[0_0_60px_rgba(245,158,11,0.8)] transition-all active:scale-95 z-30">
+                    <div class="flex items-center gap-3 rounded-[14px] bg-black px-6 sm:px-8 py-3 sm:py-4 transition group-hover:bg-zinc-900">
+                        <i class="fa-solid fa-bullseye text-amber-400 text-lg sm:text-xl group-hover:rotate-90 transition-transform duration-500"></i>
+                        <span class="font-display text-lg sm:text-2xl font-bold tracking-widest uppercase text-white group-hover:text-amber-200">
+                            CLICK FOR CLUB AVERAGES
+                        </span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- EXTRA LINKS -->
+            <div id="extraLinks" class="mt-8 sm:mt-12 flex flex-row gap-4 sm:gap-6 z-30 relative">
+                <a href="https://townsendb102.github.io/RAFDA/" target="_blank" rel="noopener noreferrer" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-raf-blue shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
+                    <img src="rafda.jpg" alt="RAFDA Scorer" class="w-full h-full object-cover bg-white" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+rafda.jpg'">
+                    <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
+                        <span class="font-display font-bold text-white tracking-wider text-[10px] sm:text-sm text-center block w-full uppercase">RAFDA SCORER</span>
+                    </div>
+                </a>
+
+                <a href="https://townsendb102.github.io/Darts-tournament/" target="_blank" rel="noopener noreferrer" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
+                    <img src="tournament.jpg" alt="Local Tournament" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+tournament.jpg'">
+                    <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
+                        <span class="font-display font-bold text-white tracking-wider text-[10px] sm:text-sm text-center block w-full uppercase">LOCAL TOURNAMENT</span>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -180,11 +189,7 @@
                 </button>
             </div>
 
-            <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end overflow-x-auto pb-1 sm:pb-0">
-                <button onclick="openInstallModal()" class="flex-1 sm:flex-none px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition whitespace-nowrap">
-                    <i class="fa-solid fa-mobile-screen"></i> App Instructions
-                </button>
-                
+            <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end overflow-x-auto pb-1 sm:pb-0">
                 <div id="authStatusPill" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-sm">
                     <i class="fa-solid fa-eye text-slate-400"></i>
                     <span class="font-medium text-slate-300">View-Only</span>
@@ -194,7 +199,7 @@
                     <i class="fa-solid fa-lock"></i> Admin Unlock
                 </button>
 
-                <button onclick="goHome()" class="flex-1 sm:flex-none px-3 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 font-bold text-xs sm:text-sm hover:bg-slate-700 hover:border-raf-light flex items-center justify-center gap-2 transition whitespace-nowrap">
+                <button onclick="goHome()" class="px-3 py-2 rounded-lg bg-slate-800 text-white border border-slate-700 font-bold text-xs sm:text-sm hover:bg-slate-700 hover:border-raf-light flex items-center justify-center gap-2 transition whitespace-nowrap">
                     <i class="fa-solid fa-house"></i> Home
                 </button>
             </div>
@@ -331,7 +336,7 @@
             <h3 class="font-display text-xl font-bold text-white uppercase mb-4 flex items-center gap-2">
                 <i class="fa-solid fa-lock text-amber-400"></i> Admin Unlock
             </h3>
-            <input type="password" id="adminPassInput" placeholder="Enter password (Leemingdarts)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white mb-2 focus:outline-none focus:border-amber-400">
+            <input type="password" id="adminPassInput" placeholder="Enter admin password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white mb-2 focus:outline-none focus:border-amber-400">
             <p id="authError" class="text-xs text-rose-400 mb-4 hidden">Incorrect password.</p>
             <div class="flex justify-end gap-2">
                 <button onclick="closeModal('authModal')" class="px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700">Cancel</button>
