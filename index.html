@@ -155,6 +155,11 @@
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end overflow-x-auto pb-1 sm:pb-0">
+                <!-- 100,000 Points Link -->
+                <button onclick="openExternalLink('https://townsendb102.github.io/100000points/', '100,000 Points Tracker')" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition whitespace-nowrap">
+                    <i class="fa-solid fa-bullseye"></i> 100K Tracker
+                </button>
+
                 <!-- Archive Season Selector -->
                 <select id="seasonSelector" onchange="switchSeason()" class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-sky-400 focus:outline-none hidden">
                     <option value="current">Current Season</option>
@@ -281,6 +286,13 @@
                     
                     <!-- Edit Profile Form (Unlocked for all users) -->
                     <div id="profileDetailsEdit" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 bg-slate-950 p-3 rounded-xl border border-amber-500/30">
+                        
+                        <!-- Admin: Edit Name Box -->
+                        <div id="adminNameEditDiv" class="hidden sm:col-span-3 mb-2 border-b border-slate-800 pb-3">
+                            <label class="text-[10px] text-rose-400 font-bold uppercase block mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Admin: Fix Player Name</label>
+                            <input id="pEditName" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-sm text-white font-bold">
+                        </div>
+
                         <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Nickname</label><input id="pEditNick" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
                         <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Walk-on Track</label><input id="pEditWalkon" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
                         <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Darts Setup</label><input id="pEditDarts" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
@@ -301,7 +313,6 @@
 
             <div class="flex items-center justify-between mb-2">
                 <h4 class="font-bold text-sm text-sky-400 uppercase tracking-widest"><i class="fa-solid fa-chart-line mr-1"></i> Form Graph</h4>
-                <!-- Edit button is now accessible to everyone if viewing live board -->
                 <button id="btnToggleProfileEdit" onclick="toggleProfileEdit()" class="text-xs font-bold text-amber-400 bg-slate-800 px-2 py-1 rounded hover:bg-slate-700 transition"><i class="fa-solid fa-pen"></i> Edit My Profile</button>
             </div>
             
@@ -603,7 +614,6 @@
                 });
             });
 
-            // Calculate exact averages and track the highest overall
             Object.keys(playerStats).forEach(pName => {
                 if (playerStats[pName].played > 0) {
                     playerStats[pName].ave = playerStats[pName].sum / playerStats[pName].played;
@@ -614,24 +624,20 @@
                 }
             });
 
-            // UPDATE DOM HEADERS IMMEDIATELY
             document.getElementById('statWins').textContent = wins;
             document.getElementById('statLosses').textContent = losses;
             document.getElementById('statReschedule').textContent = reschedules;
             document.getElementById('statBestSingle').textContent = bestSingleGame.toFixed(2);
             document.getElementById('statBestSinglePlayer').textContent = bestSinglePlayer;
             document.getElementById('statTeamAve').textContent = totalScoreCount > 0 ? (totalScoreSum / totalScoreCount).toFixed(2) : "0.00";
-            
             document.getElementById('statBestOverall').textContent = highestSeasonAve > 0 ? highestSeasonAve.toFixed(2) : "0.00";
             document.getElementById('statBestOverallPlayer').textContent = highestSeasonPlayer;
 
-            // Sorting logic
             let displayOrder = [...appData.players];
             if (sortMode === 'ranked') {
                 displayOrder.sort((a, b) => playerStats[b].ave - playerStats[a].ave);
             }
 
-            // Headers
             const thead = document.getElementById('matrixThead');
             let headHTML = `<tr class="border-b border-slate-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                 <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[150px] sm:min-w-[210px] border-r border-slate-800 leading-tight">PLAYER NAME<br><span class="text-[9px] font-normal text-sky-400/80 normal-case tracking-normal">(Click name for Profile & Stats)</span></th>
@@ -654,7 +660,6 @@
             });
             thead.innerHTML = headHTML + `</tr>`;
 
-            // Body
             const tbody = document.getElementById('matrixTbody');
             const tableWrap = document.getElementById('tableWrapper');
             if (isAdmin && !viewingArchive) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
@@ -694,7 +699,6 @@
             });
             tbody.innerHTML = bodyHTML;
 
-            // Footer Average
             const tfoot = document.getElementById('matrixTfoot');
             let footHTML = `<tr class="bg-slate-950 border-t-2 border-slate-700 font-mono text-[11px] font-bold">
                 <td class="sticky-col-1 bg-slate-950 text-raf-light py-3 px-3 border-r border-slate-800 uppercase font-sans">TEAM GAME AVE</td>
@@ -738,7 +742,6 @@
             document.getElementById('pHonour180').innerText = details.max180s || 0;
             document.getElementById('pHonourHighOut').innerText = details.highOut || 0;
 
-            // Profile Editing is UNLOCKED for everyone if viewing live board
             const btnEdit = document.getElementById('btnToggleProfileEdit');
             if (!viewingArchive) {
                 btnEdit.classList.remove('hidden');
@@ -775,6 +778,15 @@
 
         window.toggleProfileEdit = () => {
             const details = appData.playerDetails[activeProfileView] || {};
+            
+            // Only show name edit field to Admins
+            if (isAdmin) {
+                document.getElementById('adminNameEditDiv').classList.remove('hidden');
+                document.getElementById('pEditName').value = activeProfileView;
+            } else {
+                document.getElementById('adminNameEditDiv').classList.add('hidden');
+            }
+
             document.getElementById('pEditNick').value = details.nickname || '';
             document.getElementById('pEditWalkon').value = details.walkon || '';
             document.getElementById('pEditDarts').value = details.darts || '';
@@ -786,15 +798,50 @@
         };
 
         window.savePlayerProfile = async () => {
-            if (!appData.playerDetails[activeProfileView]) appData.playerDetails[activeProfileView] = {};
+            let targetProfileName = activeProfileView;
             
-            appData.playerDetails[activeProfileView].nickname = document.getElementById('pEditNick').value;
-            appData.playerDetails[activeProfileView].walkon = document.getElementById('pEditWalkon').value;
-            appData.playerDetails[activeProfileView].darts = document.getElementById('pEditDarts').value;
-            appData.playerDetails[activeProfileView].max180s = Number(document.getElementById('pEdit180s').value) || 0;
-            appData.playerDetails[activeProfileView].highOut = Number(document.getElementById('pEditHighOut').value) || 0;
+            // Handle Admin Renaming logic
+            if (isAdmin) {
+                const newName = document.getElementById('pEditName').value.trim();
+                if (newName && newName !== activeProfileView) {
+                    if (appData.players.includes(newName)) {
+                        alert("Error: A player with that exact name already exists.");
+                        return;
+                    }
+                    
+                    // 1. Update players list
+                    const playerIndex = appData.players.indexOf(activeProfileView);
+                    if (playerIndex > -1) appData.players[playerIndex] = newName;
+                    
+                    // 2. Transfer Details
+                    if (appData.playerDetails[activeProfileView]) {
+                        appData.playerDetails[newName] = appData.playerDetails[activeProfileView];
+                        delete appData.playerDetails[activeProfileView];
+                    }
+
+                    // 3. Transfer Game Scores
+                    appData.games.forEach(g => {
+                        if (g.scores && g.scores[activeProfileView] !== undefined) {
+                            g.scores[newName] = g.scores[activeProfileView];
+                            delete g.scores[activeProfileView];
+                        }
+                    });
+
+                    targetProfileName = newName;
+                    activeProfileView = newName;
+                }
+            }
+
+            if (!appData.playerDetails[targetProfileName]) appData.playerDetails[targetProfileName] = {};
+            
+            appData.playerDetails[targetProfileName].nickname = document.getElementById('pEditNick').value;
+            appData.playerDetails[targetProfileName].walkon = document.getElementById('pEditWalkon').value;
+            appData.playerDetails[targetProfileName].darts = document.getElementById('pEditDarts').value;
+            appData.playerDetails[targetProfileName].max180s = Number(document.getElementById('pEdit180s').value) || 0;
+            appData.playerDetails[targetProfileName].highOut = Number(document.getElementById('pEditHighOut').value) || 0;
             
             openPlayerGraph(activeProfileView); 
+            renderTable();
             await saveToCloud();
         };
 
