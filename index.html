@@ -74,11 +74,15 @@
         .status-LOSS { background: linear-gradient(135deg, #b91c1c, #991b1b); border-bottom: 3px solid #f87171; color: white; }
         .status-RESCHEDULE { background: linear-gradient(135deg, #d97706, #b45309); border-bottom: 3px solid #fbbf24; color: white; }
         .status-TBD { background: linear-gradient(135deg, #334155, #1e293b); border-bottom: 3px solid #475569; color: #cbd5e1; }
+        
+        .ticker-wrap { overflow: hidden; white-space: nowrap; box-sizing: border-box; }
+        .ticker { display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; }
+        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-raf-blue overflow-x-hidden">
 
-    <!-- EXTERNAL IFRAME OVERLAY (Solves Back Button Trapping) -->
+    <!-- EXTERNAL IFRAME OVERLAY -->
     <div id="iframeOverlay" class="fixed inset-0 z-[100] hidden bg-black flex flex-col">
         <div class="bg-slate-900 border-b border-slate-700 px-4 py-3 flex items-center justify-between shadow-xl">
             <h2 id="iframeTitle" class="font-display text-lg font-bold uppercase text-white">External Link</h2>
@@ -92,13 +96,9 @@
     <!-- SPLASH SCREEN -->
     <div id="splashScreen" class="fixed inset-0 z-50 overflow-y-auto bg-black">
         <div class="flex flex-col items-center justify-center min-h-screen p-4 py-12 relative w-full">
-            
-            <!-- Force Refresh App Button (Top Left) -->
             <button id="refreshBtn" onclick="forceRefresh()" class="absolute top-4 left-4 z-40 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-emerald-400 hover:text-emerald-400 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition">
                 <i class="fa-solid fa-arrows-rotate"></i> Refresh App
             </button>
-
-            <!-- App Install Button (Top Right) -->
             <button id="installAppBtn" onclick="openInstallModal()" class="absolute top-4 right-4 z-40 px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-sky-400 hover:text-sky-400 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition">
                 <i class="fa-solid fa-mobile-screen"></i> App Instructions
             </button>
@@ -109,7 +109,6 @@
 
             <div id="logoWrapper" class="relative z-10 flex flex-col items-center max-w-xl w-full cursor-pointer mt-8" onclick="startApp()">
                 <img id="homeLogoImg" src="logo.jpg" alt="RAF Leeming Arrows" class="logo-idle w-full max-w-[280px] sm:max-w-[400px] object-contain mb-8 shadow-2xl" onerror="this.src='https://placehold.co/400x400/000000/F59E0B?text=Missing+logo.jpg'"/>
-                
                 <button onclick="startApp(); event.stopPropagation();" class="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-raf-blue to-amber-500 p-[2px] shadow-[0_0_40px_rgba(245,158,11,0.4)] hover:shadow-[0_0_60px_rgba(245,158,11,0.8)] transition-all active:scale-95 z-30">
                     <div class="flex items-center gap-3 rounded-[14px] bg-black px-6 sm:px-8 py-3 sm:py-4 transition group-hover:bg-zinc-900">
                         <i class="fa-solid fa-bullseye text-amber-400 text-lg sm:text-xl group-hover:rotate-90 transition-transform duration-500"></i>
@@ -120,7 +119,7 @@
                 </button>
             </div>
 
-            <!-- EXTRA LINKS (Opens in seamless Iframe) -->
+            <!-- EXTRA LINKS -->
             <div id="extraLinks" class="mt-8 sm:mt-12 flex flex-row gap-4 sm:gap-6 z-30 relative">
                 <button onclick="openExternalLink('https://townsendb102.github.io/RAFDA/', 'RAFDA Scorer')" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-raf-blue shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
                     <img src="rafda.jpg" alt="RAFDA" class="w-full h-full object-cover bg-white" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+rafda.jpg'">
@@ -128,7 +127,6 @@
                         <span class="font-display font-bold text-white tracking-wider text-[10px] sm:text-sm text-center block w-full uppercase">RAFDA SCORER</span>
                     </div>
                 </button>
-
                 <button onclick="openExternalLink('https://townsendb102.github.io/Darts-tournament/', 'Local Tournament')" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
                     <img src="tournament.jpg" alt="Tournament" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e293b/ffffff?text=Missing+tournament.jpg'">
                     <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
@@ -153,13 +151,15 @@
                         PLAYER STATS <span class="text-raf-light">| LEEMING ARROWS</span>
                     </h1>
                 </div>
-                <!-- Mobile Admin Login -->
-                <button onclick="openAuthModal()" class="sm:hidden px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg transition">
-                    <i class="fa-solid fa-lock"></i>
-                </button>
+                <button onclick="openAuthModal()" class="sm:hidden px-3 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg transition"><i class="fa-solid fa-lock"></i></button>
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end overflow-x-auto pb-1 sm:pb-0">
+                <!-- Archive Season Selector (Dynamically populated) -->
+                <select id="seasonSelector" onchange="switchSeason()" class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-sky-400 focus:outline-none hidden">
+                    <option value="current">Current Season</option>
+                </select>
+
                 <div id="authStatusPill" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-sm">
                     <i class="fa-solid fa-eye text-slate-400"></i><span class="font-medium text-slate-300">View-Only</span>
                 </div>
@@ -171,6 +171,15 @@
                 </button>
             </div>
         </div>
+        <!-- Live Ticker Announcement -->
+        <div class="w-full bg-amber-500 text-slate-950 text-xs sm:text-sm font-bold flex items-center shadow-md">
+            <div class="px-4 py-1.5 bg-amber-600 text-white z-10 flex items-center gap-2 whitespace-nowrap shadow-xl">
+                <i class="fa-solid fa-bullhorn"></i> CLUB NOTICE
+            </div>
+            <div class="ticker-wrap flex-1 ml-2">
+                <div id="announcementText" class="ticker py-1.5">Loading announcements...</div>
+            </div>
+        </div>
     </header>
 
     <!-- MAIN DASHBOARD -->
@@ -180,62 +189,52 @@
         <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <div class="bg-slate-900 border border-emerald-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
                 <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Games Won</p>
-                <div class="mt-1 flex items-baseline justify-between">
-                    <span id="statWins" class="font-display text-3xl font-bold text-white">0</span>
-                    <i class="fa-solid fa-trophy text-emerald-500/20 text-2xl"></i>
-                </div>
+                <div class="mt-1 flex items-baseline justify-between"><span id="statWins" class="font-display text-3xl font-bold text-white">0</span><i class="fa-solid fa-trophy text-emerald-500/20 text-2xl"></i></div>
             </div>
             <div class="bg-slate-900 border border-rose-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
                 <p class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Games Lost</p>
-                <div class="mt-1 flex items-baseline justify-between">
-                    <span id="statLosses" class="font-display text-3xl font-bold text-white">0</span>
-                    <i class="fa-solid fa-xmark text-rose-500/20 text-2xl"></i>
-                </div>
+                <div class="mt-1 flex items-baseline justify-between"><span id="statLosses" class="font-display text-3xl font-bold text-white">0</span><i class="fa-solid fa-xmark text-rose-500/20 text-2xl"></i></div>
             </div>
             <div class="bg-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
                 <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Reschedule</p>
-                <div class="mt-1 flex items-baseline justify-between">
-                    <span id="statReschedule" class="font-display text-3xl font-bold text-white">0</span>
-                    <i class="fa-solid fa-calendar-days text-amber-500/20 text-2xl"></i>
-                </div>
+                <div class="mt-1 flex items-baseline justify-between"><span id="statReschedule" class="font-display text-3xl font-bold text-white">0</span><i class="fa-solid fa-calendar-days text-amber-500/20 text-2xl"></i></div>
             </div>
             <div class="bg-slate-900 border border-sky-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
                 <p class="text-[10px] font-bold text-sky-400 uppercase tracking-wider">Best Overall Ave</p>
-                <div class="mt-1 flex items-baseline justify-between">
-                    <span id="statBestOverall" class="font-mono text-2xl font-bold text-white">0.00</span>
-                    <i class="fa-solid fa-medal text-sky-500/20 text-2xl"></i>
-                </div>
+                <div class="mt-1 flex items-baseline justify-between"><span id="statBestOverall" class="font-mono text-2xl font-bold text-white">0.00</span><i class="fa-solid fa-medal text-sky-500/20 text-2xl"></i></div>
                 <p id="statBestOverallPlayer" class="text-[11px] text-slate-400 font-semibold truncate mt-1">-</p>
             </div>
             <div class="bg-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
                 <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Best Logged Game</p>
-                <div class="mt-1 flex items-baseline justify-between">
-                    <span id="statBestSingle" class="font-mono text-2xl font-bold text-white">0.00</span>
-                    <i class="fa-solid fa-fire text-amber-500/20 text-2xl"></i>
-                </div>
+                <div class="mt-1 flex items-baseline justify-between"><span id="statBestSingle" class="font-mono text-2xl font-bold text-white">0.00</span><i class="fa-solid fa-fire text-amber-500/20 text-2xl"></i></div>
                 <p id="statBestSinglePlayer" class="text-[11px] text-slate-400 font-semibold truncate mt-1">-</p>
             </div>
             <div class="bg-slate-900 border border-raf-light/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
                 <p class="text-[10px] font-bold text-raf-light uppercase tracking-wider">Overall Team Ave</p>
-                <div class="mt-1 flex items-baseline justify-between">
-                    <span id="statTeamAve" class="font-mono text-2xl font-bold text-white">0.00</span>
-                    <i class="fa-solid fa-users text-raf-light/20 text-2xl"></i>
-                </div>
+                <div class="mt-1 flex items-baseline justify-between"><span id="statTeamAve" class="font-mono text-2xl font-bold text-white">0.00</span><i class="fa-solid fa-users text-raf-light/20 text-2xl"></i></div>
                 <p class="text-[11px] text-slate-400 font-semibold truncate mt-1">Across all matches</p>
             </div>
         </section>
 
         <!-- Admin Toolbox -->
         <section id="adminToolbox" class="hidden bg-slate-900 border border-amber-500/50 rounded-xl p-3 shadow-lg flex flex-wrap items-center gap-3">
-            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider mr-2"><i class="fa-solid fa-toolbox mr-1"></i> Admin Tools:</span>
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider mr-2"><i class="fa-solid fa-toolbox mr-1"></i> Admin:</span>
+            <button onclick="promptEditAnnouncement()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-bullhorn mr-1 text-amber-400"></i> Edit Notice</button>
             <button onclick="promptAddPlayer()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-user-plus mr-1 text-sky-400"></i> Add Player</button>
             <button onclick="promptAddGame()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-calendar-plus mr-1 text-emerald-400"></i> Add Game</button>
-            <button onclick="exportCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition ml-auto"><i class="fa-solid fa-file-csv mr-1 text-raf-light"></i> Backup Excel CSV</button>
+            <button onclick="archiveSeason()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-rose-500/50 rounded text-xs font-bold text-rose-400 transition ml-auto"><i class="fa-solid fa-box-archive mr-1"></i> Archive Season</button>
+            <button onclick="exportCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-file-csv mr-1 text-raf-light"></i> Backup CSV</button>
         </section>
+
+        <!-- Archive Warning Overlay -->
+        <div id="archiveWarning" class="hidden bg-rose-500/20 border border-rose-500/50 text-rose-300 px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm">
+            <i class="fa-solid fa-triangle-exclamation text-rose-500 text-lg"></i>
+            You are viewing a past archived season. The board is currently locked in Read-Only mode.
+        </div>
 
         <!-- The Spreadsheet -->
         <section class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden relative">
-            <div class="px-4 py-3 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between flex-wrap gap-3">
+            <div class="px-4 py-3 bg-slate-900/95 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <h2 class="font-display text-lg font-bold uppercase text-white flex items-center gap-2">
                     <i class="fa-solid fa-table-cells text-raf-light"></i> Match Matrix
                 </h2>
@@ -263,22 +262,52 @@
 
     <!-- MODALS -->
 
-    <!-- Player Form Graph Modal -->
-    <div id="graphModal" class="fixed inset-0 z-[60] hidden bg-slate-950/90 backdrop-blur flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl p-4 sm:p-6 shadow-2xl relative flex flex-col">
-            <button onclick="closeModal('graphModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition z-10">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-            <div class="mb-4 pr-8">
-                <h3 id="graphTitle" class="font-display text-xl sm:text-2xl font-bold text-white uppercase flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line text-emerald-400"></i> Player Form
-                </h3>
-                <p class="text-xs text-raf-light">Game-by-game average tracking</p>
+    <!-- Player Profile & Form Graph Modal -->
+    <div id="graphModal" class="fixed inset-0 z-[60] hidden bg-slate-950/95 backdrop-blur flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl p-4 sm:p-6 shadow-2xl relative flex flex-col my-auto">
+            <button onclick="closeModal('graphModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
+            <div class="flex items-center gap-4 mb-6 border-b border-slate-800 pb-6">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-800 border-2 border-raf-light flex items-center justify-center text-2xl font-display font-bold text-white shadow-lg overflow-hidden relative group">
+                    <span id="profileInitials">XX</span>
+                </div>
+                <div class="flex-1">
+                    <h3 id="profileTitle" class="font-display text-2xl sm:text-3xl font-bold text-white uppercase flex items-center gap-2">Player Name</h3>
+                    <div id="profileDetailsDisplay" class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+                        <div><p class="text-[10px] text-raf-light font-bold uppercase tracking-wider">Nickname</p><p id="pDisplayNick" class="text-sm font-semibold text-slate-200">-</p></div>
+                        <div><p class="text-[10px] text-raf-light font-bold uppercase tracking-wider">Walk-on Track</p><p id="pDisplayWalkon" class="text-sm font-semibold text-slate-200">-</p></div>
+                        <div><p class="text-[10px] text-raf-light font-bold uppercase tracking-wider">Darts Setup</p><p id="pDisplayDarts" class="text-sm font-semibold text-slate-200">-</p></div>
+                    </div>
+                    
+                    <!-- Admin Edit Profile Form (Hidden by Default) -->
+                    <div id="profileDetailsEdit" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 bg-slate-950 p-3 rounded-xl border border-amber-500/30">
+                        <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Nickname</label><input id="pEditNick" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
+                        <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Walk-on Track</label><input id="pEditWalkon" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
+                        <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Darts Setup</label><input id="pEditDarts" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
+                        <div><label class="text-[10px] text-emerald-400 font-bold uppercase block mb-1">Total 180s</label><input id="pEdit180s" type="number" class="w-full bg-slate-900 border border-emerald-500/50 rounded px-2 py-1 text-xs text-emerald-400 font-bold"></div>
+                        <div><label class="text-[10px] text-amber-400 font-bold uppercase block mb-1">High Checkout</label><input id="pEditHighOut" type="number" class="w-full bg-slate-900 border border-amber-500/50 rounded px-2 py-1 text-xs text-amber-400 font-bold"></div>
+                        <div class="flex items-end"><button onclick="savePlayerProfile()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded text-xs transition">Save Profile</button></div>
+                    </div>
+                </div>
+
+                <!-- Honours Box -->
+                <div class="hidden sm:flex flex-col items-center justify-center bg-slate-950 border border-slate-800 rounded-xl p-3 min-w-[120px]">
+                    <p class="text-[10px] text-emerald-400 font-bold uppercase">180s</p>
+                    <p id="pHonour180" class="font-display text-3xl font-bold text-white mb-2 leading-none">0</p>
+                    <p class="text-[10px] text-amber-400 font-bold uppercase">High Out</p>
+                    <p id="pHonourHighOut" class="font-display text-2xl font-bold text-white leading-none">0</p>
+                </div>
             </div>
-            <div class="relative w-full h-[300px] sm:h-[400px]">
+
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="font-bold text-sm text-sky-400 uppercase tracking-widest"><i class="fa-solid fa-chart-line mr-1"></i> Form Graph</h4>
+                <button id="btnToggleProfileEdit" onclick="toggleProfileEdit()" class="hidden text-xs font-bold text-amber-400 bg-slate-800 px-2 py-1 rounded hover:bg-slate-700 transition"><i class="fa-solid fa-pen"></i> Edit Profile Stats</button>
+            </div>
+            
+            <div class="relative w-full h-[250px] sm:h-[350px] bg-slate-950 rounded-xl border border-slate-800 p-2">
                 <canvas id="playerChart"></canvas>
             </div>
-            <button onclick="closeModal('graphModal')" class="mt-4 w-full px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition">Close Graph</button>
+            <button onclick="closeModal('graphModal')" class="mt-4 w-full px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition">Close Card</button>
         </div>
     </div>
 
@@ -399,11 +428,16 @@
         let activeEdit = { gameIdx: null, player: null };
         let activeGameEdit = null;
         let db, currentUser;
-        let sortMode = 'roster'; // 'roster' or 'ranked'
+        let sortMode = 'roster'; 
+        let viewingArchive = null; // null = current season, string = archive name
+        let activeProfileView = null; // Name of player whose card is open
 
-        // Backwards compatibility data payload
+        // Initial Base Data structure
         const DEFAULT_DATA = {
             players: ["Ben Townsend", "Brandon Ledger", "Nathan Lee", "David Goodfellow", "Josh Mccarthy", "Marcus Blackmore", "Joseph Moore", "Pat Barron", "Lewis Bell", "Dan Lovett", "Andy Gray"],
+            playerDetails: {}, // Filled dynamically to protect firebase overrides
+            announcement: "Welcome to the updated RAF Leeming Arrows Stats Portal! Log in to edit Noticeboard.",
+            archives: {},
             games: [
                 { title: "28 Sqn", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 56.07, "Brandon Ledger": 44.21, "Nathan Lee": 54.88, "David Goodfellow": 48.74, "Josh Mccarthy": 60.12, "Marcus Blackmore": 64.9 } },
                 { title: "RAF Digby", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 53.82, "Nathan Lee": 52.3, "David Goodfellow": 38.05, "Marcus Blackmore": 53.68, "Joseph Moore": 34.16, "Pat Barron": 49.56, "Lewis Bell": 41.75 } },
@@ -421,6 +455,18 @@
         };
 
         let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+        // Inject default profile stats for backwards compatibility seamlessly
+        const sanitizeAppData = () => {
+            if (!appData.playerDetails) appData.playerDetails = {};
+            if (!appData.announcement) appData.announcement = "Welcome to the RAF Leeming Arrows Stats Portal!";
+            if (!appData.archives) appData.archives = {};
+            
+            // Add a personalized touch to the initial setup without forcing an overwrite if changed later
+            if (!appData.playerDetails["Ben Townsend"]) {
+                appData.playerDetails["Ben Townsend"] = { nickname: "Raven", walkon: "System of a Down", darts: "Target K-Flex Shift (Short)", max180s: 0, highOut: 0 };
+            }
+        };
 
         // ==========================================
         // SPA ROUTING & CACHE BUSTING
@@ -442,6 +488,8 @@
                 document.getElementById('dashboardMain').classList.remove('hidden');
                 document.getElementById('dashboardMain').classList.add('dashboard-ready');
                 document.getElementById('mainHeader').classList.add('dashboard-ready');
+                updateTicker();
+                updateArchiveDropdown();
             }, 900);
         };
 
@@ -480,8 +528,47 @@
         });
 
         // ==========================================
-        // DATA RENDERING
+        // DATA RENDERING & ARCHIVES
         // ==========================================
+        const getActiveGames = () => {
+            return viewingArchive ? appData.archives[viewingArchive] : appData.games;
+        };
+
+        window.switchSeason = () => {
+            const val = document.getElementById('seasonSelector').value;
+            viewingArchive = val === 'current' ? null : val;
+            
+            if (viewingArchive) {
+                document.getElementById('archiveWarning').classList.remove('hidden');
+                document.getElementById('adminToolbox').classList.add('hidden');
+            } else {
+                document.getElementById('archiveWarning').classList.add('hidden');
+                if (isAdmin) document.getElementById('adminToolbox').classList.remove('hidden');
+            }
+            renderTable();
+        };
+
+        const updateArchiveDropdown = () => {
+            const select = document.getElementById('seasonSelector');
+            const hasArchives = Object.keys(appData.archives || {}).length > 0;
+            
+            if (hasArchives) {
+                select.classList.remove('hidden');
+                let opts = `<option value="current">Current Season</option>`;
+                Object.keys(appData.archives).forEach(key => {
+                    opts += `<option value="${key}">Archive: ${key}</option>`;
+                });
+                select.innerHTML = opts;
+                select.value = viewingArchive || 'current';
+            } else {
+                select.classList.add('hidden');
+            }
+        };
+
+        const updateTicker = () => {
+            document.getElementById('announcementText').innerText = appData.announcement || "Welcome to the RAF Leeming Arrows Stats Portal!";
+        };
+
         window.toggleSort = () => {
             sortMode = sortMode === 'roster' ? 'ranked' : 'roster';
             document.getElementById('sortLabel').innerText = sortMode === 'roster' ? 'Sort: Roster' : 'Sort: Ranked';
@@ -493,12 +580,13 @@
             let highestSeasonAve = 0, highestSeasonPlayer = "-";
             let bestSingleGame = 0, bestSinglePlayer = "-";
             let totalScoreSum = 0, totalScoreCount = 0;
+            const gamesToRender = getActiveGames();
 
             const playerStats = {};
             appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0, ave: 0 });
 
             // Analyze
-            appData.games.forEach(g => {
+            gamesToRender.forEach(g => {
                 if (g.status === 'WIN') wins++;
                 if (g.status === 'LOSS') losses++;
                 if (g.status === 'RESCHEDULE') reschedules++;
@@ -541,15 +629,15 @@
             // Headers
             const thead = document.getElementById('matrixThead');
             let headHTML = `<tr class="border-b border-slate-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
-                <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[150px] sm:min-w-[210px] border-r border-slate-800">PLAYER NAME</th>
+                <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[150px] sm:min-w-[210px] border-r border-slate-800 leading-tight">PLAYER NAME<br><span class="text-[9px] font-normal text-sky-400/80 normal-case tracking-normal">(Click name for Profile & Stats)</span></th>
                 <th class="sticky-col-2 bg-slate-900 text-raf-light py-3 px-2 text-center min-w-[80px] border-r border-slate-700">SEASON AVE</th>
                 <th class="bg-slate-900 text-emerald-400 py-3 px-2 text-center min-w-[60px] border-r border-slate-700" title="Games Played">GP</th>
                 <th class="bg-slate-900 text-amber-400 py-3 px-2 text-center min-w-[70px] border-r border-slate-700" title="Best Average">BEST</th>
             `;
             
-            appData.games.forEach((g, idx) => {
-                const clickHandler = isAdmin ? `onclick="openEditGameStatus(${idx})"` : '';
-                const cursor = isAdmin ? 'admin-header' : '';
+            gamesToRender.forEach((g, idx) => {
+                const clickHandler = (isAdmin && !viewingArchive) ? `onclick="openEditGameStatus(${idx})"` : '';
+                const cursor = (isAdmin && !viewingArchive) ? 'admin-header' : '';
                 const displayDate = g.date ? new Date(g.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short'}) : '';
                 const detailStr = [displayDate, g.venue].filter(Boolean).join(' • ');
 
@@ -564,7 +652,7 @@
             // Body
             const tbody = document.getElementById('matrixTbody');
             const tableWrap = document.getElementById('tableWrapper');
-            if (isAdmin) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
+            if (isAdmin && !viewingArchive) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
 
             let bodyHTML = '';
             displayOrder.forEach((player, rankIdx) => {
@@ -584,10 +672,10 @@
                     <td class="bg-slate-900/50 font-mono text-amber-400/80 py-2 px-2 text-center border-r border-slate-800">${highDisplay}</td>
                 `;
 
-                appData.games.forEach((g, gIdx) => {
+                gamesToRender.forEach((g, gIdx) => {
                     const rawVal = g.scores ? g.scores[player] : undefined;
                     const gameHasScores = Object.keys(g.scores || {}).length > 0;
-                    const cellClick = isAdmin ? `onclick="openEditCell(${gIdx}, '${player}')"` : '';
+                    const cellClick = (isAdmin && !viewingArchive) ? `onclick="openEditCell(${gIdx}, '${player}')"` : '';
 
                     if (rawVal !== undefined && rawVal !== null) {
                         bodyHTML += `<td ${cellClick} class="stat-cell bg-slate-900/40 font-mono text-slate-100 py-2 px-3 text-right border-r border-slate-800">${Number(rawVal).toFixed(2)}</td>`;
@@ -612,7 +700,7 @@
                 <td class="sticky-col-2 bg-slate-950 border-r border-slate-700"></td>
                 <td class="bg-slate-950 border-r border-slate-800"></td>
                 <td class="bg-slate-950 border-r border-slate-800"></td>`;
-            appData.games.forEach((g) => {
+            gamesToRender.forEach((g) => {
                 const scores = Object.values(g.scores || {});
                 const gameAve = scores.length > 0 ? (scores.reduce((a,b)=>a+Number(b),0)/scores.length).toFixed(2) : '--';
                 footHTML += `<td class="py-3 px-3 text-right text-emerald-400 border-r border-slate-800 bg-slate-950/90">${gameAve}</td>`;
@@ -621,45 +709,60 @@
         };
 
         // ==========================================
-        // CHART.JS FORM GRAPHS
+        // PLAYER PROFILES & GRAPHS
         // ==========================================
         let playerChartInstance = null;
+
         window.openPlayerGraph = (playerName) => {
+            activeProfileView = playerName;
+            const details = appData.playerDetails[playerName] || {};
+            const gamesToRender = getActiveGames();
+            
+            // Build Graph
             const labels = [];
             const dataPts = [];
-            
-            appData.games.forEach((g, idx) => {
+            gamesToRender.forEach((g, idx) => {
                 if (g.scores && g.scores[playerName] !== undefined) {
                     labels.push(g.title || `Game ${idx+1}`);
                     dataPts.push(Number(g.scores[playerName]));
                 }
             });
 
-            document.getElementById('graphTitle').innerHTML = `<i class="fa-solid fa-chart-line text-emerald-400"></i> ${playerName}`;
+            // Populate Card
+            const initials = playerName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+            document.getElementById('profileInitials').innerText = initials;
+            document.getElementById('profileTitle').innerText = playerName;
+            
+            document.getElementById('pDisplayNick').innerText = details.nickname || 'None';
+            document.getElementById('pDisplayWalkon').innerText = details.walkon || 'None';
+            document.getElementById('pDisplayDarts').innerText = details.darts || 'Unknown';
+            document.getElementById('pHonour180').innerText = details.max180s || 0;
+            document.getElementById('pHonourHighOut').innerText = details.highOut || 0;
+
+            // Admin Toggle Button Visibility
+            const btnEdit = document.getElementById('btnToggleProfileEdit');
+            if (isAdmin && !viewingArchive) btnEdit.classList.remove('hidden');
+            else btnEdit.classList.add('hidden');
+            
+            document.getElementById('profileDetailsDisplay').classList.remove('hidden');
+            document.getElementById('profileDetailsEdit').classList.add('hidden');
+
             document.getElementById('graphModal').classList.remove('hidden');
 
+            // Render Chart
             const ctx = document.getElementById('playerChart').getContext('2d');
             if (playerChartInstance) playerChartInstance.destroy();
-
             playerChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Match Average',
-                        data: dataPts,
-                        borderColor: '#34d399', 
-                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#f59e0b', 
-                        pointRadius: 5,
-                        fill: true,
-                        tension: 0.3
+                        label: 'Match Average', data: dataPts, borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        borderWidth: 3, pointBackgroundColor: '#f59e0b', pointRadius: 5, fill: true, tension: 0.3
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
                     scales: {
                         y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
@@ -667,6 +770,31 @@
                     }
                 }
             });
+        };
+
+        window.toggleProfileEdit = () => {
+            const details = appData.playerDetails[activeProfileView] || {};
+            document.getElementById('pEditNick').value = details.nickname || '';
+            document.getElementById('pEditWalkon').value = details.walkon || '';
+            document.getElementById('pEditDarts').value = details.darts || '';
+            document.getElementById('pEdit180s').value = details.max180s || 0;
+            document.getElementById('pEditHighOut').value = details.highOut || 0;
+            
+            document.getElementById('profileDetailsDisplay').classList.add('hidden');
+            document.getElementById('profileDetailsEdit').classList.remove('hidden');
+        };
+
+        window.savePlayerProfile = async () => {
+            if (!appData.playerDetails[activeProfileView]) appData.playerDetails[activeProfileView] = {};
+            
+            appData.playerDetails[activeProfileView].nickname = document.getElementById('pEditNick').value;
+            appData.playerDetails[activeProfileView].walkon = document.getElementById('pEditWalkon').value;
+            appData.playerDetails[activeProfileView].darts = document.getElementById('pEditDarts').value;
+            appData.playerDetails[activeProfileView].max180s = Number(document.getElementById('pEdit180s').value) || 0;
+            appData.playerDetails[activeProfileView].highOut = Number(document.getElementById('pEditHighOut').value) || 0;
+            
+            openPlayerGraph(activeProfileView); // Re-render card
+            await saveToCloud();
         };
 
         // ==========================================
@@ -707,7 +835,7 @@
                 btn.innerHTML = `<i class="fa-solid fa-lock-open"></i> Lock Editing`;
                 btn.className = "hidden sm:flex px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm items-center gap-2 shadow-lg transition whitespace-nowrap";
                 pill.innerHTML = `<i class="fa-solid fa-pen-to-square text-emerald-400"></i><span class="font-bold text-emerald-400">Edit Mode</span>`;
-                toolbox.classList.remove('hidden');
+                if(!viewingArchive) toolbox.classList.remove('hidden');
             } else {
                 btn.innerHTML = `<i class="fa-solid fa-lock"></i> Admin Unlock`;
                 btn.className = "hidden sm:flex px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm items-center gap-2 shadow-lg transition whitespace-nowrap";
@@ -717,6 +845,15 @@
         };
 
         // ADMIN TOOLBOX FUNCTIONS
+        window.promptEditAnnouncement = async () => {
+            const text = prompt("Enter new noticeboard announcement:", appData.announcement);
+            if (text !== null) {
+                appData.announcement = text.trim();
+                updateTicker();
+                await saveToCloud();
+            }
+        };
+
         window.promptAddPlayer = async () => {
             const name = prompt("Enter new player's full name:");
             if (name && name.trim()) {
@@ -735,14 +872,29 @@
             }
         };
 
+        window.archiveSeason = async () => {
+            const seasonName = prompt("Enter a name for this archive (e.g. '2025/2026 Season'):\nWARNING: This will lock the current board into history and clear the live board for the next season.");
+            if (seasonName && seasonName.trim()) {
+                appData.archives[seasonName.trim()] = JSON.parse(JSON.stringify(appData.games));
+                // Clear the board for the new season
+                appData.games = Array(12).fill(null).map((_, i) => ({ title: `Game ${i+1}`, status: 'TBD', date: '', venue: '', scores: {} }));
+                
+                updateArchiveDropdown();
+                renderTable();
+                await saveToCloud();
+                alert(`Successfully archived as "${seasonName.trim()}". A fresh board has been generated.`);
+            }
+        };
+
         window.exportCSV = () => {
+            const gamesToExport = getActiveGames();
             let csv = "Player Name,Season Average,Games Played,Best Average";
-            appData.games.forEach((g, i) => csv += `,Game ${i+1} (${g.title})`);
+            gamesToExport.forEach((g, i) => csv += `,Game ${i+1} (${g.title})`);
             csv += "\n";
 
             appData.players.forEach(p => {
                 let sum = 0, count = 0, best = 0;
-                let rowScores = appData.games.map(g => {
+                let rowScores = gamesToExport.map(g => {
                     const s = g.scores ? g.scores[p] : undefined;
                     if (s !== undefined) {
                         sum += Number(s); count++;
@@ -760,13 +912,13 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = "Leeming_Arrows_Stats_Backup.csv";
+            a.download = `Leeming_Arrows_Stats_${viewingArchive || 'Live'}.csv`;
             a.click();
         };
 
         // CELL & GAME EDITING
         window.openEditCell = (gameIdx, player) => {
-            if (!isAdmin) return;
+            if (!isAdmin || viewingArchive) return;
             activeEdit = { gameIdx, player };
             const game = appData.games[gameIdx];
             document.getElementById('cellModalTitle').textContent = player;
@@ -788,7 +940,7 @@
         };
 
         window.openEditGameStatus = (gameIdx) => {
-            if (!isAdmin) return;
+            if (!isAdmin || viewingArchive) return;
             activeGameEdit = gameIdx;
             const game = appData.games[gameIdx];
             document.getElementById('gameTitleInput').value = game.title || "";
@@ -839,10 +991,14 @@
                         onSnapshot(docRef, (snapshot) => {
                             if (snapshot.exists()) {
                                 appData = JSON.parse(snapshot.data().payload);
+                                sanitizeAppData();
                                 appData.games.forEach(g => { g.date = g.date || ""; g.venue = g.venue || ""; });
+                                updateTicker();
+                                updateArchiveDropdown();
                                 renderTable();
                                 setSyncStatus("Live Sync On", "fa-satellite-dish animate-pulse", "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40");
                             } else {
+                                sanitizeAppData();
                                 saveToCloud();
                                 setSyncStatus("Database Created", "fa-check", "bg-sky-500/20 text-sky-400 border border-sky-500/40");
                             }
@@ -855,6 +1011,8 @@
             } catch (e) {
                 console.error("Firebase Init Error:", e);
                 setSyncStatus("Local Mode Only", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
+                sanitizeAppData();
+                updateTicker();
                 renderTable(); 
             }
         }
