@@ -155,7 +155,7 @@
             </div>
 
             <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end overflow-x-auto pb-1 sm:pb-0">
-                <!-- Archive Season Selector (Dynamically populated) -->
+                <!-- Archive Season Selector -->
                 <select id="seasonSelector" onchange="switchSeason()" class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-sky-400 focus:outline-none hidden">
                     <option value="current">Current Season</option>
                 </select>
@@ -279,7 +279,7 @@
                         <div><p class="text-[10px] text-raf-light font-bold uppercase tracking-wider">Darts Setup</p><p id="pDisplayDarts" class="text-sm font-semibold text-slate-200">-</p></div>
                     </div>
                     
-                    <!-- Admin Edit Profile Form (Hidden by Default) -->
+                    <!-- Edit Profile Form (Unlocked for all users) -->
                     <div id="profileDetailsEdit" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 bg-slate-950 p-3 rounded-xl border border-amber-500/30">
                         <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Nickname</label><input id="pEditNick" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
                         <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Walk-on Track</label><input id="pEditWalkon" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
@@ -301,7 +301,8 @@
 
             <div class="flex items-center justify-between mb-2">
                 <h4 class="font-bold text-sm text-sky-400 uppercase tracking-widest"><i class="fa-solid fa-chart-line mr-1"></i> Form Graph</h4>
-                <button id="btnToggleProfileEdit" onclick="toggleProfileEdit()" class="hidden text-xs font-bold text-amber-400 bg-slate-800 px-2 py-1 rounded hover:bg-slate-700 transition"><i class="fa-solid fa-pen"></i> Edit Profile Stats</button>
+                <!-- Edit button is now accessible to everyone if viewing live board -->
+                <button id="btnToggleProfileEdit" onclick="toggleProfileEdit()" class="text-xs font-bold text-amber-400 bg-slate-800 px-2 py-1 rounded hover:bg-slate-700 transition"><i class="fa-solid fa-pen"></i> Edit My Profile</button>
             </div>
             
             <div class="relative w-full h-[250px] sm:h-[350px] bg-slate-950 rounded-xl border border-slate-800 p-2">
@@ -429,13 +430,12 @@
         let activeGameEdit = null;
         let db, currentUser;
         let sortMode = 'roster'; 
-        let viewingArchive = null; // null = current season, string = archive name
-        let activeProfileView = null; // Name of player whose card is open
+        let viewingArchive = null; 
+        let activeProfileView = null;
 
-        // Initial Base Data structure
         const DEFAULT_DATA = {
             players: ["Ben Townsend", "Brandon Ledger", "Nathan Lee", "David Goodfellow", "Josh Mccarthy", "Marcus Blackmore", "Joseph Moore", "Pat Barron", "Lewis Bell", "Dan Lovett", "Andy Gray"],
-            playerDetails: {}, // Filled dynamically to protect firebase overrides
+            playerDetails: {}, 
             announcement: "Welcome to the updated RAF Leeming Arrows Stats Portal! Log in to edit Noticeboard.",
             archives: {},
             games: [
@@ -456,13 +456,10 @@
 
         let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
 
-        // Inject default profile stats for backwards compatibility seamlessly
         const sanitizeAppData = () => {
             if (!appData.playerDetails) appData.playerDetails = {};
             if (!appData.announcement) appData.announcement = "Welcome to the RAF Leeming Arrows Stats Portal!";
             if (!appData.archives) appData.archives = {};
-            
-            // Add a personalized touch to the initial setup without forcing an overwrite if changed later
             if (!appData.playerDetails["Ben Townsend"]) {
                 appData.playerDetails["Ben Townsend"] = { nickname: "Raven", walkon: "System of a Down", darts: "Target K-Flex Shift (Short)", max180s: 0, highOut: 0 };
             }
@@ -585,7 +582,6 @@
             const playerStats = {};
             appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0, ave: 0 });
 
-            // Analyze
             gamesToRender.forEach(g => {
                 if (g.status === 'WIN') wins++;
                 if (g.status === 'LOSS') losses++;
@@ -612,7 +608,6 @@
                 }
             });
 
-            // Update DOM Header
             document.getElementById('statWins').textContent = wins;
             document.getElementById('statLosses').textContent = losses;
             document.getElementById('statReschedule').textContent = reschedules;
@@ -620,13 +615,11 @@
             document.getElementById('statBestSinglePlayer').textContent = bestSinglePlayer;
             document.getElementById('statTeamAve').textContent = totalScoreCount > 0 ? (totalScoreSum / totalScoreCount).toFixed(2) : "0.00";
 
-            // Sorting logic
             let displayOrder = [...appData.players];
             if (sortMode === 'ranked') {
                 displayOrder.sort((a, b) => playerStats[b].ave - playerStats[a].ave);
             }
 
-            // Headers
             const thead = document.getElementById('matrixThead');
             let headHTML = `<tr class="border-b border-slate-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                 <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[150px] sm:min-w-[210px] border-r border-slate-800 leading-tight">PLAYER NAME<br><span class="text-[9px] font-normal text-sky-400/80 normal-case tracking-normal">(Click name for Profile & Stats)</span></th>
@@ -649,7 +642,6 @@
             });
             thead.innerHTML = headHTML + `</tr>`;
 
-            // Body
             const tbody = document.getElementById('matrixTbody');
             const tableWrap = document.getElementById('tableWrapper');
             if (isAdmin && !viewingArchive) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
@@ -689,11 +681,6 @@
             });
             tbody.innerHTML = bodyHTML;
 
-            // Footer Best Stat Match
-            document.getElementById('statBestOverall').textContent = highestSeasonAve > 0 ? highestSeasonAve.toFixed(2) : "0.00";
-            document.getElementById('statBestOverallPlayer').textContent = highestSeasonPlayer;
-
-            // Footer Average
             const tfoot = document.getElementById('matrixTfoot');
             let footHTML = `<tr class="bg-slate-950 border-t-2 border-slate-700 font-mono text-[11px] font-bold">
                 <td class="sticky-col-1 bg-slate-950 text-raf-light py-3 px-3 border-r border-slate-800 uppercase font-sans">TEAM GAME AVE</td>
@@ -718,7 +705,6 @@
             const details = appData.playerDetails[playerName] || {};
             const gamesToRender = getActiveGames();
             
-            // Build Graph
             const labels = [];
             const dataPts = [];
             gamesToRender.forEach((g, idx) => {
@@ -728,7 +714,6 @@
                 }
             });
 
-            // Populate Card
             const initials = playerName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
             document.getElementById('profileInitials').innerText = initials;
             document.getElementById('profileTitle').innerText = playerName;
@@ -739,17 +724,19 @@
             document.getElementById('pHonour180').innerText = details.max180s || 0;
             document.getElementById('pHonourHighOut').innerText = details.highOut || 0;
 
-            // Admin Toggle Button Visibility
+            // Profile Editing is now UNLOCKED for everyone if viewing live board
             const btnEdit = document.getElementById('btnToggleProfileEdit');
-            if (isAdmin && !viewingArchive) btnEdit.classList.remove('hidden');
-            else btnEdit.classList.add('hidden');
+            if (!viewingArchive) {
+                btnEdit.classList.remove('hidden');
+            } else {
+                btnEdit.classList.add('hidden');
+            }
             
             document.getElementById('profileDetailsDisplay').classList.remove('hidden');
             document.getElementById('profileDetailsEdit').classList.add('hidden');
 
             document.getElementById('graphModal').classList.remove('hidden');
 
-            // Render Chart
             const ctx = document.getElementById('playerChart').getContext('2d');
             if (playerChartInstance) playerChartInstance.destroy();
             playerChartInstance = new Chart(ctx, {
@@ -793,7 +780,7 @@
             appData.playerDetails[activeProfileView].max180s = Number(document.getElementById('pEdit180s').value) || 0;
             appData.playerDetails[activeProfileView].highOut = Number(document.getElementById('pEditHighOut').value) || 0;
             
-            openPlayerGraph(activeProfileView); // Re-render card
+            openPlayerGraph(activeProfileView); 
             await saveToCloud();
         };
 
@@ -876,7 +863,6 @@
             const seasonName = prompt("Enter a name for this archive (e.g. '2025/2026 Season'):\nWARNING: This will lock the current board into history and clear the live board for the next season.");
             if (seasonName && seasonName.trim()) {
                 appData.archives[seasonName.trim()] = JSON.parse(JSON.stringify(appData.games));
-                // Clear the board for the new season
                 appData.games = Array(12).fill(null).map((_, i) => ({ title: `Game ${i+1}`, status: 'TBD', date: '', venue: '', scores: {} }));
                 
                 updateArchiveDropdown();
