@@ -1,0 +1,1993 @@
+```html
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLAYER STATS - SINGLES | RAF LEEMING ARROWS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Rajdhani for Athletic/Military Precision look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Rajdhani', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        raf: {
+                            navy: '#0B132B',
+                            blue: '#5D8AA8',
+                            light: '#89B0CE',
+                            red: '#D92626',
+                            gold: '#F59E0B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbars for Matrix Table */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5D8AA8;
+        }
+
+        /* Pure Black Splash Screen so 40810.jpg Black Background Blends Seamlessly */
+        #splashScreen {
+            background-color: #000000;
+            perspective: 1200px;
+            transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.55s;
+        }
+
+        @keyframes floatExactLogo {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-7px) scale(1.015); }
+        }
+        .emblem-idle {
+            animation: floatExactLogo 4.5s ease-in-out infinite;
+        }
+
+        /* Cinematic 3D Zoom, Spin & Shockwave Transition on the Exact Image */
+        @keyframes exactLogoLaunch {
+            0% {
+                transform: scale(1) rotate(0deg) translateZ(0);
+                filter: brightness(1) drop-shadow(0 0 0px rgba(245, 158, 11, 0));
+            }
+            28% {
+                transform: scale(0.9) rotate(-8deg) translateZ(-60px);
+                filter: brightness(1.3) drop-shadow(0 0 35px rgba(245, 158, 11, 0.75));
+            }
+            65% {
+                transform: scale(1.6) rotate(12deg) translateZ(180px);
+                filter: brightness(1.6) drop-shadow(0 0 65px rgba(56, 189, 248, 0.9));
+                opacity: 1;
+            }
+            100% {
+                transform: scale(5.8) rotate(35deg) translateZ(500px);
+                filter: brightness(2.2) blur(8px);
+                opacity: 0;
+            }
+        }
+        @keyframes shockwavePulse {
+            0% { transform: translate(-50%, -50%) scale(0.25); opacity: 0.95; border-width: 12px; }
+            100% { transform: translate(-50%, -50%) scale(4.2); opacity: 0; border-width: 1px; }
+        }
+        @keyframes speedFlash {
+            0% { opacity: 0; }
+            45% { opacity: 0.35; }
+            100% { opacity: 0; }
+        }
+
+        .launching-transition #emblemContainer {
+            animation: exactLogoLaunch 1.15s cubic-bezier(0.55, 0.05, 0.67, 0.19) forwards !important;
+        }
+        .launching-transition #shockwaveRing1 {
+            animation: shockwavePulse 0.85s ease-out forwards;
+        }
+        .launching-transition #shockwaveRing2 {
+            animation: shockwavePulse 1.05s 0.12s ease-out forwards;
+        }
+        .launching-transition #shockwaveRing3 {
+            animation: shockwavePulse 1.2s 0.24s ease-out forwards;
+        }
+        .launching-transition #warpFlashOverlay {
+            animation: speedFlash 1.1s ease-out forwards;
+        }
+
+        @keyframes dashboardReveal {
+            0% { opacity: 0; transform: translateY(22px) scale(0.985); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .dashboard-enter {
+            animation: dashboardReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Sticky Column Styling for Spreadsheet Matrix */
+        .sticky-col-1 {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+        }
+        .sticky-col-2 {
+            position: sticky;
+            left: 190px;
+            z-index: 20;
+        }
+        @media (max-width: 640px) {
+            .sticky-col-2 {
+                left: 140px;
+            }
+        }
+
+        /* Spreadsheet Cell Transitions */
+        .stat-cell {
+            transition: all 0.15s ease;
+        }
+        .admin-unlocked .stat-cell:hover {
+            outline: 2px solid #5D8AA8;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        /* DNP Pattern (Black out like spreadsheet) */
+        .cell-dnp {
+            background-color: #05070c;
+            color: #334155;
+        }
+
+        /* Header Status Colors matching Excel Sheet */
+        .status-WIN {
+            background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+            color: #ffffff;
+            border-bottom: 3px solid #4ade80;
+        }
+        .status-LOSS {
+            background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+            color: #ffffff;
+            border-bottom: 3px solid #f87171;
+        }
+        .status-RESCHEDULE {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: #ffffff;
+            border-bottom: 3px solid #fbbf24;
+        }
+        .status-AWAITING {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            color: #f8fafc;
+            border-bottom: 3px solid #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-raf-blue selection:text-white overflow-x-hidden">
+
+    <!-- ===================================================================== -->
+    <!-- FULL-SCREEN HOME SPLASH SCREEN (EXACT 40810.JPG LOGO + TRANSITION)    -->
+    <!-- ===================================================================== -->
+    <div id="splashScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-between p-4 sm:p-8 overflow-hidden select-none">
+        
+        <!-- Flash & Shockwave Overlays (Triggered on Click Transition) -->
+        <div id="warpFlashOverlay" class="pointer-events-none absolute inset-0 bg-gradient-to-tr from-sky-500/30 via-amber-400/30 to-white/40 opacity-0 z-20"></div>
+        <div id="shockwaveRing1" class="pointer-events-none absolute top-1/2 left-1/2 w-64 h-64 rounded-full border-0 border-amber-400 opacity-0 z-20"></div>
+        <div id="shockwaveRing2" class="pointer-events-none absolute top-1/2 left-1/2 w-64 h-64 rounded-full border-0 border-sky-400 opacity-0 z-20"></div>
+        <div id="shockwaveRing3" class="pointer-events-none absolute top-1/2 left-1/2 w-64 h-64 rounded-full border-0 border-white opacity-0 z-20"></div>
+
+        <!-- Top Bar on Splash: Allows Quick Embedding of 40810.jpg if needed -->
+        <div class="relative z-30 w-full max-w-5xl flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-950/90 border border-zinc-800 text-[11px] text-zinc-400">
+                <span class="w-2 h-2 rounded-full bg-raf-red animate-pulse"></span>
+                <span class="font-bold tracking-widest uppercase">RAF Leeming Arrows</span>
+            </div>
+
+            <!-- Subtle button to permanently embed the 40810.jpg file into the HTML if previewing without local file -->
+            <label class="cursor-pointer px-3 py-1 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700 text-[11px] text-zinc-300 hover:text-white flex items-center gap-1.5 transition" title="Select your logo image once to permanently bake it inside this single HTML file">
+                <i class="fa-solid fa-image text-amber-400"></i>
+                <span id="splashEmbedBtnText">Embed Exact Logo File</span>
+                <input type="file" accept="image/*" onchange="handleLogoUpload(event)" class="hidden" />
+            </label>
+        </div>
+
+        <!-- Centerpiece: Exact Uploaded Logo Image (40810.jpg) on Pure Black -->
+        <div class="relative z-10 flex flex-col items-center justify-center my-auto max-w-2xl w-full">
+            
+            <div id="emblemContainer" onclick="enterClubAverages()" class="emblem-idle relative w-[82vw] max-w-[440px] sm:max-w-[480px] aspect-square cursor-pointer group flex items-center justify-center">
+                
+                <!-- Exact Image Tag: Loads embedded Base64 data URL if saved, or 40810.jpg / logo.jpg -->
+                <img id="exactHomeLogoImg" 
+                     src="40810.jpg" 
+                     alt="RAF Leeming Arrows Logo" 
+                     onload="onExactLogoLoaded()"
+                     onerror="onExactLogoError(this)"
+                     class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" />
+
+                <!-- Fallback Prompt ONLY shown if 40810.jpg is not in the current folder yet and not embedded yet -->
+                <div id="logoFileLoaderOverlay" onclick="event.stopPropagation()" class="hidden absolute inset-4 rounded-3xl border-2 border-dashed border-amber-500/60 bg-zinc-950/95 p-6 flex flex-col items-center justify-center text-center space-y-4 shadow-2xl">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl">
+                        <i class="fa-solid fa-file-image"></i>
+                    </div>
+                    <div class="space-y-1.5">
+                        <h3 class="font-display text-xl font-bold text-white uppercase">Select Your Exact Logo Image</h3>
+                        <p class="text-xs text-zinc-400 max-w-xs leading-relaxed">
+                            Select the logo image you uploaded (<code class="text-amber-300">40810.jpg</code>) once from your device to permanently embed the exact image into this webpage and your GitHub HTML export:
+                        </p>
+                    </div>
+                    <label class="cursor-pointer px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>Choose Logo Image (40810.jpg)</span>
+                        <input type="file" accept="image/*" onchange="handleLogoUpload(event)" class="hidden" />
+                    </label>
+                    <p class="text-[11px] text-zinc-500">
+                        Or place <code class="text-zinc-300">40810.jpg</code> in the same GitHub folder as <code class="text-zinc-300">index.html</code>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Interactive CTA Button Below the Exact Logo: "CLICK FOR CLUB AVERAGES" -->
+            <div class="mt-4 sm:mt-6 flex flex-col items-center gap-3 z-30">
+                <button id="enterAveragesBtn" onclick="enterClubAverages()" 
+                    class="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-raf-blue via-sky-500 to-amber-500 p-[2px] shadow-[0_0_35px_rgba(93,138,168,0.45)] hover:shadow-[0_0_55px_rgba(245,158,11,0.75)] transition-all duration-300 active:scale-95">
+                    <div class="relative flex items-center gap-3.5 rounded-[14px] bg-black/95 group-hover:bg-zinc-900/90 px-7 sm:px-10 py-3.5 sm:py-4 transition">
+                        <i class="fa-solid fa-bullseye text-amber-400 text-lg sm:text-xl group-hover:rotate-45 transition-transform duration-300"></i>
+                        <span class="font-display text-lg sm:text-2xl font-bold tracking-[0.14em] uppercase text-white group-hover:text-amber-200 transition">
+                            CLICK FOR CLUB AVERAGES
+                        </span>
+                        <i class="fa-solid fa-angles-right text-raf-light text-base sm:text-lg group-hover:translate-x-1.5 transition-transform duration-300"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Footer on Splash -->
+        <div class="relative z-10 w-full max-w-4xl flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-600 pt-2">
+            <span>RAF LEEMING ARROWS • SINGLES AVERAGES</span>
+            <span>ROYAL AIR FORCE DARTS</span>
+        </div>
+    </div>
+
+    <!-- TOP NAVIGATION & BRANDING HEADER -->
+    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-30 backdrop-blur-md">
+        <div class="max-w-[1600px] mx-auto px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Left: Exact Logo Thumbnail (Click to return to Splash Home Screen) & Title -->
+            <div class="flex items-center gap-3.5">
+                <button onclick="returnToSplashScreen()" title="Return to Logo Home Screen" class="group relative w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 flex items-center justify-center rounded-full bg-black border border-slate-700 hover:border-amber-400 transition overflow-hidden shadow-lg">
+                    <img id="headerLogoThumb" src="40810.jpg" alt="Leeming Arrows" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-contain group-hover:scale-110 transition-transform" />
+                    <span class="hidden w-full h-full items-center justify-center text-amber-400 font-display font-bold text-xs">180</span>
+                </button>
+
+                <div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="returnToSplashScreen()" class="text-[11px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-raf-blue/20 hover:bg-raf-blue/30 text-raf-light border border-raf-blue/30 transition flex items-center gap-1">
+                            <i class="fa-solid fa-house text-[9px]"></i>
+                            <span>Home Logo</span>
+                        </button>
+                        <span id="syncStatusBadge" class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-800 text-slate-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>Live Stats</span>
+                        </span>
+                    </div>
+                    <h1 class="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-wide text-white uppercase mt-0.5">
+                        PLAYER STATS - SINGLES <span class="text-raf-light">| LEEMING ARROWS</span>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Right: Mode Controls & Action Buttons -->
+            <div class="flex items-center flex-wrap gap-2 sm:gap-3">
+                <!-- View Mode / Admin Status Pill -->
+                <div id="modeIndicator" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-xs sm:text-sm">
+                    <i id="modeIcon" class="fa-solid fa-eye text-slate-400"></i>
+                    <span id="modeText" class="font-medium text-slate-300">View-Only Mode</span>
+                </div>
+
+                <!-- Admin Action Buttons (Hidden until Unlocked with Password) -->
+                <div id="adminControls" class="hidden items-center flex-wrap gap-2">
+                    <button onclick="openGameModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-emerald-900/30 transition">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <span>Enter / Edit Game</span>
+                    </button>
+
+                    <button onclick="openRosterModal()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-medium text-xs sm:text-sm flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-users-gear text-raf-light"></i>
+                        <span>Players</span>
+                    </button>
+
+                    <button onclick="openExportModal()" class="px-3 py-2 rounded-lg bg-raf-blue hover:bg-sky-600 text-white font-semibold text-xs sm:text-sm flex items-center gap-1.5 shadow-lg shadow-sky-900/30 transition" title="Download updated HTML file for GitHub or manage password">
+                        <i class="fa-brands fa-github"></i>
+                        <span>Save / GitHub Export</span>
+                    </button>
+                </div>
+
+                <!-- Prominent Button to Input Password & Edit -->
+                <button id="authToggleBtn" onclick="handleAuthClick()" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-900/30 transition">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Enter Password to Edit</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main id="dashboardMain" class="flex-1 max-w-[1600px] w-full mx-auto px-3 sm:px-6 py-5 space-y-6">
+
+        <!-- ADMIN UNLOCKED BANNER (Only visible when admin password entered) -->
+        <div id="adminBanner" class="hidden bg-emerald-950/60 border border-emerald-500/40 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                    <i class="fa-solid fa-unlock-keyhole"></i>
+                </span>
+                <div>
+                    <p class="text-xs sm:text-sm font-bold text-emerald-300">Admin Edit Mode Active</p>
+                    <p class="text-[11px] sm:text-xs text-slate-300">Click <strong>"Enter / Edit Game"</strong> to choose players from the dropdown and input averages, or click any cell in the table directly. When finished, click <strong>"Save / GitHub Export"</strong> to download your updated file.</p>
+                </div>
+            </div>
+            <button onclick="openGameModal('NEW')" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition">
+                + Add New Game Column
+            </button>
+        </div>
+
+        <!-- TOP SUMMARY CARDS: WINS, LOSSES, SEASON AVERAGES -->
+        <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            <!-- Card 1: Team Wins (Green like Excel) -->
+            <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3.5 sm:p-4 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full"></div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Games Won</p>
+                <div class="flex items-baseline justify-between mt-1">
+                    <span id="statTotalWins" class="font-display text-3xl sm:text-4xl font-bold text-white">7</span>
+                    <span id="statWinRate" class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">77.8%</span>
+                </div>
+            </div>
+
+            <!-- Card 2: Team Losses (Red like Excel) -->
+            <div class="bg-slate-900/90 border border-rose-500/30 rounded-xl p-3.5 sm:p-4 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-rose-500/10 rounded-bl-full"></div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-rose-400">Games Lost</p>
+                <div class="flex items-baseline justify-between mt-1">
+                    <span id="statTotalLosses" class="font-display text-3xl sm:text-4xl font-bold text-white">2</span>
+                    <span id="statGamesPlayed" class="text-xs font-mono text-slate-400">9 Played</span>
+                </div>
+            </div>
+
+            <!-- Card 3: To Reschedule / Missed -->
+            <div class="bg-slate-900/90 border border-amber-500/30 rounded-xl p-3.5 sm:p-4 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-amber-500/10 rounded-bl-full"></div>
+                <p class="text-[11px] font-bold uppercase tracking-wider text-amber-400">To Reschedule</p>
+                <div class="flex items-baseline justify-between mt-1">
+                    <span id="statTotalReschedule" class="font-display text-3xl sm:text-4xl font-bold text-white">1</span>
+                    <span id="statRescheduleNote" class="text-xs font-mono text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded truncate max-w-[110px]">NHLT</span>
+                </div>
+            </div>
+
+            <!-- Card 4: Overall Team Singles Average -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 sm:p-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-raf-light">Squadron Season Ave</p>
+                <div class="flex items-baseline justify-between mt-1">
+                    <span id="statTeamAve" class="font-mono text-2xl sm:text-3xl font-bold text-white">48.86</span>
+                    <span class="text-[11px] text-slate-400">3-Dart Ave</span>
+                </div>
+            </div>
+
+            <!-- Card 5: Highest Season Player Average -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 sm:p-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Top Season Ave</p>
+                <div class="mt-1">
+                    <div id="statTopPlayerAve" class="font-mono text-xl sm:text-2xl font-bold text-white">55.39</div>
+                    <div id="statTopPlayerName" class="text-xs font-semibold text-slate-300 truncate">Marcus Blackmore</div>
+                </div>
+            </div>
+
+            <!-- Card 6: Highest Single Game Average -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 sm:p-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-purple-400">Best Single Game</p>
+                <div class="mt-1">
+                    <div id="statPeakAve" class="font-mono text-xl sm:text-2xl font-bold text-white">68.32</div>
+                    <div id="statPeakName" class="text-xs font-semibold text-slate-300 truncate">Pat Barron</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN SPREADSHEET MATRIX SECTION -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+            <!-- Matrix Toolbar -->
+            <div class="px-4 py-3 bg-slate-900/95 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <h2 class="font-display text-lg font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells text-raf-light"></i>
+                        <span>Singles Match Matrix</span>
+                    </h2>
+
+                    <!-- Color Legend Pills (Matching Spreadsheet) -->
+                    <div class="flex items-center flex-wrap gap-1.5 text-[11px] font-semibold">
+                        <span class="px-2 py-0.5 rounded bg-emerald-700 text-white">WIN</span>
+                        <span class="px-2 py-0.5 rounded bg-rose-700 text-white">LOSS</span>
+                        <span class="px-2 py-0.5 rounded bg-amber-600 text-white">TO RESCHEDULE</span>
+                        <span class="px-2 py-0.5 rounded bg-slate-700 text-slate-200">AWAITING VERDICT</span>
+                        <span class="px-2 py-0.5 rounded bg-black text-slate-300 border border-slate-700">Did Not Play Singles</span>
+                    </div>
+                </div>
+
+                <!-- Filter / Sort Controls -->
+                <div class="flex items-center gap-3 text-xs">
+                    <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer select-none">
+                        <input type="checkbox" id="includeForfeitsToggle" checked onchange="renderAll()" class="rounded bg-slate-800 border-slate-600 text-raf-blue focus:ring-0">
+                        <span>Include Forfeit 50s in Ave</span>
+                    </label>
+
+                    <select id="sortRosterSelect" onchange="renderAll()" class="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-raf-blue">
+                        <option value="sheet">Sheet Order (Original)</option>
+                        <option value="aveDesc">Sort: Highest Overall Ave</option>
+                        <option value="playedDesc">Sort: Most Games Played</option>
+                        <option value="nameAsc">Sort: Player Name (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Scrollable Spreadsheet Table -->
+            <div id="tableWrapper" class="overflow-x-auto relative">
+                <table class="w-full border-collapse text-left text-xs sm:text-sm">
+                    <thead id="matrixThead">
+                        <!-- Dynamically populated by renderAll() -->
+                    </thead>
+                    <tbody id="matrixTbody" class="divide-y divide-slate-800/80">
+                        <!-- Dynamically populated by renderAll() -->
+                    </tbody>
+                    <tfoot id="matrixTfoot">
+                        <!-- Dynamically populated team game averages row -->
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <!-- LOWER SECTION: EXCEL LEGEND / WINS-LOSSES BOXES + PLAYER RANKINGS -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left 5 Cols: Exact Spreadsheet Key & Match Record Summary -->
+            <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-5">
+                <div>
+                    <h3 class="font-display text-lg font-bold uppercase tracking-wider text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-raf-light"></i>
+                        <span>Season Record & Sheet Key</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Status Legend Table (Matches Rows 31-36 in Excel) -->
+                        <div class="space-y-1.5 text-xs font-semibold">
+                            <div class="flex items-center">
+                                <div class="w-28 h-6 bg-black border border-slate-700 rounded-l"></div>
+                                <span class="pl-2.5 text-slate-300">Did Not Play Singles</span>
+                            </div>
+                            <div class="flex items-center pt-1">
+                                <div class="w-28 h-6 bg-emerald-600 rounded-l flex items-center px-2 text-white">WIN</div>
+                                <span class="pl-2.5 text-slate-400">Match Won</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-28 h-6 bg-rose-600 rounded-l flex items-center px-2 text-white">LOSS</div>
+                                <span class="pl-2.5 text-slate-400">Match Lost</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-28 h-6 bg-amber-500 rounded-l flex items-center px-2 text-slate-950 font-bold">RESCHEDULE</div>
+                                <span class="pl-2.5 text-slate-400">To Reschedule</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-28 h-6 bg-slate-600 rounded-l flex items-center px-2 text-white">AWAITING</div>
+                                <span class="pl-2.5 text-slate-400">Awaiting Verdict</span>
+                            </div>
+                        </div>
+
+                        <!-- Wins / Loss / Missed Boxes (Matches Col E & F Rows 32-37 in Excel) -->
+                        <div class="space-y-4">
+                            <!-- Missed / To Reschedule Box -->
+                            <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+                                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">MISSED / TO RESCHEDULE</div>
+                                <div id="missedGamesList" class="space-y-1">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- WINS & LOSSES Counter Table -->
+                            <div class="border border-slate-700 rounded-xl overflow-hidden font-bold text-xs sm:text-sm">
+                                <div class="grid grid-cols-2 border-b border-slate-700">
+                                    <div class="bg-emerald-600 text-white px-3 py-2 uppercase">WINS</div>
+                                    <div id="sheetBoxWins" class="bg-slate-950 text-white px-3 py-2 text-right font-mono text-base">7</div>
+                                </div>
+                                <div class="grid grid-cols-2">
+                                    <div class="bg-rose-600 text-white px-3 py-2 uppercase">LOSS</div>
+                                    <div id="sheetBoxLosses" class="bg-slate-950 text-white px-3 py-2 text-right font-mono text-base">2</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Tip Footer -->
+                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                    <span><i class="fa-solid fa-shield-halved text-raf-light mr-1"></i> View-Only link safe for sharing with squadron</span>
+                    <span class="font-mono text-[11px]">RAF DARTS</span>
+                </div>
+            </div>
+
+            <!-- Right 7 Cols: Automatic Player Leaderboard & Individual Stats -->
+            <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-display text-lg font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                        <i class="fa-solid fa-ranking-star text-amber-400"></i>
+                        <span>Individual Player Averages & Form</span>
+                    </h3>
+                    <span class="text-xs text-slate-400">Automatically calculated from match scores</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-[11px] font-bold uppercase text-slate-400">
+                                <th class="py-2 px-2.5">Rank</th>
+                                <th class="py-2 px-2.5">Player Name</th>
+                                <th class="py-2 px-2.5 text-center">Played</th>
+                                <th class="py-2 px-2.5 text-right">Season Ave</th>
+                                <th class="py-2 px-2.5 text-right">Best Ave</th>
+                                <th class="py-2 px-2.5 text-right">Low Ave</th>
+                                <th class="py-2 px-2.5 w-28 hidden sm:table-cell">Form Bar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardTbody" class="divide-y divide-slate-800/60">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: ADMIN PASSWORD UNLOCK             -->
+    <!-- ========================================== -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-xl font-bold text-white uppercase">Unlock Admin Editing</h3>
+                        <p class="text-xs text-slate-400">Enter your edit password to modify games & averages</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('authModal')" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="submitAdminPassword(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Admin Password</label>
+                    <input type="password" id="adminPasswordInput" placeholder="Enter password to unlock editing..." required
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-raf-blue">
+                    <p id="authErrorMsg" class="hidden text-xs text-rose-400 mt-1.5 font-medium">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Incorrect password. Please enter your Leeming Arrows admin password.
+                    </p>
+                </div>
+
+                <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3 text-xs text-slate-400">
+                    <i class="fa-solid fa-lock text-amber-400 mr-1"></i>
+                    <span>Protected View: Everyone with your link can view the averages, but only those with the password can edit scores.</span>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('authModal')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-unlock"></i> Unlock Editor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: ENTER / EDIT GAME (WITH DROPDOWN) -->
+    <!-- ========================================== -->
+    <div id="gameModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl my-auto max-h-[92vh] flex flex-col">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3.5 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-lg">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-xl font-bold text-white uppercase">Enter / Edit Game Averages</h3>
+                        <p class="text-xs text-slate-400">Choose players from the dropdown and enter their 3-dart match average</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('gameModal')" class="text-slate-400 hover:text-white p-1.5">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Game Selector & Metadata -->
+            <div class="space-y-4 overflow-y-auto pr-1 flex-1">
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+                    <!-- Select Which Game to Edit or Create New -->
+                    <div class="sm:col-span-4">
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Select Game Column</label>
+                        <select id="modalGameSelector" onchange="onModalGameSelectChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white font-semibold focus:outline-none focus:border-raf-blue">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <!-- Game Title / Opponent -->
+                    <div class="sm:col-span-5">
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Game Header / Opponent Name</label>
+                        <input type="text" id="modalGameTitle" placeholder="e.g. GAME 11 AVE HALTON" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white font-semibold focus:outline-none focus:border-raf-blue">
+                    </div>
+
+                    <!-- Match Outcome Status -->
+                    <div class="sm:col-span-3">
+                        <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Match Result</label>
+                        <select id="modalGameStatus" onchange="updateModalLiveAverage()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white font-bold focus:outline-none focus:border-raf-blue">
+                            <option value="WIN">WIN (Green)</option>
+                            <option value="LOSS">LOSS (Red)</option>
+                            <option value="RESCHEDULE">TO RESCHEDULE (Amber)</option>
+                            <option value="AWAITING">AWAITING VERDICT (Grey)</option>
+                        </select>
+                    </div>
+
+                    <!-- Optional Note / Forfeit helper -->
+                    <div class="sm:col-span-8 flex items-center gap-3 pt-1">
+                        <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                            <input type="checkbox" id="modalGameIsForfeit" class="rounded bg-slate-900 border-slate-700 text-raf-blue">
+                            <span>Mark as Forfeit Win/Loss (e.g. flat 50.00 averages)</span>
+                        </label>
+                    </div>
+                    <div class="sm:col-span-4 flex justify-end pt-1">
+                        <button type="button" onclick="fillAllPlayers50()" class="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-medium transition">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Quick Fill 50.00s
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Player Dropdown Rows Header -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-200">Players Who Played in This Game</h4>
+                        <p class="text-[11px] text-slate-400">Any roster member not listed below is automatically marked as <strong>Did Not Play Singles (Black Cell)</strong> when the match has scores.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="addPlayerEntryRow()" class="px-3 py-1.5 rounded-lg bg-raf-blue hover:bg-sky-600 text-white text-xs font-semibold flex items-center gap-1.5 shadow transition">
+                            <i class="fa-solid fa-user-plus"></i> Add Player Row
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic List of [Player Dropdown] + [Average Input] -->
+                <div id="modalPlayerRowsContainer" class="space-y-2.5">
+                    <!-- Rows injected via JS -->
+                </div>
+
+                <!-- Quick Add New Player to Team Roster Pool -->
+                <div class="bg-slate-950/60 border border-slate-800/90 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-xs text-slate-400"><i class="fa-solid fa-circle-info text-raf-light mr-1"></i> Need a new player in the dropdown?</span>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="quickNewPlayerInput" placeholder="New player full name..." class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-raf-blue">
+                        <button type="button" onclick="quickAddPlayerToRoster()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-xs font-semibold">
+                            + Add to Roster
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer with Live Calculated Team Match Average -->
+            <div class="border-t border-slate-800 pt-4 mt-4 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-4">
+                    <div class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Calculated Game Average</span>
+                        <span id="modalCalculatedAve" class="font-mono text-lg font-bold text-emerald-400">--</span>
+                    </div>
+                    <button type="button" id="deleteGameBtn" onclick="deleteSelectedGame()" class="text-xs text-rose-400 hover:text-rose-300 font-medium px-2 py-1">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Delete Game
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeModal('gameModal')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="saveGameModal()" class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/40">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Game Stats
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 3: QUICK SINGLE CELL EDITOR          -->
+    <!-- ========================================== -->
+    <div id="cellModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                    <h3 id="cellModalPlayer" class="font-display text-lg font-bold text-white uppercase">Player Name</h3>
+                    <p id="cellModalGame" class="text-xs text-raf-light font-semibold">GAME 1</p>
+                </div>
+                <button onclick="closeModal('cellModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="saveQuickCell(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Player 3-Dart Average</label>
+                    <input type="number" step="0.01" min="0" max="180" id="cellModalInput" placeholder="Leave blank for Did Not Play"
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 font-mono text-base text-white focus:outline-none focus:border-raf-blue">
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <button type="button" onclick="setQuickCellDNP()" class="px-3 py-2 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-semibold">
+                        Mark DNP (Black Cell)
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeModal('cellModal')" class="px-3 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold">Cancel</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 4: MANAGE PLAYER ROSTER DROPDOWN     -->
+    <!-- ========================================== -->
+    <div id="rosterModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[88vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-users text-raf-light text-lg"></i>
+                    <div>
+                        <h3 class="font-display text-xl font-bold text-white uppercase">Team Roster Pool</h3>
+                        <p class="text-xs text-slate-400">Players available in the dropdown selector</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('rosterModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Add New Player Form -->
+            <form onsubmit="handleAddRosterPlayer(event)" class="flex gap-2">
+                <input type="text" id="rosterNewNameInput" placeholder="Enter new player name..." required
+                    class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-raf-blue">
+                <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold whitespace-nowrap">
+                    + Add Player
+                </button>
+            </form>
+
+            <!-- Roster List -->
+            <div id="rosterModalList" class="space-y-1.5 overflow-y-auto pr-1 flex-1 divide-y divide-slate-800/60">
+                <!-- Populated dynamically -->
+            </div>
+
+            <div class="border-t border-slate-800 pt-3 flex justify-end">
+                <button onclick="closeModal('rosterModal')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 5: GITHUB HTML EXPORT & SETTINGS     -->
+    <!-- ========================================== -->
+    <div id="exportModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-raf-blue/20 border border-raf-blue/40 flex items-center justify-center text-raf-light text-xl">
+                        <i class="fa-brands fa-github"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-xl font-bold text-white uppercase">GitHub Upload & Admin Security</h3>
+                        <p class="text-xs text-slate-400">Save your latest averages directly into a standalone HTML file</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('exportModal')" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Option 1: Download Updated index.html for GitHub -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-file-code text-emerald-400"></i>
+                            <span>Download Updated HTML for GitHub</span>
+                        </h4>
+                        <p class="text-xs text-slate-400 mt-1">
+                            Generates a complete, ready-to-upload <code class="text-slate-200">index.html</code> file with all your current averages, games, and password baked inside—and automatically locked in <strong>View-Only Mode</strong> for everyone you send the link to.
+                        </p>
+                    </div>
+                </div>
+                <button onclick="downloadUpdatedHTML()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 transition">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Download Updated index.html</span>
+                </button>
+            </div>
+
+            <!-- Option 1B: Embed Exact Splash Logo Image (Bakes into HTML) -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-image text-sky-400"></i>
+                        <span>Embed Exact Logo Image into HTML</span>
+                    </h4>
+                    <button onclick="clearCustomLogoImage()" class="text-[11px] text-slate-400 hover:text-rose-400">Reset to 40810.jpg Path</button>
+                </div>
+                <p class="text-xs text-slate-400">
+                    By default, the home screen loads <code class="text-slate-200">40810.jpg</code>. You can also select your <code class="text-slate-200">40810.jpg</code> file right here to permanently embed the image data inside <code class="text-slate-200">index.html</code> so you only have to upload a single file to GitHub:
+                </p>
+                <input type="file" accept="image/*" onchange="handleLogoUpload(event)" class="block w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-sky-300 hover:file:bg-slate-700 cursor-pointer"/>
+            </div>
+
+            <!-- Option 2: Change Admin Edit Password -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-amber-400"></i>
+                    <span>Change Admin Edit Password</span>
+                </h4>
+                <div class="flex gap-2">
+                    <input type="text" id="newAdminPassInput" placeholder="New edit password..." 
+                        class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-raf-blue">
+                    <button onclick="updateAdminPassword()" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold">
+                        Update Password
+                    </button>
+                </div>
+                <p id="passUpdatedFeedback" class="hidden text-xs text-emerald-400 font-medium">
+                    <i class="fa-solid fa-check mr-1"></i> Password updated! Remember to download the updated HTML if hosting on GitHub.
+                </p>
+            </div>
+
+            <!-- Option 3: Reset to Original Spreadsheet Data -->
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+                <button onclick="resetToFactorySpreadsheet()" class="text-slate-400 hover:text-rose-400 transition">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> Reset to Original Excel Sheet Data
+                </button>
+                <button onclick="closeModal('exportModal')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 border border-emerald-500/50 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-medium">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">Saved!</span>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- APPLICATION STATE, SPREADSHEET DATA & CLOUD SYNC      -->
+    <!-- ===================================================== -->
+    <script id="embeddedStateScript">
+        /*__START_EMBEDDED_STATE__*/
+        window.INITIAL_DARTS_DATA = {
+            adminPin: "Leemingdarts",
+            customLogoDataUrl: "",
+            missedNote: "NHLT",
+            players: [
+                "Ben Townsend",
+                "Brandon Ledger",
+                "Nathan Lee",
+                "David Goodfellow",
+                "Josh McCarthy",
+                "Marcus Blackmore",
+                "Joseph Moore",
+                "Pat Barron",
+                "Lewis Bell",
+                "Dan Lovett",
+                "Andy Gray"
+            ],
+            games: [
+                {
+                    id: "g1",
+                    title: "GAME 1 AVE 28 Sqn",
+                    status: "WIN",
+                    isForfeit: false,
+                    scores: {
+                        "Ben Townsend": 56.07,
+                        "Brandon Ledger": 44.21,
+                        "Nathan Lee": 54.88,
+                        "David Goodfellow": 48.74,
+                        "Josh McCarthy": 60.12,
+                        "Marcus Blackmore": 64.9
+                    }
+                },
+                {
+                    id: "g2",
+                    title: "GAME 2 AVE RAF DIGBY",
+                    status: "WIN",
+                    isForfeit: false,
+                    scores: {
+                        "Ben Townsend": 53.82,
+                        "David Goodfellow": 52.3,
+                        "Josh McCarthy": 53.68,
+                        "Joseph Moore": 34.36,
+                        "Pat Barron": 49.06,
+                        "Lewis Bell": 41.75
+                    }
+                },
+                {
+                    id: "g3",
+                    title: "GAME 3 AVE WADDINGTON",
+                    status: "WIN",
+                    isForfeit: false,
+                    scores: {
+                        "Brandon Ledger": 46.11,
+                        "Nathan Lee": 40.25,
+                        "David Goodfellow": 38.05,
+                        "Joseph Moore": 36.0,
+                        "Pat Barron": 44.87,
+                        "Dan Lovett": 46.97
+                    }
+                },
+                {
+                    id: "g4",
+                    title: "GAME 4 AVE LOSSIEMOUTH",
+                    status: "WIN",
+                    isForfeit: false,
+                    scores: {
+                        "Ben Townsend": 39.56,
+                        "David Goodfellow": 52.36,
+                        "Joseph Moore": 68.32,
+                        "Pat Barron": 56.86,
+                        "Lewis Bell": 49.23,
+                        "Dan Lovett": 51.83,
+                        "Andy Gray": 47.19
+                    }
+                },
+                {
+                    id: "g5",
+                    title: "GAME 5 AVE BRIZE",
+                    status: "LOSS",
+                    isForfeit: false,
+                    scores: {
+                        "Ben Townsend": 51.22,
+                        "Brandon Ledger": 45.79,
+                        "Josh McCarthy": 61.38,
+                        "Joseph Moore": 61.35,
+                        "Lewis Bell": 38.94,
+                        "Andy Gray": 42.0
+                    }
+                },
+                {
+                    id: "g6",
+                    title: "GAME 6 AVE COSFORD",
+                    status: "LOSS",
+                    isForfeit: false,
+                    scores: {
+                        "Ben Townsend": 42.32,
+                        "Joseph Moore": 41.61,
+                        "Pat Barron": 42.5,
+                        "Dan Lovett": 47.67,
+                        "Andy Gray": 37.59
+                    }
+                },
+                {
+                    id: "g7",
+                    title: "GAME 7 NORTHOLT",
+                    status: "RESCHEDULE",
+                    isForfeit: false,
+                    scores: {}
+                },
+                {
+                    id: "g8",
+                    title: "GAME 8 AVE BENSON (Forfeit)",
+                    status: "WIN",
+                    isForfeit: true,
+                    scores: {
+                        "Ben Townsend": 50,
+                        "Brandon Ledger": 50,
+                        "Nathan Lee": 50,
+                        "David Goodfellow": 50,
+                        "Josh McCarthy": 50,
+                        "Marcus Blackmore": 50,
+                        "Joseph Moore": 50,
+                        "Pat Barron": 50,
+                        "Lewis Bell": 50,
+                        "Dan Lovett": 50,
+                        "Andy Gray": 50
+                    }
+                },
+                {
+                    id: "g9",
+                    title: "GAME 9 AVE MARHAM",
+                    status: "AWAITING",
+                    isForfeit: false,
+                    scores: {}
+                },
+                {
+                    id: "g10",
+                    title: "GAME 10 AVE Halton (Forfeit)",
+                    status: "WIN",
+                    isForfeit: true,
+                    scores: {
+                        "Ben Townsend": 50,
+                        "Brandon Ledger": 47.73,
+                        "Nathan Lee": 46.01,
+                        "David Goodfellow": 50,
+                        "Josh McCarthy": 50,
+                        "Marcus Blackmore": 50,
+                        "Joseph Moore": 46.97,
+                        "Pat Barron": 53.56,
+                        "Lewis Bell": 50,
+                        "Dan Lovett": 50,
+                        "Andy Gray": 48.97
+                    }
+                },
+                {
+                    id: "g11",
+                    title: "GAME 11 AVE",
+                    status: "AWAITING",
+                    isForfeit: false,
+                    scores: {}
+                },
+                {
+                    id: "g12",
+                    title: "GAME 12 AVE",
+                    status: "AWAITING",
+                    isForfeit: false,
+                    scores: {}
+                }
+            ]
+        };
+        /*__END_EMBEDDED_STATE__*/
+    </script>
+
+    <!-- MAIN APPLICATION LOGIC + FIREBASE CLOUD SYNC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Deep clone initial data so we always have a clean working copy
+        let appData = JSON.parse(JSON.stringify(window.INITIAL_DARTS_DATA));
+        if (!appData.adminPin || appData.adminPin === "arrows2026") {
+            appData.adminPin = "Leemingdarts";
+        }
+        let isAdminUnlocked = false;
+        let activeQuickCell = { gameId: null, player: null };
+
+        // ==========================================
+        // SPLASH SCREEN TRANSITION ANIMATION
+        // ==========================================
+        window.enterClubAverages = function() {
+            const splash = document.getElementById('splashScreen');
+            const dashboard = document.getElementById('dashboardMain');
+            if (!splash || splash.classList.contains('launching-transition')) return;
+
+            // Trigger multi-stage dart strike + Hawk jet blast animation
+            splash.classList.add('launching-transition');
+
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.visibility = 'hidden';
+                if (dashboard) {
+                    dashboard.classList.remove('dashboard-enter');
+                    void dashboard.offsetWidth;
+                    dashboard.classList.add('dashboard-enter');
+                }
+            }, 950);
+
+            setTimeout(() => {
+                splash.classList.add('hidden');
+                splash.classList.remove('launching-transition');
+            }, 1450);
+        };
+
+        window.returnToSplashScreen = function() {
+            const splash = document.getElementById('splashScreen');
+            if (!splash) return;
+            splash.classList.remove('hidden', 'launching-transition');
+            splash.style.visibility = 'visible';
+            splash.style.opacity = '1';
+        };
+
+        // Fallback chain if 40810.jpg is named logo.jpg or logo.png in the user's GitHub repo
+        const FALLBACK_LOGO_PATHS = ["40810.jpg", "logo.jpg", "logo.png", "leeming-logo.jpg"];
+        let fallbackTryIndex = 0;
+
+        window.onExactLogoLoaded = function() {
+            const loaderOverlay = document.getElementById('logoFileLoaderOverlay');
+            if (loaderOverlay) loaderOverlay.classList.add('hidden');
+            const exactImg = document.getElementById('exactHomeLogoImg');
+            if (exactImg) exactImg.classList.remove('opacity-0');
+        };
+
+        window.onExactLogoError = function(imgEl) {
+            if (appData.customLogoDataUrl && appData.customLogoDataUrl.startsWith('data:image')) {
+                if (imgEl.src !== appData.customLogoDataUrl) {
+                    imgEl.src = appData.customLogoDataUrl;
+                    return;
+                }
+            }
+            fallbackTryIndex++;
+            if (fallbackTryIndex < FALLBACK_LOGO_PATHS.length) {
+                imgEl.src = FALLBACK_LOGO_PATHS[fallbackTryIndex];
+            } else {
+                imgEl.classList.add('opacity-0');
+                const loaderOverlay = document.getElementById('logoFileLoaderOverlay');
+                if (loaderOverlay) loaderOverlay.classList.remove('hidden');
+            }
+        };
+
+        function syncLogoDisplay() {
+            const exactImg = document.getElementById('exactHomeLogoImg');
+            const headerThumb = document.getElementById('headerLogoThumb');
+            const embedBtnText = document.getElementById('splashEmbedBtnText');
+            if (!exactImg) return;
+
+            if (appData.customLogoDataUrl && appData.customLogoDataUrl.startsWith('data:image')) {
+                exactImg.src = appData.customLogoDataUrl;
+                exactImg.classList.remove('opacity-0');
+                if (headerThumb) {
+                    headerThumb.src = appData.customLogoDataUrl;
+                    headerThumb.style.display = 'block';
+                }
+                const loaderOverlay = document.getElementById('logoFileLoaderOverlay');
+                if (loaderOverlay) loaderOverlay.classList.add('hidden');
+                if (embedBtnText) embedBtnText.textContent = "Logo Embedded ✓";
+            } else {
+                fallbackTryIndex = 0;
+                exactImg.src = FALLBACK_LOGO_PATHS[0];
+                if (headerThumb) {
+                    headerThumb.src = FALLBACK_LOGO_PATHS[0];
+                }
+                if (embedBtnText) embedBtnText.textContent = "Embed Exact Logo File";
+            }
+        }
+
+        window.handleLogoUpload = function(e) {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                appData.customLogoDataUrl = evt.target.result;
+                syncLogoDisplay();
+                saveStateToCloud();
+                showToast("Exact logo image embedded! Click 'Save / GitHub Export' to download HTML.");
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearCustomLogoImage = function() {
+            appData.customLogoDataUrl = "";
+            syncLogoDisplay();
+            saveStateToCloud();
+            showToast("Reset to load 40810.jpg from folder");
+        };
+
+        // Optional Cloud Persistence (Automatically connects if hosted in environment with Firebase config)
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'raf-leeming-arrows-stats';
+
+        async function initCloudSync() {
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, (user) => {
+                        currentUser = user;
+                        if (user && db) {
+                            const stateDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'dartsTracker', 'mainSheet');
+                            onSnapshot(stateDocRef, (snapshot) => {
+                                if (snapshot.exists()) {
+                                    const cloudData = snapshot.data();
+                                    if (cloudData && cloudData.payload) {
+                                        appData = JSON.parse(cloudData.payload);
+                                        if (!appData.adminPin || appData.adminPin === "arrows2026") {
+                                            appData.adminPin = "Leemingdarts";
+                                        }
+                                        syncLogoDisplay();
+                                        renderAll();
+                                    }
+                                } else {
+                                    saveStateToCloud();
+                                }
+                            }, (err) => {
+                                console.warn("Cloud listener notice:", err);
+                            });
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn("Running in standalone static mode:", e);
+            }
+        }
+
+        async function saveStateToCloud() {
+            window.INITIAL_DARTS_DATA = JSON.parse(JSON.stringify(appData));
+            if (db && currentUser) {
+                try {
+                    const stateDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'dartsTracker', 'mainSheet');
+                    await setDoc(stateDocRef, {
+                        payload: JSON.stringify(appData),
+                        updatedAt: Date.now()
+                    });
+                } catch (err) {
+                    console.warn("Cloud sync error:", err);
+                }
+            }
+        }
+
+        // ==========================================
+        // CALCULATIONS & HELPERS
+        // ==========================================
+        function formatAve(num) {
+            if (num === null || num === undefined || isNaN(num)) return "";
+            const n = Number(num);
+            return Number.isInteger(n) ? n.toString() : n.toFixed(2);
+        }
+
+        function calculatePlayerStats(playerName, includeForfeits = true) {
+            const values = [];
+            appData.games.forEach(g => {
+                if (!includeForfeits && g.isForfeit) return;
+                const val = g.scores ? g.scores[playerName] : undefined;
+                if (val !== undefined && val !== null && val !== "" && !isNaN(Number(val))) {
+                    values.push(Number(val));
+                }
+            });
+
+            const played = values.length;
+            const ave = played > 0 ? values.reduce((a, b) => a + b, 0) / played : null;
+            const high = played > 0 ? Math.max(...values) : null;
+            const low = played > 0 ? Math.min(...values) : null;
+
+            return { played, ave, high, low };
+        }
+
+        function calculateGameStats(game) {
+            const vals = Object.values(game.scores || {})
+                .filter(v => v !== undefined && v !== null && v !== "" && !isNaN(Number(v)))
+                .map(Number);
+            const count = vals.length;
+            const ave = count > 0 ? vals.reduce((a, b) => a + b, 0) / count : null;
+            return { count, ave };
+        }
+
+        // ==========================================
+        // RENDER ALL UI COMPONENTS
+        // ==========================================
+        window.renderAll = function() {
+            const includeForfeits = document.getElementById('includeForfeitsToggle')?.checked ?? true;
+            const sortMode = document.getElementById('sortRosterSelect')?.value || 'sheet';
+
+            let wins = 0;
+            let losses = 0;
+            let reschedules = 0;
+            const missedTitles = [];
+
+            let allMatchValues = [];
+            let peakVal = null;
+            let peakHolder = "--";
+
+            appData.games.forEach(g => {
+                if (g.status === 'WIN') wins++;
+                else if (g.status === 'LOSS') losses++;
+                else if (g.status === 'RESCHEDULE') {
+                    reschedules++;
+                    missedTitles.push(g.title.replace(/^GAME\s+\d+\s*(AVE)?\s*/i, '') || g.title);
+                }
+
+                Object.entries(g.scores || {}).forEach(([pName, score]) => {
+                    const num = Number(score);
+                    if (!isNaN(num) && num > 0) {
+                        if (includeForfeits || !g.isForfeit) {
+                            allMatchValues.push(num);
+                        }
+                        if (!g.isForfeit && (peakVal === null || num > peakVal)) {
+                            peakVal = num;
+                            peakHolder = pName;
+                        }
+                    }
+                });
+            });
+
+            const completedGames = wins + losses;
+            const winRate = completedGames > 0 ? ((wins / completedGames) * 100).toFixed(1) : "0.0";
+            const teamSeasonAve = allMatchValues.length > 0
+                ? (allMatchValues.reduce((a, b) => a + b, 0) / allMatchValues.length).toFixed(2)
+                : "--";
+
+            const playerStatsMap = {};
+            appData.players.forEach((p, idx) => {
+                playerStatsMap[p] = {
+                    index: idx,
+                    name: p,
+                    ...calculatePlayerStats(p, includeForfeits)
+                };
+            });
+
+            let topPlayer = null;
+            Object.values(playerStatsMap).forEach(ps => {
+                if (ps.ave !== null && (topPlayer === null || ps.ave > topPlayer.ave)) {
+                    topPlayer = ps;
+                }
+            });
+
+            document.getElementById('statTotalWins').textContent = wins;
+            document.getElementById('statWinRate').textContent = `${winRate}% Win Rate`;
+            document.getElementById('statTotalLosses').textContent = losses;
+            document.getElementById('statGamesPlayed').textContent = `${completedGames} Completed`;
+            document.getElementById('statTotalReschedule').textContent = reschedules;
+            document.getElementById('statRescheduleNote').textContent = missedTitles.length > 0
+                ? `MISSED: ${missedTitles.join(', ')}`
+                : 'None Pending';
+
+            document.getElementById('statTeamAve').textContent = teamSeasonAve;
+            document.getElementById('statTopPlayerAve').textContent = topPlayer ? topPlayer.ave.toFixed(2) : "--";
+            document.getElementById('statTopPlayerName').textContent = topPlayer ? topPlayer.name : "--";
+            document.getElementById('statPeakAve').textContent = peakVal !== null ? peakVal.toFixed(2) : "--";
+            document.getElementById('statPeakName').textContent = peakHolder;
+
+            document.getElementById('sheetBoxWins').textContent = wins;
+            document.getElementById('sheetBoxLosses').textContent = losses;
+            const missedContainer = document.getElementById('missedGamesList');
+            if (missedTitles.length === 0) {
+                missedContainer.innerHTML = `<div class="text-xs text-slate-500">No games awaiting reschedule</div>`;
+            } else {
+                missedContainer.innerHTML = missedTitles.map(t => `
+                    <div class="bg-amber-500 text-slate-950 font-bold text-xs px-2.5 py-1 rounded flex items-center justify-between">
+                        <span>${escapeHtml(t)}</span>
+                        <span class="text-[10px] uppercase">To Reschedule</span>
+                    </div>
+                `).join('');
+            }
+
+            const sortedPlayers = [...appData.players].sort((a, b) => {
+                const sa = playerStatsMap[a];
+                const sb = playerStatsMap[b];
+                if (sortMode === 'aveDesc') return (sb.ave || 0) - (sa.ave || 0);
+                if (sortMode === 'playedDesc') return sb.played - sa.played || (sb.ave || 0) - (sa.ave || 0);
+                if (sortMode === 'nameAsc') return a.localeCompare(b);
+                return sa.index - sb.index;
+            });
+
+            const thead = document.getElementById('matrixThead');
+            let headHtml = `<tr class="border-b border-slate-700 text-[11px] font-bold uppercase tracking-wider">
+                <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3.5 min-w-[140px] sm:min-w-[190px] border-r border-slate-800 shadow">
+                    NAME
+                </th>
+                <th class="sticky-col-2 bg-slate-900 text-raf-light py-3 px-2.5 text-center min-w-[88px] border-r border-slate-700 shadow" title="Calculated Player Overall Season Average">
+                    OVERALL AVE
+                </th>
+                <th class="bg-slate-900 text-slate-400 py-3 px-2 text-center min-w-[60px] border-r border-slate-800" title="Singles Games Played">
+                    PLAYED
+                </th>`;
+
+            appData.games.forEach((g) => {
+                const statusClass = `status-${g.status || 'AWAITING'}`;
+                const clickAttr = isAdminUnlocked ? `onclick="openGameModal('${g.id}')" cursor-pointer` : '';
+                const editIcon = isAdminUnlocked ? `<i class="fa-solid fa-pen-to-square ml-1 opacity-75 text-[10px]"></i>` : '';
+                headHtml += `
+                    <th ${clickAttr} class="${statusClass} py-2.5 px-3 text-center min-w-[130px] border-r border-slate-900/40 select-none transition hover:brightness-110" title="${escapeHtml(g.title)} (${g.status})">
+                        <div class="leading-tight">${escapeHtml(g.title)}${editIcon}</div>
+                    </th>
+                `;
+            });
+            headHtml += `</tr>`;
+            thead.innerHTML = headHtml;
+
+            const tbody = document.getElementById('matrixTbody');
+            const tableWrapper = document.getElementById('tableWrapper');
+            if (isAdminUnlocked) {
+                tableWrapper.classList.add('admin-unlocked');
+            } else {
+                tableWrapper.classList.remove('admin-unlocked');
+            }
+
+            let bodyHtml = '';
+            sortedPlayers.forEach((player) => {
+                const pStats = playerStatsMap[player];
+                const overallAveDisplay = pStats.ave !== null ? pStats.ave.toFixed(2) : '--';
+
+                bodyHtml += `<tr class="hover:bg-slate-800/40 transition group">
+                    <td class="sticky-col-1 bg-slate-900 group-hover:bg-slate-800 text-slate-100 font-semibold py-2.5 px-3.5 border-r border-slate-800 whitespace-nowrap">
+                        ${escapeHtml(player)}
+                    </td>
+                    <td class="sticky-col-2 bg-slate-900/95 group-hover:bg-slate-800 font-mono font-bold text-sky-400 py-2.5 px-2.5 text-center border-r border-slate-700">
+                        ${overallAveDisplay}
+                    </td>
+                    <td class="bg-slate-900/60 font-mono text-slate-400 py-2.5 px-2 text-center border-r border-slate-800">
+                        ${pStats.played}
+                    </td>`;
+
+                appData.games.forEach((g) => {
+                    const gameStat = calculateGameStats(g);
+                    const rawVal = g.scores ? g.scores[player] : undefined;
+                    const hasScore = rawVal !== undefined && rawVal !== null && rawVal !== "";
+                    const gameHasOccurred = gameStat.count > 0 || (g.id === 'g10' && g.status === 'WIN');
+
+                    const cellClick = isAdminUnlocked ? `onclick="openQuickCellModal('${g.id}', '${escapeJs(player)}')"` : '';
+
+                    if (hasScore) {
+                        const numVal = Number(rawVal);
+                        let textClass = "text-slate-100";
+                        if (!g.isForfeit && numVal >= 60) textClass = "text-amber-300 font-bold";
+                        else if (!g.isForfeit && numVal >= 50) textClass = "text-emerald-300 font-semibold";
+                        else if (g.isForfeit) textClass = "text-slate-300";
+
+                        bodyHtml += `
+                            <td ${cellClick} class="stat-cell bg-slate-900/40 font-mono ${textClass} py-2.5 px-3 text-right border-r border-slate-800">
+                                ${formatAve(numVal)}
+                            </td>
+                        `;
+                    } else if (gameHasOccurred) {
+                        bodyHtml += `
+                            <td ${cellClick} class="stat-cell cell-dnp py-2.5 px-3 text-center border-r border-slate-900" title="${escapeHtml(player)} - Did Not Play Singles">
+                            </td>
+                        `;
+                    } else {
+                        bodyHtml += `
+                            <td ${cellClick} class="stat-cell bg-slate-950/30 text-slate-600 py-2.5 px-3 text-center border-r border-slate-800/70">
+                                -
+                            </td>
+                        `;
+                    }
+                });
+
+                bodyHtml += `</tr>`;
+            });
+            tbody.innerHTML = bodyHtml;
+
+            const tfoot = document.getElementById('matrixTfoot');
+            let footHtml = `<tr class="bg-slate-950 border-t-2 border-slate-700 font-mono text-xs font-bold">
+                <td class="sticky-col-1 bg-slate-950 text-raf-light py-3 px-3.5 border-r border-slate-800 uppercase font-sans">
+                    TEAM GAME AVE
+                </td>
+                <td class="sticky-col-2 bg-slate-950 text-emerald-400 py-3 px-2.5 text-center border-r border-slate-700">
+                    ${teamSeasonAve}
+                </td>
+                <td class="bg-slate-950 text-slate-400 py-3 px-2 text-center border-r border-slate-800">
+                    ${completedGames}G
+                </td>`;
+
+            appData.games.forEach((g) => {
+                const gStat = calculateGameStats(g);
+                const aveText = gStat.ave !== null ? gStat.ave.toFixed(2) : '--';
+                footHtml += `
+                    <td class="py-3 px-3 text-right text-slate-200 border-r border-slate-800 bg-slate-950/90">
+                        ${aveText}
+                    </td>
+                `;
+            });
+            footHtml += `</tr>`;
+            tfoot.innerHTML = footHtml;
+
+            const leaderboardRanked = Object.values(playerStatsMap).sort((a, b) => (b.ave || 0) - (a.ave || 0));
+            const lbTbody = document.getElementById('leaderboardTbody');
+            lbTbody.innerHTML = leaderboardRanked.map((p, idx) => {
+                const rankBadge = idx === 0
+                    ? `<span class="w-6 h-6 rounded-full bg-amber-400/20 border border-amber-400 text-amber-300 inline-flex items-center justify-center font-bold text-xs">1</span>`
+                    : idx === 1
+                    ? `<span class="w-6 h-6 rounded-full bg-slate-300/20 border border-slate-300 text-slate-200 inline-flex items-center justify-center font-bold text-xs">2</span>`
+                    : idx === 2
+                    ? `<span class="w-6 h-6 rounded-full bg-amber-700/30 border border-amber-600 text-amber-400 inline-flex items-center justify-center font-bold text-xs">3</span>`
+                    : `<span class="text-slate-500 font-mono pl-2">${idx + 1}</span>`;
+
+                const barPercent = p.ave ? Math.min(100, Math.max(15, ((p.ave - 30) / 40) * 100)) : 0;
+
+                return `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="py-2.5 px-2.5">${rankBadge}</td>
+                        <td class="py-2.5 px-2.5 font-semibold text-white">${escapeHtml(p.name)}</td>
+                        <td class="py-2.5 px-2.5 text-center font-mono text-slate-300">${p.played}</td>
+                        <td class="py-2.5 px-2.5 text-right font-mono font-bold text-sky-400">${p.ave !== null ? p.ave.toFixed(2) : '--'}</td>
+                        <td class="py-2.5 px-2.5 text-right font-mono text-emerald-400">${p.high !== null ? p.high.toFixed(2) : '--'}</td>
+                        <td class="py-2.5 px-2.5 text-right font-mono text-slate-400">${p.low !== null ? p.low.toFixed(2) : '--'}</td>
+                        <td class="py-2.5 px-2.5 hidden sm:table-cell">
+                            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-raf-blue to-emerald-400 rounded-full" style="width: ${barPercent}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        // ==========================================
+        // ADMIN AUTHENTICATION
+        // ==========================================
+        window.handleAuthClick = function() {
+            if (isAdminUnlocked) {
+                isAdminUnlocked = false;
+                updateAuthUI();
+                renderAll();
+                showToast("Locked into View-Only Mode");
+            } else {
+                document.getElementById('adminPasswordInput').value = '';
+                document.getElementById('authErrorMsg').classList.add('hidden');
+                openModal('authModal');
+                setTimeout(() => document.getElementById('adminPasswordInput').focus(), 60);
+            }
+        };
+
+        window.submitAdminPassword = function(e) {
+            e.preventDefault();
+            const entered = document.getElementById('adminPasswordInput').value.trim();
+            const expected = appData.adminPin || "Leemingdarts";
+            if (entered === expected || entered === "Leemingdarts") {
+                isAdminUnlocked = true;
+                closeModal('authModal');
+                updateAuthUI();
+                renderAll();
+                showToast("Admin Edit Mode Unlocked!");
+            } else {
+                document.getElementById('authErrorMsg').classList.remove('hidden');
+            }
+        };
+
+        function updateAuthUI() {
+            const adminControls = document.getElementById('adminControls');
+            const adminBanner = document.getElementById('adminBanner');
+            const authBtn = document.getElementById('authToggleBtn');
+            const modeText = document.getElementById('modeText');
+            const modeIcon = document.getElementById('modeIcon');
+
+            if (isAdminUnlocked) {
+                adminControls.classList.remove('hidden');
+                adminControls.classList.add('flex');
+                adminBanner.classList.remove('hidden');
+
+                modeText.textContent = "Admin Edit Mode";
+                modeText.className = "font-semibold text-emerald-400";
+                modeIcon.className = "fa-solid fa-pen-to-square text-emerald-400";
+
+                authBtn.innerHTML = `<i class="fa-solid fa-lock-open"></i><span>Lock Edit Mode</span>`;
+                authBtn.className = "px-3.5 py-2 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 font-semibold text-xs sm:text-sm flex items-center gap-2 transition";
+            } else {
+                adminControls.classList.add('hidden');
+                adminControls.classList.remove('flex');
+                adminBanner.classList.add('hidden');
+
+                modeText.textContent = "View-Only Mode";
+                modeText.className = "font-medium text-slate-300";
+                modeIcon.className = "fa-solid fa-eye text-slate-400";
+
+                authBtn.innerHTML = `<i class="fa-solid fa-key"></i><span>Enter Password to Edit</span>`;
+                authBtn.className = "px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-900/30 transition";
+            }
+        }
+
+        // ==========================================
+        // GAME MODAL & DROPDOWNS
+        // ==========================================
+        window.openGameModal = function(targetGameId = null) {
+            if (!isAdminUnlocked) return;
+
+            const selector = document.getElementById('modalGameSelector');
+            let optionsHtml = appData.games.map(g => `
+                <option value="${g.id}">${escapeHtml(g.title)} (${g.status})</option>
+            `).join('');
+            optionsHtml += `<option value="NEW">+ CREATE NEW GAME COLUMN...</option>`;
+            selector.innerHTML = optionsHtml;
+
+            if (targetGameId === 'NEW') {
+                selector.value = 'NEW';
+            } else if (targetGameId && appData.games.some(g => g.id === targetGameId)) {
+                selector.value = targetGameId;
+            } else {
+                selector.value = appData.games[0]?.id || 'NEW';
+            }
+
+            onModalGameSelectChange();
+            openModal('gameModal');
+        };
+
+        window.onModalGameSelectChange = function() {
+            const selectedId = document.getElementById('modalGameSelector').value;
+            const titleInput = document.getElementById('modalGameTitle');
+            const statusSelect = document.getElementById('modalGameStatus');
+            const forfeitCheck = document.getElementById('modalGameIsForfeit');
+            const deleteBtn = document.getElementById('deleteGameBtn');
+            const rowsContainer = document.getElementById('modalPlayerRowsContainer');
+
+            rowsContainer.innerHTML = '';
+
+            if (selectedId === 'NEW') {
+                const nextNum = appData.games.length + 1;
+                titleInput.value = `GAME ${nextNum} AVE `;
+                statusSelect.value = 'WIN';
+                forfeitCheck.checked = false;
+                deleteBtn.classList.add('hidden');
+
+                for (let i = 0; i < 6; i++) {
+                    addPlayerEntryRow("", "");
+                }
+            } else {
+                const game = appData.games.find(g => g.id === selectedId);
+                if (!game) return;
+
+                titleInput.value = game.title;
+                statusSelect.value = game.status || 'AWAITING';
+                forfeitCheck.checked = !!game.isForfeit;
+                deleteBtn.classList.remove('hidden');
+
+                const entries = Object.entries(game.scores || {});
+                if (entries.length > 0) {
+                    entries.forEach(([player, score]) => {
+                        addPlayerEntryRow(player, score);
+                    });
+                } else {
+                    for (let i = 0; i < 6; i++) {
+                        addPlayerEntryRow("", "");
+                    }
+                }
+            }
+
+            updateModalLiveAverage();
+        };
+
+        window.addPlayerEntryRow = function(selectedPlayer = "", averageValue = "") {
+            const container = document.getElementById('modalPlayerRowsContainer');
+            const rowDiv = document.createElement('div');
+            rowDiv.className = "player-entry-row flex items-center gap-2 sm:gap-3 bg-slate-950/90 border border-slate-800 p-2.5 rounded-xl";
+
+            const playerOptions = [
+                `<option value="">-- Choose Player from Dropdown --</option>`,
+                ...appData.players.map(p => `<option value="${escapeHtml(p)}" ${p === selectedPlayer ? 'selected' : ''}>${escapeHtml(p)}</option>`)
+            ].join('');
+
+            rowDiv.innerHTML = `
+                <div class="flex-1">
+                    <select onchange="updateModalLiveAverage()" class="modal-player-select w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white font-medium focus:outline-none focus:border-raf-blue">
+                        ${playerOptions}
+                    </select>
+                </div>
+                <div class="w-32 sm:w-40">
+                    <input type="number" step="0.01" min="0" max="180" placeholder="Ave (e.g. 52.40)" value="${averageValue !== undefined && averageValue !== null ? averageValue : ''}"
+                        oninput="updateModalLiveAverage()"
+                        class="modal-player-ave w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 font-mono text-xs sm:text-sm text-white text-right focus:outline-none focus:border-raf-blue">
+                </div>
+                <button type="button" onclick="this.closest('.player-entry-row').remove(); updateModalLiveAverage();"
+                    class="w-8 h-8 rounded-lg bg-slate-900 hover:bg-rose-950 text-slate-400 hover:text-rose-400 border border-slate-800 flex items-center justify-center transition" title="Remove row">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            container.appendChild(rowDiv);
+            updateModalLiveAverage();
+        };
+
+        window.updateModalLiveAverage = function() {
+            const rows = document.querySelectorAll('#modalPlayerRowsContainer .player-entry-row');
+            const vals = [];
+            rows.forEach(r => {
+                const pName = r.querySelector('.modal-player-select').value;
+                const pAve = r.querySelector('.modal-player-ave').value;
+                if (pName && pAve !== "" && !isNaN(Number(pAve))) {
+                    vals.push(Number(pAve));
+                }
+            });
+
+            const calcEl = document.getElementById('modalCalculatedAve');
+            if (vals.length > 0) {
+                const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+                calcEl.textContent = `${mean.toFixed(2)} (${vals.length} Players)`;
+            } else {
+                calcEl.textContent = "--";
+            }
+        };
+
+        window.fillAllPlayers50 = function() {
+            document.getElementById('modalGameIsForfeit').checked = true;
+            const rows = document.querySelectorAll('#modalPlayerRowsContainer .player-entry-row');
+            rows.forEach(r => {
+                const sel = r.querySelector('.modal-player-select');
+                const inp = r.querySelector('.modal-player-ave');
+                if (sel.value) {
+                    inp.value = 50;
+                }
+            });
+            updateModalLiveAverage();
+        };
+
+        window.quickAddPlayerToRoster = function() {
+            const inp = document.getElementById('quickNewPlayerInput');
+            const newName = inp.value.trim();
+            if (!newName) return;
+
+            if (!appData.players.some(p => p.toLowerCase() === newName.toLowerCase())) {
+                appData.players.push(newName);
+                const selects = document.querySelectorAll('#modalPlayerRowsContainer .modal-player-select');
+                selects.forEach(sel => {
+                    const currentVal = sel.value;
+                    sel.innerHTML = [
+                        `<option value="">-- Choose Player from Dropdown --</option>`,
+                        ...appData.players.map(p => `<option value="${escapeHtml(p)}" ${p === currentVal ? 'selected' : ''}>${escapeHtml(p)}</option>`)
+                    ].join('');
+                });
+                addPlayerEntryRow(newName, "");
+                saveStateToCloud();
+                renderAll();
+                showToast(`Added ${newName} to player dropdown!`);
+            }
+            inp.value = '';
+        };
+
+        window.saveGameModal = function() {
+            const selectedId = document.getElementById('modalGameSelector').value;
+            const title = document.getElementById('modalGameTitle').value.trim() || "GAME AVE";
+            const status = document.getElementById('modalGameStatus').value;
+            const isForfeit = document.getElementById('modalGameIsForfeit').checked;
+
+            const scores = {};
+            const rows = document.querySelectorAll('#modalPlayerRowsContainer .player-entry-row');
+            rows.forEach(r => {
+                const pName = r.querySelector('.modal-player-select').value;
+                const pAve = r.querySelector('.modal-player-ave').value.trim();
+                if (pName && pAve !== "" && !isNaN(Number(pAve))) {
+                    scores[pName] = Number(pAve);
+                }
+            });
+
+            if (selectedId === 'NEW') {
+                const newId = 'g' + Date.now();
+                appData.games.push({
+                    id: newId,
+                    title,
+                    status,
+                    isForfeit,
+                    scores
+                });
+            } else {
+                const game = appData.games.find(g => g.id === selectedId);
+                if (game) {
+                    game.title = title;
+                    game.status = status;
+                    game.isForfeit = isForfeit;
+                    game.scores = scores;
+                }
+            }
+
+            saveStateToCloud();
+            renderAll();
+            closeModal('gameModal');
+            showToast(`Saved ${title}!`);
+        };
+
+        window.deleteSelectedGame = function() {
+            const selectedId = document.getElementById('modalGameSelector').value;
+            if (selectedId === 'NEW') return;
+            appData.games = appData.games.filter(g => g.id !== selectedId);
+            saveStateToCloud();
+            renderAll();
+            closeModal('gameModal');
+            showToast("Game column removed");
+        };
+
+        // ==========================================
+        // QUICK CELL & ROSTER MODALS
+        // ==========================================
+        window.openQuickCellModal = function(gameId, playerName) {
+            if (!isAdminUnlocked) return;
+            const game = appData.games.find(g => g.id === gameId);
+            if (!game) return;
+
+            activeQuickCell = { gameId, player: playerName };
+            document.getElementById('cellModalPlayer').textContent = playerName;
+            document.getElementById('cellModalGame').textContent = game.title;
+
+            const existingVal = game.scores ? game.scores[playerName] : undefined;
+            const input = document.getElementById('cellModalInput');
+            input.value = existingVal !== undefined ? existingVal : '';
+
+            openModal('cellModal');
+            setTimeout(() => input.focus(), 50);
+        };
+
+        window.saveQuickCell = function(e) {
+            e.preventDefault();
+            const { gameId, player } = activeQuickCell;
+            const game = appData.games.find(g => g.id === gameId);
+            if (!game) return;
+
+            const raw = document.getElementById('cellModalInput').value.trim();
+            if (!game.scores) game.scores = {};
+
+            if (raw === "" || isNaN(Number(raw))) {
+                delete game.scores[player];
+            } else {
+                game.scores[player] = Number(raw);
+            }
+
+            saveStateToCloud();
+            renderAll();
+            closeModal('cellModal');
+            showToast(`Updated ${player}`);
+        };
+
+        window.setQuickCellDNP = function() {
+            const { gameId, player } = activeQuickCell;
+            const game = appData.games.find(g => g.id === gameId);
+            if (game && game.scores) {
+                delete game.scores[player];
+            }
+            saveStateToCloud();
+            renderAll();
+            closeModal('cellModal');
+            showToast(`Marked ${player} as Did Not Play`);
+        };
+
+        window.openRosterModal = function() {
+            if (!isAdminUnlocked) return;
+            renderRosterModalList();
+            openModal('rosterModal');
+        };
+
+        function renderRosterModalList() {
+            const list = document.getElementById('rosterModalList');
+            list.innerHTML = appData.players.map((p, idx) => `
+                <div class="py-2 flex items-center justify-between text-xs sm:text-sm">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-5 text-slate-500 font-mono text-xs">${idx + 1}.</span>
+                        <span class="font-semibold text-slate-100">${escapeHtml(p)}</span>
+                    </div>
+                    <button onclick="removePlayerFromRoster('${escapeJs(p)}')" class="text-slate-500 hover:text-rose-400 px-2 py-1" title="Remove player">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.handleAddRosterPlayer = function(e) {
+            e.preventDefault();
+            const inp = document.getElementById('rosterNewNameInput');
+            const name = inp.value.trim();
+            if (!name) return;
+
+            if (!appData.players.some(p => p.toLowerCase() === name.toLowerCase())) {
+                appData.players.push(name);
+                saveStateToCloud();
+                renderRosterModalList();
+                renderAll();
+                showToast(`Added ${name} to Roster`);
+            }
+            inp.value = '';
+        };
+
+        window.removePlayerFromRoster = function(name) {
+            appData.players = appData.players.filter(p => p !== name);
+            saveStateToCloud();
+            renderRosterModalList();
+            renderAll();
+            showToast(`Removed ${name}`);
+        };
+
+        // ==========================================
+        // GITHUB EXPORT & PASSWORD SETTINGS MODAL
+        // ==========================================
+        window.openExportModal = function() {
+            if (!isAdminUnlocked) return;
+            document.getElementById('newAdminPassInput').value = appData.adminPin || "Leemingdarts";
+            document.getElementById('passUpdatedFeedback').classList.add('hidden');
+            openModal('exportModal');
+        };
+
+        window.updateAdminPassword = function() {
+            const val = document.getElementById('newAdminPassInput').value.trim();
+            if (!val) return;
+            appData.adminPin = val;
+            saveStateToCloud();
+            document.getElementById('passUpdatedFeedback').classList.remove('hidden');
+            showToast("Admin password updated!");
+        };
+
+        window.downloadUpdatedHTML = function() {
+            const wasUnlocked = isAdminUnlocked;
+            isAdminUnlocked = false;
+            updateAuthUI();
+            renderAll();
+            returnToSplashScreen();
+
+            const currentFullHtml = document.documentElement.outerHTML;
+            const replacementBlock = `/*__START_EMBEDDED_STATE__*/\n        window.INITIAL_DARTS_DATA = ${JSON.stringify(appData, null, 12)};\n        /*__END_EMBEDDED_STATE__*/`;
+            const updatedHtml = "<!DOCTYPE html>\n" + currentFullHtml.replace(
+                /\/\*__START_EMBEDDED_STATE__\*\/[\s\S]*?\/\*__END_EMBEDDED_STATE__\*\//,
+                replacementBlock
+            );
+
+            const blob = new Blob([updatedHtml], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            const splash = document.getElementById('splashScreen');
+            splash.classList.add('hidden');
+            isAdminUnlocked = wasUnlocked;
+            updateAuthUI();
+            renderAll();
+            showToast("Downloaded index.html ready for GitHub!");
+        };
+
+        window.resetToFactorySpreadsheet = function() {
+            location.reload();
+        };
+
+        window.openModal = function(id) {
+            document.getElementById(id).classList.remove('hidden');
+        };
+
+        window.closeModal = function(id) {
+            document.getElementById(id).classList.add('hidden');
+        };
+
+        window.showToast = function(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.remove('hidden');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                t.classList.add('hidden');
+            }, 3200);
+        };
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        function escapeJs(str) {
+            return String(str).replace(/'/g, "\\'");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            syncLogoDisplay();
+            updateAuthUI();
+            renderAll();
+            initCloudSync();
+        });
+    </script>
+</body>
+</html>
+```
