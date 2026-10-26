@@ -582,44 +582,56 @@
             const playerStats = {};
             appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0, ave: 0 });
 
+            // Analyze Match Data & build statistics
             gamesToRender.forEach(g => {
                 if (g.status === 'WIN') wins++;
                 if (g.status === 'LOSS') losses++;
                 if (g.status === 'RESCHEDULE') reschedules++;
+                
                 Object.entries(g.scores || {}).forEach(([pName, score]) => {
                     const num = Number(score);
-                    if (!isNaN(num) && playerStats[pName]) {
+                    if (!isNaN(num)) {
+                        if (!playerStats[pName]) playerStats[pName] = { played: 0, sum: 0, high: 0, ave: 0 };
+                        
                         playerStats[pName].played++;
                         playerStats[pName].sum += num;
                         if (num > playerStats[pName].high) playerStats[pName].high = num;
+                        
                         if (num > bestSingleGame) { bestSingleGame = num; bestSinglePlayer = pName; }
                         totalScoreSum += num; totalScoreCount++;
                     }
                 });
             });
 
-            appData.players.forEach(p => {
-                if (playerStats[p].played > 0) {
-                    playerStats[p].ave = playerStats[p].sum / playerStats[p].played;
-                    if (playerStats[p].ave > highestSeasonAve) {
-                        highestSeasonAve = playerStats[p].ave;
-                        highestSeasonPlayer = p;
+            // Calculate exact averages and track the highest overall
+            Object.keys(playerStats).forEach(pName => {
+                if (playerStats[pName].played > 0) {
+                    playerStats[pName].ave = playerStats[pName].sum / playerStats[pName].played;
+                    if (playerStats[pName].ave > highestSeasonAve) {
+                        highestSeasonAve = playerStats[pName].ave;
+                        highestSeasonPlayer = pName;
                     }
                 }
             });
 
+            // UPDATE DOM HEADERS IMMEDIATELY
             document.getElementById('statWins').textContent = wins;
             document.getElementById('statLosses').textContent = losses;
             document.getElementById('statReschedule').textContent = reschedules;
             document.getElementById('statBestSingle').textContent = bestSingleGame.toFixed(2);
             document.getElementById('statBestSinglePlayer').textContent = bestSinglePlayer;
             document.getElementById('statTeamAve').textContent = totalScoreCount > 0 ? (totalScoreSum / totalScoreCount).toFixed(2) : "0.00";
+            
+            document.getElementById('statBestOverall').textContent = highestSeasonAve > 0 ? highestSeasonAve.toFixed(2) : "0.00";
+            document.getElementById('statBestOverallPlayer').textContent = highestSeasonPlayer;
 
+            // Sorting logic
             let displayOrder = [...appData.players];
             if (sortMode === 'ranked') {
                 displayOrder.sort((a, b) => playerStats[b].ave - playerStats[a].ave);
             }
 
+            // Headers
             const thead = document.getElementById('matrixThead');
             let headHTML = `<tr class="border-b border-slate-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                 <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[150px] sm:min-w-[210px] border-r border-slate-800 leading-tight">PLAYER NAME<br><span class="text-[9px] font-normal text-sky-400/80 normal-case tracking-normal">(Click name for Profile & Stats)</span></th>
@@ -642,6 +654,7 @@
             });
             thead.innerHTML = headHTML + `</tr>`;
 
+            // Body
             const tbody = document.getElementById('matrixTbody');
             const tableWrap = document.getElementById('tableWrapper');
             if (isAdmin && !viewingArchive) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
@@ -681,6 +694,7 @@
             });
             tbody.innerHTML = bodyHTML;
 
+            // Footer Average
             const tfoot = document.getElementById('matrixTfoot');
             let footHTML = `<tr class="bg-slate-950 border-t-2 border-slate-700 font-mono text-[11px] font-bold">
                 <td class="sticky-col-1 bg-slate-950 text-raf-light py-3 px-3 border-r border-slate-800 uppercase font-sans">TEAM GAME AVE</td>
@@ -724,7 +738,7 @@
             document.getElementById('pHonour180').innerText = details.max180s || 0;
             document.getElementById('pHonourHighOut').innerText = details.highOut || 0;
 
-            // Profile Editing is now UNLOCKED for everyone if viewing live board
+            // Profile Editing is UNLOCKED for everyone if viewing live board
             const btnEdit = document.getElementById('btnToggleProfileEdit');
             if (!viewingArchive) {
                 btnEdit.classList.remove('hidden');
