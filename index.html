@@ -771,7 +771,9 @@
                     const gameHasScores = Object.keys(g.scores || {}).length > 0;
                     const cellClick = (isAdmin && !viewingArchive) ? `onclick="openEditCell(${gIdx}, '${player}')"` : '';
 
-                    if (rawVal !== undefined && rawVal !== null) {
+                    if (rawVal === "DNP") {
+                        bodyHTML += `<td ${cellClick} class="stat-cell cell-dnp py-2 px-3 border-r border-slate-900 text-center text-[10px] uppercase font-bold tracking-widest text-slate-700/50">DNP</td>`;
+                    } else if (rawVal !== undefined && rawVal !== null) {
                         bodyHTML += `<td ${cellClick} class="stat-cell bg-slate-900/40 font-mono text-slate-100 py-2 px-3 text-right border-r border-slate-800">${Number(rawVal).toFixed(2)}</td>`;
                     } else if (gameHasScores && g.status !== 'TBD') {
                         bodyHTML += `<td ${cellClick} class="stat-cell cell-dnp py-2 px-3 border-r border-slate-900 text-center text-[10px] uppercase font-bold tracking-widest text-slate-700/50">DNP</td>`;
@@ -797,7 +799,7 @@
             gamesToRender.forEach((g) => {
                 // Ensure only active players count toward Team Game Average
                 const activeScores = Object.entries(g.scores || {})
-                    .filter(([pName]) => appData.players.includes(pName))
+                    .filter(([pName, val]) => appData.players.includes(pName) && val !== "DNP")
                     .map(([, score]) => score);
                 const gameAve = activeScores.length > 0 ? (activeScores.reduce((a,b)=>a+Number(b),0)/activeScores.length).toFixed(2) : '--';
                 footHTML += `<td class="py-3 px-3 text-right text-emerald-400 border-r border-slate-800 bg-slate-950/90">${gameAve}</td>`;
@@ -818,7 +820,7 @@
             const labels = [];
             const dataPts = [];
             gamesToRender.forEach((g, idx) => {
-                if (g.scores && g.scores[playerName] !== undefined) {
+                if (g.scores && g.scores[playerName] !== undefined && g.scores[playerName] !== "DNP") {
                     labels.push(g.title || `Game ${idx+1}`);
                     dataPts.push(Number(g.scores[playerName]));
                 }
@@ -1076,12 +1078,13 @@
                 let sum = 0, count = 0, best = 0;
                 let rowScores = gamesToExport.map(g => {
                     const s = g.scores ? g.scores[p] : undefined;
-                    if (s !== undefined) {
+                    if (s === "DNP") return "DNP";
+                    if (s !== undefined && s !== null) {
                         sum += Number(s); count++;
                         if(Number(s) > best) best = Number(s);
                         return s;
                     }
-                    return "DNP";
+                    return "DNP"; // Inferred DNP for empty
                 });
                 let ave = count > 0 ? (sum/count).toFixed(2) : "--";
                 let bestStr = best > 0 ? best.toFixed(2) : "--";
@@ -1104,7 +1107,10 @@
             const game = appData.games[gameIdx];
             document.getElementById('cellModalTitle').textContent = player;
             document.getElementById('cellModalSub').textContent = `Game ${gameIdx + 1}: ${game.title}`;
-            document.getElementById('cellScoreInput').value = (game.scores && game.scores[player]) ? game.scores[player] : '';
+            
+            const existingVal = (game.scores && game.scores[player]) ? game.scores[player] : '';
+            document.getElementById('cellScoreInput').value = existingVal === "DNP" ? '' : existingVal;
+            
             document.getElementById('cellModal').classList.remove('hidden');
             setTimeout(() => document.getElementById('cellScoreInput').focus(), 50);
         };
@@ -1113,8 +1119,15 @@
             const { gameIdx, player } = activeEdit;
             const game = appData.games[gameIdx];
             if (!game.scores) game.scores = {};
-            if (valueStr === null || valueStr.trim() === "") delete game.scores[player];
-            else game.scores[player] = Number(valueStr);
+            
+            if (valueStr === null) {
+                game.scores[player] = "DNP"; // Explicitly save DNP
+            } else if (valueStr.trim() === "") {
+                delete game.scores[player];  // Clear cell back to empty
+            } else {
+                game.scores[player] = Number(valueStr);
+            }
+            
             renderTable();
             closeModal('cellModal');
             await saveToCloud();
