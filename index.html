@@ -16,9 +16,6 @@
     <meta name="theme-color" content="#020617">
     <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22RAF%20Leeming%20Arrows%22%2C%22short_name%22%3A%22Arrows%20Stats%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23020617%22%2C%22theme_color%22%3A%22%23020617%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%2C%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D'>
 
-    <!-- STATIC CSS FALLBACK FOR OLDER IPADS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    
     <!-- Tailwind CSS, Google Fonts, Font Awesome, Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,10 +41,6 @@
     </script>
 
     <style>
-        /* CRITICAL FALLBACKS FOR OLD SAFARI */
-        body { background-color: #020617; color: #f8fafc; }
-        .hidden { display: none !important; }
-        
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -115,10 +108,7 @@
             <div id="shockwave2" class="pointer-events-none absolute top-1/2 left-1/2 w-48 h-48 rounded-full border-sky-400 opacity-0 z-20 fixed"></div>
 
             <div id="logoWrapper" class="relative z-10 flex flex-col items-center max-w-xl w-full cursor-pointer mt-8" onclick="startApp()">
-                <div class="logo-idle w-full max-w-[280px] sm:max-w-[400px] aspect-square bg-black rounded-3xl overflow-hidden shadow-2xl mb-8 flex items-center justify-center border border-slate-900">
-                    <img id="homeLogoImg" src="logo.jpg" alt="RAF Leeming Arrows" class="w-full h-full object-contain p-2" onerror="this.src='https://placehold.co/400x400/000000/F59E0B?text=Missing+logo.jpg'"/>
-                </div>
-                
+                <img id="homeLogoImg" src="logo.jpg" alt="RAF Leeming Arrows" class="logo-idle w-full max-w-[280px] sm:max-w-[400px] object-contain mb-8 shadow-2xl" onerror="this.src='https://placehold.co/400x400/000000/F59E0B?text=Missing+logo.jpg'"/>
                 <button onclick="startApp(); event.stopPropagation();" class="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-raf-blue to-amber-500 p-[2px] shadow-[0_0_40px_rgba(245,158,11,0.4)] hover:shadow-[0_0_60px_rgba(245,158,11,0.8)] transition-all active:scale-95 z-30">
                     <div class="flex items-center gap-3 rounded-[14px] bg-black px-6 sm:px-8 py-3 sm:py-4 transition group-hover:bg-zinc-900">
                         <i class="fa-solid fa-bullseye text-amber-400 text-lg sm:text-xl group-hover:rotate-90 transition-transform duration-500"></i>
@@ -143,6 +133,7 @@
                         <span class="font-display font-bold text-white tracking-wider text-[10px] sm:text-sm text-center block w-full uppercase">LOCAL TOURNAMENT</span>
                     </div>
                 </button>
+                <!-- New 100,000 Points Tracker -->
                 <button onclick="openExternalLink('https://townsendb102.github.io/100000points/', '100,000 Points Tracker')" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-indigo-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
                     <img src="100k.jpg" alt="100K Tracker" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e1b4b/818cf8?text=100K+Tracker'">
                     <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
@@ -160,7 +151,7 @@
                 <div class="flex flex-col">
                     <div class="flex items-center gap-2 mb-0.5">
                         <span id="cloudSyncBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i> Loading...
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Connecting Database...
                         </span>
                     </div>
                     <h1 class="font-display text-2xl sm:text-3xl font-bold tracking-wide text-white uppercase leading-none">
@@ -175,6 +166,7 @@
                     <i class="fa-solid fa-bullseye"></i> 100K Tracker
                 </button>
 
+                <!-- Archive Season Selector -->
                 <select id="seasonSelector" onchange="switchSeason()" class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-xs font-bold text-sky-400 focus:outline-none hidden">
                     <option value="current">Current Season</option>
                 </select>
@@ -241,7 +233,9 @@
             <button onclick="promptEditAnnouncement()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-bullhorn mr-1 text-amber-400"></i> Edit Notice</button>
             <button onclick="promptAddPlayer()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-user-plus mr-1 text-sky-400"></i> Add Player</button>
             <button onclick="promptAddGame()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-calendar-plus mr-1 text-emerald-400"></i> Add Game</button>
+            
             <button onclick="openRosterModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-rose-500/50 rounded text-xs font-bold text-rose-400 transition"><i class="fa-solid fa-users-slash mr-1"></i> Archive/Restore Player</button>
+            
             <button onclick="archiveSeason()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-rose-500/50 rounded text-xs font-bold text-rose-400 transition ml-auto"><i class="fa-solid fa-box-archive mr-1"></i> Archive Season</button>
             <button onclick="exportCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-file-csv mr-1 text-raf-light"></i> Backup CSV</button>
         </section>
@@ -282,7 +276,7 @@
 
     <!-- MODALS -->
 
-    <!-- Roster Management Modal -->
+    <!-- Roster Management (Archive/Restore) Modal -->
     <div id="rosterModal" class="fixed inset-0 z-[70] hidden bg-slate-950/90 backdrop-blur flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative">
             <button onclick="closeModal('rosterModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -303,50 +297,37 @@
                     <button onclick="restorePlayerAction()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded text-xs transition">Restore</button>
                 </div>
             </div>
+            
             <button onclick="closeModal('rosterModal')" class="w-full px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition font-bold">Done</button>
         </div>
     </div>
 
-    <!-- GW (Games Won) Edit Modal -->
-    <div id="gwModal" class="fixed inset-0 z-[80] hidden bg-slate-950/90 backdrop-blur flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h3 class="font-display text-lg font-bold text-white uppercase mb-1 text-sky-400">Edit Games Won</h3>
-                    <p id="gwModalSub" class="text-xs text-raf-light">Player Name</p>
-                </div>
-                <button onclick="closeModal('gwModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <input type="number" step="1" id="gwInput" placeholder="Enter wins (e.g. 5)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-mono text-lg mb-4 focus:outline-none focus:border-sky-400">
-            <div class="flex items-center justify-between gap-2">
-                <button onclick="closeModal('gwModal')" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition">Cancel</button>
-                <button onclick="saveGW()" class="flex-1 px-4 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-lg transition">Save Wins</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Player Profile Modal -->
+    <!-- Player Profile & Form Graph Modal -->
     <div id="graphModal" class="fixed inset-0 z-[60] hidden bg-slate-950/95 backdrop-blur flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl p-4 sm:p-6 shadow-2xl relative flex flex-col my-auto">
             <button onclick="closeModal('graphModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
             
-            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 border-b border-slate-800 pb-6">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-800 border-2 border-raf-light flex items-center justify-center text-2xl font-display font-bold text-white shadow-lg overflow-hidden relative flex-shrink-0">
+            <div class="flex items-center gap-4 mb-6 border-b border-slate-800 pb-6">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-800 border-2 border-raf-light flex items-center justify-center text-2xl font-display font-bold text-white shadow-lg overflow-hidden relative group">
                     <span id="profileInitials">XX</span>
                 </div>
-                <div class="flex-1 text-center sm:text-left w-full">
-                    <h3 id="profileTitle" class="font-display text-2xl sm:text-3xl font-bold text-white uppercase flex items-center justify-center sm:justify-start gap-2">Player Name</h3>
-                    <div id="profileDetailsDisplay" class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 w-full text-center sm:text-left">
+                <div class="flex-1">
+                    <h3 id="profileTitle" class="font-display text-2xl sm:text-3xl font-bold text-white uppercase flex items-center gap-2">Player Name</h3>
+                    <div id="profileDetailsDisplay" class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
                         <div><p class="text-[10px] text-raf-light font-bold uppercase tracking-wider">Nickname</p><p id="pDisplayNick" class="text-sm font-semibold text-slate-200">-</p></div>
                         <div><p class="text-[10px] text-raf-light font-bold uppercase tracking-wider">Walk-on Track</p><p id="pDisplayWalkon" class="text-sm font-semibold text-slate-200">-</p></div>
                         <div><p class="text-[10px] text-raf-light font-bold uppercase tracking-wider">Darts Setup</p><p id="pDisplayDarts" class="text-sm font-semibold text-slate-200">-</p></div>
                     </div>
                     
-                    <div id="profileDetailsEdit" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 bg-slate-950 p-3 rounded-xl border border-amber-500/30 text-left">
+                    <!-- Edit Profile Form (Unlocked for all users) -->
+                    <div id="profileDetailsEdit" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 bg-slate-950 p-3 rounded-xl border border-amber-500/30">
+                        
+                        <!-- Admin: Edit Name Box -->
                         <div id="adminNameEditDiv" class="hidden sm:col-span-3 mb-2 border-b border-slate-800 pb-3">
                             <label class="text-[10px] text-rose-400 font-bold uppercase block mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Admin: Fix Player Name</label>
                             <input id="pEditName" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-sm text-white font-bold">
                         </div>
+
                         <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Nickname</label><input id="pEditNick" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
                         <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Walk-on Track</label><input id="pEditWalkon" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
                         <div><label class="text-[10px] text-raf-light font-bold uppercase block mb-1">Darts Setup</label><input id="pEditDarts" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"></div>
@@ -362,6 +343,7 @@
                     <p id="pHonour180" class="font-display text-3xl font-bold text-white mb-2 leading-none">0</p>
                     <p class="text-[10px] text-amber-400 font-bold uppercase">High Out</p>
                     <p id="pHonourHighOut" class="font-display text-2xl font-bold text-white leading-none mb-2">0</p>
+                    <!-- Display overall manual wins -->
                     <p class="text-[10px] text-sky-400 font-bold uppercase">Games Won</p>
                     <p id="pHonourGW" class="font-display text-2xl font-bold text-white leading-none">0</p>
                 </div>
@@ -372,7 +354,7 @@
                 <button id="btnToggleProfileEdit" onclick="toggleProfileEdit()" class="text-xs font-bold text-amber-400 bg-slate-800 px-2 py-1 rounded hover:bg-slate-700 transition"><i class="fa-solid fa-pen"></i> Edit My Profile</button>
             </div>
             
-            <div class="relative w-full h-[200px] sm:h-[300px] bg-slate-950 rounded-xl border border-slate-800 p-2">
+            <div class="relative w-full h-[250px] sm:h-[350px] bg-slate-950 rounded-xl border border-slate-800 p-2">
                 <canvas id="playerChart"></canvas>
             </div>
             <button onclick="closeModal('graphModal')" class="mt-4 w-full px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition font-bold">Close Card</button>
@@ -439,6 +421,24 @@
         </div>
     </div>
 
+    <!-- GW (Games Won) Edit Modal -->
+    <div id="gwModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 id="gwModalTitle" class="font-display text-lg font-bold text-white uppercase mb-1">Games Won</h3>
+                    <p id="gwModalSub" class="text-xs text-raf-light">Player Name</p>
+                </div>
+                <button onclick="closeModal('gwModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <input type="number" step="1" id="gwInput" placeholder="Enter wins (e.g. 5)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white font-mono text-lg mb-4 focus:outline-none focus:border-sky-400">
+            <div class="flex items-center justify-between gap-2">
+                <button onclick="closeModal('gwModal')" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-700 transition">Cancel</button>
+                <button onclick="saveGW()" class="flex-1 px-4 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-lg transition">Save Wins</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Game Status & Details Edit Modal -->
     <div id="gameStatusModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
@@ -477,27 +477,35 @@
         </div>
     </div>
 
-    <!-- ==============================================
-         APP LOGIC (SEPARATED FROM FIREBASE FOR IPAD COMPAT)
-         ============================================== -->
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAeEpibfdonVRy6Y2KavSA39h4d9dwf_8Q",
+            authDomain: "leeming-arrows-stats.firebaseapp.com",
+            databaseURL: "https://leeming-arrows-stats-default-rtdb.firebaseio.com",
+            projectId: "leeming-arrows-stats",
+            storageBucket: "leeming-arrows-stats.firebasestorage.app",
+            messagingSenderId: "139260579419",
+            appId: "1:139260579419:web:84a7a685e0ba5a130b797e"
+        };
+
         let isAdmin = false;
         let activeEdit = { gameIdx: null, player: null };
-        let activeGameEdit = null;
         let activeGWPlayer = null;
+        let activeGameEdit = null;
+        let db, currentUser;
         let sortMode = 'roster'; 
         let viewingArchive = null; 
         let activeProfileView = null;
-        let playerChartInstance = null;
-        
-        // Define Firebase stub in case module script fails to load on old iPads
-        window.saveToCloud = async () => { console.log("Local Mode - Cloud sync unavailable"); };
 
         const DEFAULT_DATA = {
             players: ["Ben Townsend", "Brandon Ledger", "Nathan Lee", "David Goodfellow", "Josh Mccarthy", "Marcus Blackmore", "Joseph Moore", "Pat Barron", "Lewis Bell", "Dan Lovett", "Andy Gray"],
             archivedPlayers: [],
             playerDetails: {}, 
-            playerWins: {}, 
+            playerWins: {}, // Manual storage for Win Count tracker
             announcement: "Welcome to the updated RAF Leeming Arrows Stats Portal! Log in to edit Noticeboard.",
             archives: {},
             games: [
@@ -516,19 +524,22 @@
             ]
         };
 
-        window.appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
 
-        window.sanitizeAppData = () => {
-            if (!window.appData.archivedPlayers) window.appData.archivedPlayers = [];
-            if (!window.appData.playerDetails) window.appData.playerDetails = {};
-            if (!window.appData.playerWins) window.appData.playerWins = {};
-            if (!window.appData.announcement) window.appData.announcement = "Welcome to the RAF Leeming Arrows Stats Portal!";
-            if (!window.appData.archives) window.appData.archives = {};
-            if (!window.appData.playerDetails["Ben Townsend"]) {
-                window.appData.playerDetails["Ben Townsend"] = { nickname: "Raven", walkon: "System of a Down", darts: "Target K-Flex Shift (Short)", max180s: 0, highOut: 0 };
+        const sanitizeAppData = () => {
+            if (!appData.archivedPlayers) appData.archivedPlayers = [];
+            if (!appData.playerDetails) appData.playerDetails = {};
+            if (!appData.playerWins) appData.playerWins = {};
+            if (!appData.announcement) appData.announcement = "Welcome to the RAF Leeming Arrows Stats Portal!";
+            if (!appData.archives) appData.archives = {};
+            if (!appData.playerDetails["Ben Townsend"]) {
+                appData.playerDetails["Ben Townsend"] = { nickname: "Raven", walkon: "System of a Down", darts: "Target K-Flex Shift (Short)", max180s: 0, highOut: 0 };
             }
         };
 
+        // ==========================================
+        // SPA ROUTING & CACHE BUSTING
+        // ==========================================
         window.forceRefresh = () => {
             const url = new URL(window.location.href);
             url.searchParams.set('v', new Date().getTime());
@@ -536,30 +547,28 @@
         };
 
         window.startApp = () => {
-            const splash = document.getElementById('splashScreen');
-            if (splash && splash.classList.contains('launching')) return;
-            if(splash) splash.classList.add('launching');
+            if (document.getElementById('splashScreen').classList.contains('launching')) return;
+            document.getElementById('splashScreen').classList.add('launching');
             history.pushState({page: 'dashboard'}, "Dashboard", ""); 
             setTimeout(() => {
-                if(splash) splash.style.visibility = 'hidden';
-                if(splash) splash.classList.remove('launching');
+                document.getElementById('splashScreen').style.visibility = 'hidden';
+                document.getElementById('splashScreen').classList.remove('launching');
                 document.getElementById('mainHeader').classList.remove('hidden');
                 document.getElementById('dashboardMain').classList.remove('hidden');
                 document.getElementById('dashboardMain').classList.add('dashboard-ready');
                 document.getElementById('mainHeader').classList.add('dashboard-ready');
-                window.updateTicker();
-                window.updateArchiveDropdown();
+                updateTicker();
+                updateArchiveDropdown();
             }, 900);
         };
 
         window.goHome = () => {
             history.pushState({page: 'home'}, "Home", "");
-            window.triggerHomeUI();
+            triggerHomeUI();
         };
 
-        window.triggerHomeUI = () => {
-            const splash = document.getElementById('splashScreen');
-            if(splash) splash.style.visibility = 'visible';
+        const triggerHomeUI = () => {
+            document.getElementById('splashScreen').style.visibility = 'visible';
             document.getElementById('mainHeader').classList.add('hidden');
             document.getElementById('dashboardMain').classList.add('hidden');
             document.getElementById('dashboardMain').classList.remove('dashboard-ready');
@@ -581,14 +590,17 @@
 
         window.addEventListener('popstate', (e) => {
             if (!document.getElementById('iframeOverlay').classList.contains('hidden')) {
-                window.closeExternalLink();
+                closeExternalLink();
             } else if (!document.getElementById('dashboardMain').classList.contains('hidden')) {
-                window.triggerHomeUI();
+                triggerHomeUI();
             }
         });
 
-        window.getActiveGames = () => {
-            return viewingArchive ? window.appData.archives[viewingArchive] : window.appData.games;
+        // ==========================================
+        // DATA RENDERING & ARCHIVES
+        // ==========================================
+        const getActiveGames = () => {
+            return viewingArchive ? appData.archives[viewingArchive] : appData.games;
         };
 
         window.switchSeason = () => {
@@ -602,17 +614,17 @@
                 document.getElementById('archiveWarning').classList.add('hidden');
                 if (isAdmin) document.getElementById('adminToolbox').classList.remove('hidden');
             }
-            window.renderTable();
+            renderTable();
         };
 
-        window.updateArchiveDropdown = () => {
+        const updateArchiveDropdown = () => {
             const select = document.getElementById('seasonSelector');
-            const hasArchives = Object.keys(window.appData.archives || {}).length > 0;
+            const hasArchives = Object.keys(appData.archives || {}).length > 0;
             
             if (hasArchives) {
                 select.classList.remove('hidden');
                 let opts = `<option value="current">Current Season</option>`;
-                Object.keys(window.appData.archives).forEach(key => {
+                Object.keys(appData.archives).forEach(key => {
                     opts += `<option value="${key}">Archive: ${key}</option>`;
                 });
                 select.innerHTML = opts;
@@ -622,34 +634,36 @@
             }
         };
 
-        window.updateTicker = () => {
-            document.getElementById('announcementText').innerText = window.appData.announcement || "Welcome to the RAF Leeming Arrows Stats Portal!";
+        const updateTicker = () => {
+            document.getElementById('announcementText').innerText = appData.announcement || "Welcome to the RAF Leeming Arrows Stats Portal!";
         };
 
         window.toggleSort = () => {
             sortMode = sortMode === 'roster' ? 'ranked' : 'roster';
             document.getElementById('sortLabel').innerText = sortMode === 'roster' ? 'Sort: Roster' : 'Sort: Ranked';
-            window.renderTable();
+            renderTable();
         };
 
-        window.renderTable = () => {
+        const renderTable = () => {
             let wins = 0, losses = 0, reschedules = 0;
             let highestSeasonAve = 0, highestSeasonPlayer = "-";
             let bestSingleGame = 0, bestSinglePlayer = "-";
             let totalScoreSum = 0, totalScoreCount = 0;
             let totalWinsSum = 0;
-            const gamesToRender = window.getActiveGames();
+            const gamesToRender = getActiveGames();
 
             const playerStats = {};
-            window.appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0, ave: 0 });
+            appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0, ave: 0 });
 
+            // Analyze Match Data & build statistics
             gamesToRender.forEach(g => {
                 if (g.status === 'WIN') wins++;
                 if (g.status === 'LOSS') losses++;
                 if (g.status === 'RESCHEDULE') reschedules++;
                 
                 Object.entries(g.scores || {}).forEach(([pName, score]) => {
-                    if (!window.appData.players.includes(pName)) return;
+                    // Only count stats for active roster members in the summary!
+                    if (!appData.players.includes(pName)) return;
 
                     const num = Number(score);
                     if (!isNaN(num)) {
@@ -675,20 +689,24 @@
                 }
             });
 
+            // UPDATE DOM HEADERS IMMEDIATELY
             document.getElementById('statWins').textContent = wins;
             document.getElementById('statLosses').textContent = losses;
             document.getElementById('statReschedule').textContent = reschedules;
             document.getElementById('statBestSingle').textContent = bestSingleGame.toFixed(2);
             document.getElementById('statBestSinglePlayer').textContent = bestSinglePlayer;
             document.getElementById('statTeamAve').textContent = totalScoreCount > 0 ? (totalScoreSum / totalScoreCount).toFixed(2) : "0.00";
+            
             document.getElementById('statBestOverall').textContent = highestSeasonAve > 0 ? highestSeasonAve.toFixed(2) : "0.00";
             document.getElementById('statBestOverallPlayer').textContent = highestSeasonPlayer;
 
-            let displayOrder = [...window.appData.players];
+            // Sorting logic
+            let displayOrder = [...appData.players];
             if (sortMode === 'ranked') {
                 displayOrder.sort((a, b) => playerStats[b].ave - playerStats[a].ave);
             }
 
+            // Headers
             const thead = document.getElementById('matrixThead');
             let headHTML = `<tr class="border-b border-slate-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                 <th class="sticky-col-1 bg-slate-900 text-slate-200 py-3 px-3 min-w-[150px] sm:min-w-[210px] border-r border-slate-800 leading-tight">PLAYER NAME<br><span class="text-[9px] font-normal text-sky-400/80 normal-case tracking-normal">(Click name for Profile & Stats)</span></th>
@@ -712,6 +730,7 @@
             });
             thead.innerHTML = headHTML + `</tr>`;
 
+            // Body
             const tbody = document.getElementById('matrixTbody');
             const tableWrap = document.getElementById('tableWrapper');
             if (isAdmin && !viewingArchive) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
@@ -722,8 +741,11 @@
                 const aveDisplay = stat.played > 0 ? stat.ave.toFixed(2) : '--';
                 const highDisplay = stat.high > 0 ? stat.high.toFixed(2) : '--';
                 
-                const gwDisplay = (window.appData.playerWins && window.appData.playerWins[player] !== undefined) ? window.appData.playerWins[player] : 0;
+                // Fetch win tracker values
+                const gwDisplay = (appData.playerWins && appData.playerWins[player] !== undefined) ? appData.playerWins[player] : 0;
                 totalWinsSum += Number(gwDisplay);
+                
+                // Allow edit pop-up ONLY if Admin Mode is turned ON
                 const gwClick = (isAdmin && !viewingArchive) ? `onclick="openEditGW('${player.replace(/'/g, "\\'")}')"` : '';
                 
                 const nameTrophy = (sortMode === 'ranked' && rankIdx === 0 && stat.played > 0) 
@@ -731,22 +753,23 @@
 
                 bodyHTML += `<tr class="hover:bg-slate-800/40 transition">
                     <td class="sticky-col-1 bg-slate-900 text-slate-100 font-semibold py-2 px-3 border-r border-slate-800 whitespace-nowrap group">
-                        <span class="cursor-pointer hover:text-emerald-400 transition" onclick="openPlayerGraph('${player.replace(/'/g, "\\'")}')">${player} ${nameTrophy}</span>
+                        <span class="cursor-pointer hover:text-emerald-400 transition" onclick="openPlayerGraph('${player}')">${player} ${nameTrophy}</span>
                     </td>
                     <td class="sticky-col-2 bg-slate-900/95 font-mono font-bold text-sky-400 py-2 px-2 text-center border-r border-slate-700">${aveDisplay}</td>
                     <td class="bg-slate-900/50 font-mono text-emerald-400/80 py-2 px-2 text-center border-r border-slate-800">${stat.played}</td>
                     
-                    <td ${gwClick} class="stat-cell bg-slate-900/50 font-mono text-sky-400 py-2 px-2 text-center border-r border-slate-800 font-bold transition">
+                    <!-- NEW GW COLUMN -->
+                    <td ${gwClick} class="stat-cell bg-slate-900/50 font-mono text-sky-400/80 py-2 px-2 text-center border-r border-slate-850 font-bold transition">
                         ${gwDisplay}
                     </td>
-
+                    
                     <td class="bg-slate-900/50 font-mono text-amber-400/80 py-2 px-2 text-center border-r border-slate-800">${highDisplay}</td>
                 `;
 
                 gamesToRender.forEach((g, gIdx) => {
                     const rawVal = g.scores ? g.scores[player] : undefined;
                     const gameHasScores = Object.keys(g.scores || {}).length > 0;
-                    const cellClick = (isAdmin && !viewingArchive) ? `onclick="openEditCell(${gIdx}, '${player.replace(/'/g, "\\'")}')"` : '';
+                    const cellClick = (isAdmin && !viewingArchive) ? `onclick="openEditCell(${gIdx}, '${player}')"` : '';
 
                     if (rawVal !== undefined && rawVal !== null) {
                         bodyHTML += `<td ${cellClick} class="stat-cell bg-slate-900/40 font-mono text-slate-100 py-2 px-3 text-right border-r border-slate-800">${Number(rawVal).toFixed(2)}</td>`;
@@ -760,16 +783,21 @@
             });
             tbody.innerHTML = bodyHTML;
 
+            // Footer Average
             const tfoot = document.getElementById('matrixTfoot');
             let footHTML = `<tr class="bg-slate-950 border-t-2 border-slate-700 font-mono text-[11px] font-bold">
                 <td class="sticky-col-1 bg-slate-950 text-raf-light py-3 px-3 border-r border-slate-800 uppercase font-sans">TEAM GAME AVE</td>
                 <td class="sticky-col-2 bg-slate-950 border-r border-slate-700"></td>
                 <td class="bg-slate-950 border-r border-slate-800 text-center"></td>
+                
+                <!-- NEW FOOTER Total Match Wins tracker -->
                 <td class="bg-slate-950 border-r border-slate-800 text-center text-sky-400 font-bold" title="Total Wins Accumulated">${totalWinsSum}</td>
+                
                 <td class="bg-slate-950 border-r border-slate-800 text-center"></td>`;
             gamesToRender.forEach((g) => {
+                // Ensure only active players count toward Team Game Average
                 const activeScores = Object.entries(g.scores || {})
-                    .filter(([pName]) => window.appData.players.includes(pName))
+                    .filter(([pName]) => appData.players.includes(pName))
                     .map(([, score]) => score);
                 const gameAve = activeScores.length > 0 ? (activeScores.reduce((a,b)=>a+Number(b),0)/activeScores.length).toFixed(2) : '--';
                 footHTML += `<td class="py-3 px-3 text-right text-emerald-400 border-r border-slate-800 bg-slate-950/90">${gameAve}</td>`;
@@ -777,10 +805,15 @@
             tfoot.innerHTML = footHTML + `</tr>`;
         };
 
+        // ==========================================
+        // PLAYER PROFILES & GRAPHS
+        // ==========================================
+        let playerChartInstance = null;
+
         window.openPlayerGraph = (playerName) => {
             activeProfileView = playerName;
-            const details = window.appData.playerDetails[playerName] || {};
-            const gamesToRender = window.getActiveGames();
+            const details = appData.playerDetails[playerName] || {};
+            const gamesToRender = getActiveGames();
             
             const labels = [];
             const dataPts = [];
@@ -800,7 +833,9 @@
             document.getElementById('pDisplayDarts').innerText = details.darts || 'Unknown';
             document.getElementById('pHonour180').innerText = details.max180s || 0;
             document.getElementById('pHonourHighOut').innerText = details.highOut || 0;
-            document.getElementById('pHonourGW').innerText = (window.appData.playerWins && window.appData.playerWins[playerName] !== undefined) ? window.appData.playerWins[playerName] : 0;
+            
+            // Populating visual manual wins sum
+            document.getElementById('pHonourGW').innerText = (appData.playerWins && appData.playerWins[playerName] !== undefined) ? appData.playerWins[playerName] : 0;
 
             const btnEdit = document.getElementById('btnToggleProfileEdit');
             if (!viewingArchive) {
@@ -837,7 +872,7 @@
         };
 
         window.toggleProfileEdit = () => {
-            const details = window.appData.playerDetails[activeProfileView] || {};
+            const details = appData.playerDetails[activeProfileView] || {};
             
             if (isAdmin) {
                 document.getElementById('adminNameEditDiv').classList.remove('hidden');
@@ -862,25 +897,20 @@
             if (isAdmin) {
                 const newName = document.getElementById('pEditName').value.trim();
                 if (newName && newName !== activeProfileView) {
-                    if (window.appData.players.includes(newName)) {
+                    if (appData.players.includes(newName)) {
                         alert("Error: A player with that exact name already exists.");
                         return;
                     }
                     
-                    const playerIndex = window.appData.players.indexOf(activeProfileView);
-                    if (playerIndex > -1) window.appData.players[playerIndex] = newName;
+                    const playerIndex = appData.players.indexOf(activeProfileView);
+                    if (playerIndex > -1) appData.players[playerIndex] = newName;
                     
-                    if (window.appData.playerDetails[activeProfileView]) {
-                        window.appData.playerDetails[newName] = window.appData.playerDetails[activeProfileView];
-                        delete window.appData.playerDetails[activeProfileView];
+                    if (appData.playerDetails[activeProfileView]) {
+                        appData.playerDetails[newName] = appData.playerDetails[activeProfileView];
+                        delete appData.playerDetails[activeProfileView];
                     }
 
-                    if (window.appData.playerWins && window.appData.playerWins[activeProfileView] !== undefined) {
-                        window.appData.playerWins[newName] = window.appData.playerWins[activeProfileView];
-                        delete window.appData.playerWins[activeProfileView];
-                    }
-
-                    window.appData.games.forEach(g => {
+                    appData.games.forEach(g => {
                         if (g.scores && g.scores[activeProfileView] !== undefined) {
                             g.scores[newName] = g.scores[activeProfileView];
                             delete g.scores[activeProfileView];
@@ -892,27 +922,30 @@
                 }
             }
 
-            if (!window.appData.playerDetails[targetProfileName]) window.appData.playerDetails[targetProfileName] = {};
+            if (!appData.playerDetails[targetProfileName]) appData.playerDetails[targetProfileName] = {};
             
-            window.appData.playerDetails[targetProfileName].nickname = document.getElementById('pEditNick').value;
-            window.appData.playerDetails[targetProfileName].walkon = document.getElementById('pEditWalkon').value;
-            window.appData.playerDetails[targetProfileName].darts = document.getElementById('pEditDarts').value;
-            window.appData.playerDetails[targetProfileName].max180s = Number(document.getElementById('pEdit180s').value) || 0;
-            window.appData.playerDetails[targetProfileName].highOut = Number(document.getElementById('pEditHighOut').value) || 0;
+            appData.playerDetails[targetProfileName].nickname = document.getElementById('pEditNick').value;
+            appData.playerDetails[targetProfileName].walkon = document.getElementById('pEditWalkon').value;
+            appData.playerDetails[targetProfileName].darts = document.getElementById('pEditDarts').value;
+            appData.playerDetails[targetProfileName].max180s = Number(document.getElementById('pEdit180s').value) || 0;
+            appData.playerDetails[targetProfileName].highOut = Number(document.getElementById('pEditHighOut').value) || 0;
             
-            window.openPlayerGraph(activeProfileView); 
-            window.renderTable();
-            if(window.saveToCloud) await window.saveToCloud();
+            openPlayerGraph(activeProfileView); 
+            renderTable();
+            await saveToCloud();
         };
 
+        // ==========================================
+        // ADMIN & EDITING
+        // ==========================================
         window.openInstallModal = () => document.getElementById('installModal').classList.remove('hidden');
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
         window.openAuthModal = () => {
             if (isAdmin) {
                 isAdmin = false;
-                window.updateAuthUI();
-                window.renderTable();
+                updateAuthUI();
+                renderTable();
             } else {
                 document.getElementById('adminPassInput').value = '';
                 document.getElementById('authError').classList.add('hidden');
@@ -924,15 +957,15 @@
         window.submitAuth = () => {
             if (document.getElementById('adminPassInput').value === 'Leemingdarts') {
                 isAdmin = true;
-                window.closeModal('authModal');
-                window.updateAuthUI();
-                window.renderTable();
+                closeModal('authModal');
+                updateAuthUI();
+                renderTable();
             } else {
                 document.getElementById('authError').classList.remove('hidden');
             }
         };
 
-        window.updateAuthUI = () => {
+        const updateAuthUI = () => {
             const btn = document.getElementById('adminBtn');
             const pill = document.getElementById('authStatusPill');
             const toolbox = document.getElementById('adminToolbox');
@@ -949,48 +982,50 @@
             }
         };
 
+        // ADMIN TOOLBOX FUNCTIONS
         window.promptEditAnnouncement = async () => {
-            const text = prompt("Enter new noticeboard announcement:", window.appData.announcement);
+            const text = prompt("Enter new noticeboard announcement:", appData.announcement);
             if (text !== null) {
-                window.appData.announcement = text.trim();
-                window.updateTicker();
-                if(window.saveToCloud) await window.saveToCloud();
+                appData.announcement = text.trim();
+                updateTicker();
+                await saveToCloud();
             }
         };
 
         window.promptAddPlayer = async () => {
             const name = prompt("Enter new player's full name:");
             if (name && name.trim()) {
-                window.appData.players.push(name.trim());
-                window.renderTable();
-                if(window.saveToCloud) await window.saveToCloud();
+                appData.players.push(name.trim());
+                renderTable();
+                await saveToCloud();
             }
         };
 
         window.promptAddGame = async () => {
             const title = prompt("Enter new fixture/opponent name:");
             if (title && title.trim()) {
-                window.appData.games.push({ title: title.trim(), status: 'TBD', date: '', venue: '', scores: {} });
-                window.renderTable();
-                if(window.saveToCloud) await window.saveToCloud();
+                appData.games.push({ title: title.trim(), status: 'TBD', date: '', venue: '', scores: {} });
+                renderTable();
+                await saveToCloud();
             }
         };
 
+        // Roster Management Modal Logic
         window.openRosterModal = () => {
-            window.updateRosterDropdowns();
+            updateRosterDropdowns();
             document.getElementById('rosterModal').classList.remove('hidden');
         };
 
-        window.updateRosterDropdowns = () => {
+        const updateRosterDropdowns = () => {
             const aSel = document.getElementById('archiveSelect');
             const rSel = document.getElementById('restoreSelect');
             
-            aSel.innerHTML = window.appData.players.length 
-                ? window.appData.players.map(p => `<option value="${p}">${p}</option>`).join('')
+            aSel.innerHTML = appData.players.length 
+                ? appData.players.map(p => `<option value="${p}">${p}</option>`).join('')
                 : `<option value="">No Active Players</option>`;
                 
-            rSel.innerHTML = (window.appData.archivedPlayers && window.appData.archivedPlayers.length) 
-                ? window.appData.archivedPlayers.map(p => `<option value="${p}">${p}</option>`).join('')
+            rSel.innerHTML = (appData.archivedPlayers && appData.archivedPlayers.length) 
+                ? appData.archivedPlayers.map(p => `<option value="${p}">${p}</option>`).join('')
                 : `<option value="">No Archived Players</option>`;
         };
 
@@ -998,46 +1033,46 @@
             const p = document.getElementById('archiveSelect').value;
             if (!p) return;
             
-            window.appData.players = window.appData.players.filter(name => name !== p);
-            if (!window.appData.archivedPlayers.includes(p)) window.appData.archivedPlayers.push(p);
+            appData.players = appData.players.filter(name => name !== p);
+            if (!appData.archivedPlayers.includes(p)) appData.archivedPlayers.push(p);
             
-            window.updateRosterDropdowns();
-            window.renderTable();
-            if(window.saveToCloud) await window.saveToCloud();
+            updateRosterDropdowns();
+            renderTable();
+            await saveToCloud();
         };
 
         window.restorePlayerAction = async () => {
             const p = document.getElementById('restoreSelect').value;
             if (!p) return;
             
-            window.appData.archivedPlayers = window.appData.archivedPlayers.filter(name => name !== p);
-            if (!window.appData.players.includes(p)) window.appData.players.push(p);
+            appData.archivedPlayers = appData.archivedPlayers.filter(name => name !== p);
+            if (!appData.players.includes(p)) appData.players.push(p);
             
-            window.updateRosterDropdowns();
-            window.renderTable();
-            if(window.saveToCloud) await window.saveToCloud();
+            updateRosterDropdowns();
+            renderTable();
+            await saveToCloud();
         };
 
         window.archiveSeason = async () => {
             const seasonName = prompt("Enter a name for this archive (e.g. '2025/2026 Season'):\nWARNING: This will lock the current board into history and clear the live board for the next season.");
             if (seasonName && seasonName.trim()) {
-                window.appData.archives[seasonName.trim()] = JSON.parse(JSON.stringify(window.appData.games));
-                window.appData.games = Array(12).fill(null).map((_, i) => ({ title: `Game ${i+1}`, status: 'TBD', date: '', venue: '', scores: {} }));
+                appData.archives[seasonName.trim()] = JSON.parse(JSON.stringify(appData.games));
+                appData.games = Array(12).fill(null).map((_, i) => ({ title: `Game ${i+1}`, status: 'TBD', date: '', venue: '', scores: {} }));
                 
-                window.updateArchiveDropdown();
-                window.renderTable();
-                if(window.saveToCloud) await window.saveToCloud();
+                updateArchiveDropdown();
+                renderTable();
+                await saveToCloud();
                 alert(`Successfully archived as "${seasonName.trim()}". A fresh board has been generated.`);
             }
         };
 
         window.exportCSV = () => {
-            const gamesToExport = window.getActiveGames();
+            const gamesToExport = getActiveGames();
             let csv = "Player Name,Season Average,Games Played,Games Won,Best Average";
             gamesToExport.forEach((g, i) => csv += `,Game ${i+1} (${g.title})`);
             csv += "\n";
 
-            window.appData.players.forEach(p => {
+            appData.players.forEach(p => {
                 let sum = 0, count = 0, best = 0;
                 let rowScores = gamesToExport.map(g => {
                     const s = g.scores ? g.scores[p] : undefined;
@@ -1050,7 +1085,7 @@
                 });
                 let ave = count > 0 ? (sum/count).toFixed(2) : "--";
                 let bestStr = best > 0 ? best.toFixed(2) : "--";
-                let wins = (window.appData.playerWins && window.appData.playerWins[p] !== undefined) ? window.appData.playerWins[p] : 0;
+                let wins = (appData.playerWins && appData.playerWins[p] !== undefined) ? appData.playerWins[p] : 0;
                 csv += `"${p}",${ave},${count},${wins},${bestStr},` + rowScores.join(",") + "\n";
             });
 
@@ -1062,10 +1097,11 @@
             a.click();
         };
 
+        // CELL & GAME EDITING
         window.openEditCell = (gameIdx, player) => {
             if (!isAdmin || viewingArchive) return;
             activeEdit = { gameIdx, player };
-            const game = window.appData.games[gameIdx];
+            const game = appData.games[gameIdx];
             document.getElementById('cellModalTitle').textContent = player;
             document.getElementById('cellModalSub').textContent = `Game ${gameIdx + 1}: ${game.title}`;
             document.getElementById('cellScoreInput').value = (game.scores && game.scores[player]) ? game.scores[player] : '';
@@ -1075,41 +1111,43 @@
 
         window.saveCell = async (valueStr) => {
             const { gameIdx, player } = activeEdit;
-            const game = window.appData.games[gameIdx];
+            const game = appData.games[gameIdx];
             if (!game.scores) game.scores = {};
             if (valueStr === null || valueStr.trim() === "") delete game.scores[player];
             else game.scores[player] = Number(valueStr);
-            window.renderTable();
-            window.closeModal('cellModal');
-            if(window.saveToCloud) await window.saveToCloud();
+            renderTable();
+            closeModal('cellModal');
+            await saveToCloud();
         };
 
+        // Launch modal popup UI to Edit GW count for specified player
         window.openEditGW = (player) => {
             if (!isAdmin || viewingArchive) return;
             activeGWPlayer = player;
             document.getElementById('gwModalSub').textContent = player;
-            const currentWins = (window.appData.playerWins && window.appData.playerWins[player] !== undefined) ? window.appData.playerWins[player] : 0;
+            const currentWins = (appData.playerWins && appData.playerWins[player] !== undefined) ? appData.playerWins[player] : 0;
             document.getElementById('gwInput').value = currentWins;
             document.getElementById('gwModal').classList.remove('hidden');
             setTimeout(() => document.getElementById('gwInput').focus(), 50);
         };
 
+        // Validation save GW value input, updates application values, forces re-render & triggers firestore updates
         window.saveGW = async () => {
             if (activeGWPlayer !== null) {
                 const val = parseInt(document.getElementById('gwInput').value, 10);
-                if (!window.appData.playerWins) window.appData.playerWins = {};
-                window.appData.playerWins[activeGWPlayer] = isNaN(val) ? 0 : val;
+                if (!appData.playerWins) appData.playerWins = {};
+                appData.playerWins[activeGWPlayer] = isNaN(val) ? 0 : val;
                 
-                window.renderTable();
-                window.closeModal('gwModal');
-                if(window.saveToCloud) await window.saveToCloud();
+                renderTable();
+                closeModal('gwModal');
+                await saveToCloud();
             }
         };
 
         window.openEditGameStatus = (gameIdx) => {
             if (!isAdmin || viewingArchive) return;
             activeGameEdit = gameIdx;
-            const game = window.appData.games[gameIdx];
+            const game = appData.games[gameIdx];
             document.getElementById('gameTitleInput').value = game.title || "";
             document.getElementById('gameDateInput').value = game.date || "";
             document.getElementById('gameVenueInput').value = game.venue || "";
@@ -1119,7 +1157,7 @@
 
         window.saveGameStatus = async (status) => {
             if (activeGameEdit !== null) {
-                const game = window.appData.games[activeGameEdit];
+                const game = appData.games[activeGameEdit];
                 const newTitle = document.getElementById('gameTitleInput').value.trim();
                 const newDate = document.getElementById('gameDateInput').value;
                 const newVenue = document.getElementById('gameVenueInput').value;
@@ -1129,38 +1167,20 @@
                 game.venue = newVenue;
                 if (status) game.status = status;
                 
-                window.renderTable();
-                window.closeModal('gameStatusModal');
-                if(window.saveToCloud) await window.saveToCloud();
+                renderTable();
+                closeModal('gameStatusModal');
+                await saveToCloud();
             }
         };
-        
-        window.setSyncStatus = (status, icon, colorClass) => {
+
+        // ==========================================
+        // FIREBASE CLOUD SYNC
+        // ==========================================
+        const setSyncStatus = (status, icon, colorClass) => {
             const badge = document.getElementById('cloudSyncBadge');
             badge.className = `text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1.5 ${colorClass}`;
             badge.innerHTML = `<i class="fa-solid ${icon}"></i> ${status}`;
         };
-    </script>
-
-    <!-- ==============================================
-         FIREBASE CLOUD SYNC MODULE (ISOLATED)
-         ============================================== -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAeEpibfdonVRy6Y2KavSA39h4d9dwf_8Q",
-            authDomain: "leeming-arrows-stats.firebaseapp.com",
-            databaseURL: "https://leeming-arrows-stats-default-rtdb.firebaseio.com",
-            projectId: "leeming-arrows-stats",
-            storageBucket: "leeming-arrows-stats.firebasestorage.app",
-            messagingSenderId: "139260579419",
-            appId: "1:139260579419:web:84a7a685e0ba5a130b797e"
-        };
-
-        let db, currentUser;
 
         async function initFirebase() {
             try {
@@ -1175,43 +1195,43 @@
                         const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDocV2');
                         onSnapshot(docRef, (snapshot) => {
                             if (snapshot.exists()) {
-                                window.appData = JSON.parse(snapshot.data().payload);
-                                window.sanitizeAppData();
-                                window.appData.games.forEach(g => { g.date = g.date || ""; g.venue = g.venue || ""; });
-                                window.updateTicker();
-                                window.updateArchiveDropdown();
-                                window.renderTable();
-                                window.setSyncStatus("Live Sync On", "fa-satellite-dish animate-pulse", "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40");
+                                appData = JSON.parse(snapshot.data().payload);
+                                sanitizeAppData();
+                                appData.games.forEach(g => { g.date = g.date || ""; g.venue = g.venue || ""; });
+                                updateTicker();
+                                updateArchiveDropdown();
+                                renderTable();
+                                setSyncStatus("Live Sync On", "fa-satellite-dish animate-pulse", "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40");
                             } else {
-                                window.sanitizeAppData();
-                                window.saveToCloud();
-                                window.setSyncStatus("Database Created", "fa-check", "bg-sky-500/20 text-sky-400 border border-sky-500/40");
+                                sanitizeAppData();
+                                saveToCloud();
+                                setSyncStatus("Database Created", "fa-check", "bg-sky-500/20 text-sky-400 border border-sky-500/40");
                             }
                         }, (err) => {
                             console.error("Firebase Read Error:", err);
-                            window.setSyncStatus("Sync Error", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
+                            setSyncStatus("Sync Error", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
                         });
                     }
                 });
             } catch (e) {
                 console.error("Firebase Init Error:", e);
-                window.setSyncStatus("Local Mode Only", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
-                window.sanitizeAppData();
-                window.updateTicker();
-                window.renderTable(); 
+                setSyncStatus("Local Mode Only", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
+                sanitizeAppData();
+                updateTicker();
+                renderTable(); 
             }
         }
 
-        window.saveToCloud = async () => {
+        async function saveToCloud() {
             if (db && currentUser) {
                 try {
                     const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDocV2');
-                    await setDoc(docRef, { payload: JSON.stringify(window.appData), updatedAt: Date.now(), updatedBy: currentUser.uid });
+                    await setDoc(docRef, { payload: JSON.stringify(appData), updatedAt: Date.now(), updatedBy: currentUser.uid });
                 } catch (e) {
                     console.error("Save Error:", e);
                 }
             }
-        };
+        }
 
         document.addEventListener('DOMContentLoaded', initFirebase);
     </script>
