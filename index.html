@@ -188,7 +188,7 @@
                 <i class="fa-solid fa-bullhorn"></i> CLUB NOTICE
             </div>
             <div class="ticker-wrap flex-1 ml-2">
-                <div id="announcementText" class="ticker py-1.5">Loading announcements...</div>
+                <div id="announcementText" class="ticker py-1.5">Syncing with cloud database...</div>
             </div>
         </div>
     </header>
@@ -196,6 +196,12 @@
     <!-- MAIN DASHBOARD -->
     <main id="dashboardMain" class="flex-1 max-w-[1600px] w-full mx-auto px-4 py-6 space-y-6 opacity-0 hidden">
         
+        <!-- Sync Lock Warning Banner (shown while connecting or if sync fails) -->
+        <div id="syncLockBanner" class="bg-amber-500/20 border border-amber-500/50 text-amber-200 px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm">
+            <i class="fa-solid fa-circle-notch fa-spin text-amber-400 text-lg"></i>
+            <span id="syncLockMessage">Syncing live data from cloud... Editing is temporarily locked to prevent overwriting stats.</span>
+        </div>
+
         <!-- Summary Cards -->
         <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <div class="bg-slate-900 border border-emerald-500/30 rounded-xl p-4 shadow-lg flex flex-col justify-between">
@@ -236,7 +242,8 @@
             
             <button onclick="openRosterModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-rose-500/50 rounded text-xs font-bold text-rose-400 transition"><i class="fa-solid fa-users-slash mr-1"></i> Archive/Restore Player</button>
             
-            <button onclick="archiveSeason()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-rose-500/50 rounded text-xs font-bold text-rose-400 transition ml-auto"><i class="fa-solid fa-box-archive mr-1"></i> Archive Season</button>
+            <button onclick="restoreLastBackup()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-amber-500/50 rounded text-xs font-bold text-amber-300 transition ml-auto"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Restore Backup</button>
+            <button onclick="archiveSeason()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-rose-500/50 rounded text-xs font-bold text-rose-400 transition"><i class="fa-solid fa-box-archive mr-1"></i> Archive Season</button>
             <button onclick="exportCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-file-csv mr-1 text-raf-light"></i> Backup CSV</button>
         </section>
 
@@ -319,7 +326,7 @@
                         <div><p class="text-[10px] text-raf-light font-bold uppercase tracking-wider">Darts Setup</p><p id="pDisplayDarts" class="text-sm font-semibold text-slate-200">-</p></div>
                     </div>
                     
-                    <!-- Edit Profile Form (Unlocked for all users) -->
+                    <!-- Edit Profile Form (Unlocked for all users once synced) -->
                     <div id="profileDetailsEdit" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 bg-slate-950 p-3 rounded-xl border border-amber-500/30">
                         
                         <!-- Admin: Edit Name Box -->
@@ -343,7 +350,6 @@
                     <p id="pHonour180" class="font-display text-3xl font-bold text-white mb-2 leading-none">0</p>
                     <p class="text-[10px] text-amber-400 font-bold uppercase">High Out</p>
                     <p id="pHonourHighOut" class="font-display text-2xl font-bold text-white leading-none mb-2">0</p>
-                    <!-- Display overall manual wins -->
                     <p class="text-[10px] text-sky-400 font-bold uppercase">Games Won</p>
                     <p id="pHonourGW" class="font-display text-2xl font-bold text-white leading-none">0</p>
                 </div>
@@ -480,7 +486,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAeEpibfdonVRy6Y2KavSA39h4d9dwf_8Q",
@@ -493,6 +499,8 @@
         };
 
         let isAdmin = false;
+        let hasLoadedFromCloud = false; // ANTI-WIPE LOCK: blocks all writes until cloud sync succeeds
+        let lastCloudPayload = null;    // Stores last confirmed cloud state for automatic pre-save backup
         let activeEdit = { gameIdx: null, player: null };
         let activeGWPlayer = null;
         let activeGameEdit = null;
@@ -501,40 +509,38 @@
         let viewingArchive = null; 
         let activeProfileView = null;
 
-        const DEFAULT_DATA = {
-            players: ["Ben Townsend", "Brandon Ledger", "Nathan Lee", "David Goodfellow", "Josh Mccarthy", "Marcus Blackmore", "Joseph Moore", "Pat Barron", "Lewis Bell", "Dan Lovett", "Andy Gray"],
+        // Start empty until cloud responds so stale defaults can never be accidentally rendered & saved
+        let appData = {
+            players: [],
             archivedPlayers: [],
-            playerDetails: {}, 
-            playerWins: {}, // Manual storage for Win Count tracker
-            announcement: "Welcome to the updated RAF Leeming Arrows Stats Portal! Log in to edit Noticeboard.",
+            playerDetails: {},
+            playerWins: {},
+            announcement: "Syncing with cloud database...",
             archives: {},
-            games: [
-                { title: "28 Sqn", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 56.07, "Brandon Ledger": 44.21, "Nathan Lee": 54.88, "David Goodfellow": 48.74, "Josh Mccarthy": 60.12, "Marcus Blackmore": 64.9 } },
-                { title: "RAF Digby", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 53.82, "Nathan Lee": 52.3, "David Goodfellow": 38.05, "Marcus Blackmore": 53.68, "Joseph Moore": 34.16, "Pat Barron": 49.56, "Lewis Bell": 41.75 } },
-                { title: "Waddington", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 46.11, "Brandon Ledger": 40.25, "Nathan Lee": 61.35, "Josh Mccarthy": 34.85, "Joseph Moore": 36, "Pat Barron": 44.87, "Andy Gray": 46.97 } },
-                { title: "Lossiemouth", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 39.59, "David Goodfellow": 52.36, "Pat Barron": 68.32, "Lewis Bell": 49.23, "Dan Lovett": 51.83, "Andy Gray": 47.18 } },
-                { title: "Brize", status: "LOSS", date: "", venue: "", scores: { "Ben Townsend": 51.22, "Brandon Ledger": 45.79, "David Goodfellow": 61.38, "Marcus Blackmore": 61.35, "Pat Barron": 56.86, "Lewis Bell": 39.94, "Andy Gray": 42 } },
-                { title: "Cosford", status: "LOSS", date: "", venue: "", scores: { "Ben Townsend": 42.32, "Marcus Blackmore": 51.81, "Joseph Moore": 42.3, "Lewis Bell": 51.83, "Dan Lovett": 47.57, "Andy Gray": 37.59 } },
-                { title: "Northolt", status: "RESCHEDULE", date: "", venue: "", scores: {} },
-                { title: "Benson (Forfeit)", status: "WIN", date: "", venue: "", scores: { "Nathan Lee": 50, "David Goodfellow": 50, "Josh Mccarthy": 50, "Marcus Blackmore": 50, "Joseph Moore": 50, "Pat Barron": 50, "Lewis Bell": 50, "Dan Lovett": 50, "Andy Gray": 50 } },
-                { title: "Marham", status: "WIN", date: "", venue: "", scores: { "Ben Townsend": 47.73, "Brandon Ledger": 46.01, "David Goodfellow": 50.1, "Marcus Blackmore": 48.97, "Pat Barron": 53.58, "Andy Gray": 48.97 } },
-                { title: "Halton (Forfeit)", status: "WIN", date: "", venue: "", scores: { "Nathan Lee": 50, "David Goodfellow": 50, "Josh Mccarthy": 50, "Marcus Blackmore": 50, "Joseph Moore": 50, "Lewis Bell": 50, "Dan Lovett": 50, "Andy Gray": 50 } },
-                { title: "Game 11", status: "TBD", date: "", venue: "", scores: {} },
-                { title: "Game 12", status: "TBD", date: "", venue: "", scores: {} }
-            ]
+            games: []
         };
 
-        let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
-
         const sanitizeAppData = () => {
+            if (!appData.players) appData.players = [];
+            if (!appData.games) appData.games = [];
             if (!appData.archivedPlayers) appData.archivedPlayers = [];
             if (!appData.playerDetails) appData.playerDetails = {};
             if (!appData.playerWins) appData.playerWins = {};
             if (!appData.announcement) appData.announcement = "Welcome to the RAF Leeming Arrows Stats Portal!";
             if (!appData.archives) appData.archives = {};
-            if (!appData.playerDetails["Ben Townsend"]) {
+            if (appData.players.includes("Ben Townsend") && !appData.playerDetails["Ben Townsend"]) {
                 appData.playerDetails["Ben Townsend"] = { nickname: "Raven", walkon: "System of a Down", darts: "Target K-Flex Shift (Short)", max180s: 0, highOut: 0 };
             }
+        };
+
+        const escapeAttr = (str) => String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+
+        const assertCloudReady = () => {
+            if (!hasLoadedFromCloud) {
+                alert("Still syncing live stats from the cloud. Please wait until the top-left badge says 'Live Sync On' before making edits.");
+                return false;
+            }
+            return true;
         };
 
         // ==========================================
@@ -600,7 +606,7 @@
         // DATA RENDERING & ARCHIVES
         // ==========================================
         const getActiveGames = () => {
-            return viewingArchive ? appData.archives[viewingArchive] : appData.games;
+            return viewingArchive ? (appData.archives[viewingArchive] || []) : appData.games;
         };
 
         window.switchSeason = () => {
@@ -612,7 +618,7 @@
                 document.getElementById('adminToolbox').classList.add('hidden');
             } else {
                 document.getElementById('archiveWarning').classList.add('hidden');
-                if (isAdmin) document.getElementById('adminToolbox').classList.remove('hidden');
+                if (isAdmin && hasLoadedFromCloud) document.getElementById('adminToolbox').classList.remove('hidden');
             }
             renderTable();
         };
@@ -662,8 +668,8 @@
                 if (g.status === 'RESCHEDULE') reschedules++;
                 
                 Object.entries(g.scores || {}).forEach(([pName, score]) => {
-                    // Only count stats for active roster members in the summary!
                     if (!appData.players.includes(pName)) return;
+                    if (score === "DNP" || score === null || score === "") return;
 
                     const num = Number(score);
                     if (!isNaN(num)) {
@@ -706,6 +712,8 @@
                 displayOrder.sort((a, b) => playerStats[b].ave - playerStats[a].ave);
             }
 
+            const canEdit = isAdmin && !viewingArchive && hasLoadedFromCloud;
+
             // Headers
             const thead = document.getElementById('matrixThead');
             let headHTML = `<tr class="border-b border-slate-700 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
@@ -717,8 +725,8 @@
             `;
             
             gamesToRender.forEach((g, idx) => {
-                const clickHandler = (isAdmin && !viewingArchive) ? `onclick="openEditGameStatus(${idx})"` : '';
-                const cursor = (isAdmin && !viewingArchive) ? 'admin-header' : '';
+                const clickHandler = canEdit ? `onclick="openEditGameStatus(${idx})"` : '';
+                const cursor = canEdit ? 'admin-header' : '';
                 const displayDate = g.date ? new Date(g.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short'}) : '';
                 const detailStr = [displayDate, g.venue].filter(Boolean).join(' • ');
 
@@ -733,43 +741,39 @@
             // Body
             const tbody = document.getElementById('matrixTbody');
             const tableWrap = document.getElementById('tableWrapper');
-            if (isAdmin && !viewingArchive) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
+            if (canEdit) tableWrap.classList.add('admin-active'); else tableWrap.classList.remove('admin-active');
 
             let bodyHTML = '';
             displayOrder.forEach((player, rankIdx) => {
+                const safePlayer = escapeAttr(player);
                 const stat = playerStats[player];
                 const aveDisplay = stat.played > 0 ? stat.ave.toFixed(2) : '--';
                 const highDisplay = stat.high > 0 ? stat.high.toFixed(2) : '--';
                 
-                // Fetch win tracker values
                 const gwDisplay = (appData.playerWins && appData.playerWins[player] !== undefined) ? appData.playerWins[player] : 0;
                 totalWinsSum += Number(gwDisplay);
                 
-                // Allow edit pop-up ONLY if Admin Mode is turned ON
-                const gwClick = (isAdmin && !viewingArchive) ? `onclick="openEditGW('${player.replace(/'/g, "\\'")}')"` : '';
+                const gwClick = canEdit ? `onclick="openEditGW('${safePlayer}')"` : '';
                 
                 const nameTrophy = (sortMode === 'ranked' && rankIdx === 0 && stat.played > 0) 
                     ? `<i class="fa-solid fa-trophy text-amber-400 ml-2 shadow-sm" title="#1 Ranked"></i>` : '';
 
                 bodyHTML += `<tr class="hover:bg-slate-800/40 transition">
                     <td class="sticky-col-1 bg-slate-900 text-slate-100 font-semibold py-2 px-3 border-r border-slate-800 whitespace-nowrap group">
-                        <span class="cursor-pointer hover:text-emerald-400 transition" onclick="openPlayerGraph('${player}')">${player} ${nameTrophy}</span>
+                        <span class="cursor-pointer hover:text-emerald-400 transition" onclick="openPlayerGraph('${safePlayer}')">${player} ${nameTrophy}</span>
                     </td>
                     <td class="sticky-col-2 bg-slate-900/95 font-mono font-bold text-sky-400 py-2 px-2 text-center border-r border-slate-700">${aveDisplay}</td>
                     <td class="bg-slate-900/50 font-mono text-emerald-400/80 py-2 px-2 text-center border-r border-slate-800">${stat.played}</td>
-                    
-                    <!-- NEW GW COLUMN -->
                     <td ${gwClick} class="stat-cell bg-slate-900/50 font-mono text-sky-400/80 py-2 px-2 text-center border-r border-slate-850 font-bold transition">
                         ${gwDisplay}
                     </td>
-                    
                     <td class="bg-slate-900/50 font-mono text-amber-400/80 py-2 px-2 text-center border-r border-slate-800">${highDisplay}</td>
                 `;
 
                 gamesToRender.forEach((g, gIdx) => {
                     const rawVal = g.scores ? g.scores[player] : undefined;
                     const gameHasScores = Object.keys(g.scores || {}).length > 0;
-                    const cellClick = (isAdmin && !viewingArchive) ? `onclick="openEditCell(${gIdx}, '${player}')"` : '';
+                    const cellClick = canEdit ? `onclick="openEditCell(${gIdx}, '${safePlayer}')"` : '';
 
                     if (rawVal === "DNP") {
                         bodyHTML += `<td ${cellClick} class="stat-cell cell-dnp py-2 px-3 border-r border-slate-900 text-center text-[10px] uppercase font-bold tracking-widest text-slate-700/50">DNP</td>`;
@@ -791,15 +795,11 @@
                 <td class="sticky-col-1 bg-slate-950 text-raf-light py-3 px-3 border-r border-slate-800 uppercase font-sans">TEAM GAME AVE</td>
                 <td class="sticky-col-2 bg-slate-950 border-r border-slate-700"></td>
                 <td class="bg-slate-950 border-r border-slate-800 text-center"></td>
-                
-                <!-- NEW FOOTER Total Match Wins tracker -->
                 <td class="bg-slate-950 border-r border-slate-800 text-center text-sky-400 font-bold" title="Total Wins Accumulated">${totalWinsSum}</td>
-                
                 <td class="bg-slate-950 border-r border-slate-800 text-center"></td>`;
             gamesToRender.forEach((g) => {
-                // Ensure only active players count toward Team Game Average
                 const activeScores = Object.entries(g.scores || {})
-                    .filter(([pName, val]) => appData.players.includes(pName) && val !== "DNP")
+                    .filter(([pName, val]) => appData.players.includes(pName) && val !== "DNP" && val !== null && val !== "")
                     .map(([, score]) => score);
                 const gameAve = activeScores.length > 0 ? (activeScores.reduce((a,b)=>a+Number(b),0)/activeScores.length).toFixed(2) : '--';
                 footHTML += `<td class="py-3 px-3 text-right text-emerald-400 border-r border-slate-800 bg-slate-950/90">${gameAve}</td>`;
@@ -820,7 +820,7 @@
             const labels = [];
             const dataPts = [];
             gamesToRender.forEach((g, idx) => {
-                if (g.scores && g.scores[playerName] !== undefined && g.scores[playerName] !== "DNP") {
+                if (g.scores && g.scores[playerName] !== undefined && g.scores[playerName] !== null && g.scores[playerName] !== "DNP") {
                     labels.push(g.title || `Game ${idx+1}`);
                     dataPts.push(Number(g.scores[playerName]));
                 }
@@ -835,12 +835,10 @@
             document.getElementById('pDisplayDarts').innerText = details.darts || 'Unknown';
             document.getElementById('pHonour180').innerText = details.max180s || 0;
             document.getElementById('pHonourHighOut').innerText = details.highOut || 0;
-            
-            // Populating visual manual wins sum
             document.getElementById('pHonourGW').innerText = (appData.playerWins && appData.playerWins[playerName] !== undefined) ? appData.playerWins[playerName] : 0;
 
             const btnEdit = document.getElementById('btnToggleProfileEdit');
-            if (!viewingArchive) {
+            if (!viewingArchive && hasLoadedFromCloud) {
                 btnEdit.classList.remove('hidden');
             } else {
                 btnEdit.classList.add('hidden');
@@ -874,6 +872,7 @@
         };
 
         window.toggleProfileEdit = () => {
+            if (!assertCloudReady()) return;
             const details = appData.playerDetails[activeProfileView] || {};
             
             if (isAdmin) {
@@ -894,6 +893,7 @@
         };
 
         window.savePlayerProfile = async () => {
+            if (!assertCloudReady()) return;
             let targetProfileName = activeProfileView;
             
             if (isAdmin) {
@@ -910,6 +910,11 @@
                     if (appData.playerDetails[activeProfileView]) {
                         appData.playerDetails[newName] = appData.playerDetails[activeProfileView];
                         delete appData.playerDetails[activeProfileView];
+                    }
+
+                    if (appData.playerWins && appData.playerWins[activeProfileView] !== undefined) {
+                        appData.playerWins[newName] = appData.playerWins[activeProfileView];
+                        delete appData.playerWins[activeProfileView];
                     }
 
                     appData.games.forEach(g => {
@@ -949,6 +954,7 @@
                 updateAuthUI();
                 renderTable();
             } else {
+                if (!assertCloudReady()) return;
                 document.getElementById('adminPassInput').value = '';
                 document.getElementById('authError').classList.add('hidden');
                 document.getElementById('authModal').classList.remove('hidden');
@@ -957,6 +963,7 @@
         };
 
         window.submitAuth = () => {
+            if (!assertCloudReady()) return;
             if (document.getElementById('adminPassInput').value === 'Leemingdarts') {
                 isAdmin = true;
                 closeModal('authModal');
@@ -971,7 +978,7 @@
             const btn = document.getElementById('adminBtn');
             const pill = document.getElementById('authStatusPill');
             const toolbox = document.getElementById('adminToolbox');
-            if (isAdmin) {
+            if (isAdmin && hasLoadedFromCloud) {
                 btn.innerHTML = `<i class="fa-solid fa-lock-open"></i> Lock Editing`;
                 btn.className = "hidden sm:flex px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm items-center gap-2 shadow-lg transition whitespace-nowrap";
                 pill.innerHTML = `<i class="fa-solid fa-pen-to-square text-emerald-400"></i><span class="font-bold text-emerald-400">Edit Mode</span>`;
@@ -986,6 +993,7 @@
 
         // ADMIN TOOLBOX FUNCTIONS
         window.promptEditAnnouncement = async () => {
+            if (!assertCloudReady()) return;
             const text = prompt("Enter new noticeboard announcement:", appData.announcement);
             if (text !== null) {
                 appData.announcement = text.trim();
@@ -995,6 +1003,7 @@
         };
 
         window.promptAddPlayer = async () => {
+            if (!assertCloudReady()) return;
             const name = prompt("Enter new player's full name:");
             if (name && name.trim()) {
                 appData.players.push(name.trim());
@@ -1004,6 +1013,7 @@
         };
 
         window.promptAddGame = async () => {
+            if (!assertCloudReady()) return;
             const title = prompt("Enter new fixture/opponent name:");
             if (title && title.trim()) {
                 appData.games.push({ title: title.trim(), status: 'TBD', date: '', venue: '', scores: {} });
@@ -1014,6 +1024,7 @@
 
         // Roster Management Modal Logic
         window.openRosterModal = () => {
+            if (!assertCloudReady()) return;
             updateRosterDropdowns();
             document.getElementById('rosterModal').classList.remove('hidden');
         };
@@ -1032,6 +1043,7 @@
         };
 
         window.archivePlayerAction = async () => {
+            if (!assertCloudReady()) return;
             const p = document.getElementById('archiveSelect').value;
             if (!p) return;
             
@@ -1044,6 +1056,7 @@
         };
 
         window.restorePlayerAction = async () => {
+            if (!assertCloudReady()) return;
             const p = document.getElementById('restoreSelect').value;
             if (!p) return;
             
@@ -1056,6 +1069,7 @@
         };
 
         window.archiveSeason = async () => {
+            if (!assertCloudReady()) return;
             const seasonName = prompt("Enter a name for this archive (e.g. '2025/2026 Season'):\nWARNING: This will lock the current board into history and clear the live board for the next season.");
             if (seasonName && seasonName.trim()) {
                 appData.archives[seasonName.trim()] = JSON.parse(JSON.stringify(appData.games));
@@ -1065,6 +1079,34 @@
                 renderTable();
                 await saveToCloud();
                 alert(`Successfully archived as "${seasonName.trim()}". A fresh board has been generated.`);
+            }
+        };
+
+        // 1-Click Cloud Backup Restore
+        window.restoreLastBackup = async () => {
+            if (!assertCloudReady() || !db || !currentUser) return;
+            try {
+                const backupRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'backupDocV2');
+                const snap = await getDoc(backupRef);
+                if (!snap.exists() || !snap.data().payload) {
+                    alert("No cloud backup exists yet. A backup is created automatically every time a change is saved.");
+                    return;
+                }
+                const savedAt = snap.data().backedUpAt ? new Date(snap.data().backedUpAt).toLocaleString('en-GB') : 'Unknown time';
+                if (!confirm(`Restore the automatic backup saved on ${savedAt}?\n\nThis will swap the live board back to that snapshot (and back up the current state first).`)) {
+                    return;
+                }
+                const restoredData = JSON.parse(snap.data().payload);
+                appData = restoredData;
+                sanitizeAppData();
+                updateTicker();
+                updateArchiveDropdown();
+                renderTable();
+                await saveToCloud();
+                alert("Backup restored successfully!");
+            } catch (e) {
+                console.error("Restore Backup Error:", e);
+                alert("Failed to restore backup. Check console for details.");
             }
         };
 
@@ -1084,7 +1126,7 @@
                         if(Number(s) > best) best = Number(s);
                         return s;
                     }
-                    return "DNP"; // Inferred DNP for empty
+                    return "DNP";
                 });
                 let ave = count > 0 ? (sum/count).toFixed(2) : "--";
                 let bestStr = best > 0 ? best.toFixed(2) : "--";
@@ -1102,7 +1144,7 @@
 
         // CELL & GAME EDITING
         window.openEditCell = (gameIdx, player) => {
-            if (!isAdmin || viewingArchive) return;
+            if (!isAdmin || viewingArchive || !assertCloudReady()) return;
             activeEdit = { gameIdx, player };
             const game = appData.games[gameIdx];
             document.getElementById('cellModalTitle').textContent = player;
@@ -1116,6 +1158,7 @@
         };
 
         window.saveCell = async (valueStr) => {
+            if (!assertCloudReady()) return;
             const { gameIdx, player } = activeEdit;
             const game = appData.games[gameIdx];
             if (!game.scores) game.scores = {};
@@ -1133,9 +1176,8 @@
             await saveToCloud();
         };
 
-        // Launch modal popup UI to Edit GW count for specified player
         window.openEditGW = (player) => {
-            if (!isAdmin || viewingArchive) return;
+            if (!isAdmin || viewingArchive || !assertCloudReady()) return;
             activeGWPlayer = player;
             document.getElementById('gwModalSub').textContent = player;
             const currentWins = (appData.playerWins && appData.playerWins[player] !== undefined) ? appData.playerWins[player] : 0;
@@ -1144,8 +1186,8 @@
             setTimeout(() => document.getElementById('gwInput').focus(), 50);
         };
 
-        // Validation save GW value input, updates application values, forces re-render & triggers firestore updates
         window.saveGW = async () => {
+            if (!assertCloudReady()) return;
             if (activeGWPlayer !== null) {
                 const val = parseInt(document.getElementById('gwInput').value, 10);
                 if (!appData.playerWins) appData.playerWins = {};
@@ -1158,7 +1200,7 @@
         };
 
         window.openEditGameStatus = (gameIdx) => {
-            if (!isAdmin || viewingArchive) return;
+            if (!isAdmin || viewingArchive || !assertCloudReady()) return;
             activeGameEdit = gameIdx;
             const game = appData.games[gameIdx];
             document.getElementById('gameTitleInput').value = game.title || "";
@@ -1169,6 +1211,7 @@
         };
 
         window.saveGameStatus = async (status) => {
+            if (!assertCloudReady()) return;
             if (activeGameEdit !== null) {
                 const game = appData.games[activeGameEdit];
                 const newTitle = document.getElementById('gameTitleInput').value.trim();
@@ -1187,12 +1230,28 @@
         };
 
         // ==========================================
-        // FIREBASE CLOUD SYNC
+        // FIREBASE CLOUD SYNC & ANTI-WIPE SAFEGUARDS
         // ==========================================
         const setSyncStatus = (status, icon, colorClass) => {
             const badge = document.getElementById('cloudSyncBadge');
             badge.className = `text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1.5 ${colorClass}`;
             badge.innerHTML = `<i class="fa-solid ${icon}"></i> ${status}`;
+        };
+
+        const setSyncBanner = (visible, message = "", isError = false) => {
+            const banner = document.getElementById('syncLockBanner');
+            const msgEl = document.getElementById('syncLockMessage');
+            if (!visible) {
+                banner.classList.add('hidden');
+                return;
+            }
+            banner.classList.remove('hidden');
+            msgEl.textContent = message;
+            if (isError) {
+                banner.className = "bg-rose-500/20 border border-rose-500/50 text-rose-200 px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm";
+            } else {
+                banner.className = "bg-amber-500/20 border border-amber-500/50 text-amber-200 px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm";
+            }
         };
 
         async function initFirebase() {
@@ -1207,41 +1266,72 @@
                     if (user && db) {
                         const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDocV2');
                         onSnapshot(docRef, (snapshot) => {
-                            if (snapshot.exists()) {
-                                appData = JSON.parse(snapshot.data().payload);
+                            if (snapshot.exists() && snapshot.data().payload) {
+                                const rawPayload = snapshot.data().payload;
+                                appData = JSON.parse(rawPayload);
                                 sanitizeAppData();
                                 appData.games.forEach(g => { g.date = g.date || ""; g.venue = g.venue || ""; });
+
+                                lastCloudPayload = rawPayload;
+                                hasLoadedFromCloud = true;
+
+                                // Keep a local rolling copy on this device as extra protection
+                                try { localStorage.setItem('leeming_arrows_last_sync', rawPayload); } catch (_) {}
+
+                                setSyncBanner(false);
                                 updateTicker();
                                 updateArchiveDropdown();
+                                updateAuthUI();
                                 renderTable();
                                 setSyncStatus("Live Sync On", "fa-satellite-dish animate-pulse", "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40");
                             } else {
-                                sanitizeAppData();
-                                saveToCloud();
-                                setSyncStatus("Database Created", "fa-check", "bg-sky-500/20 text-sky-400 border border-sky-500/40");
+                                // SAFEGUARD: Never auto-overwrite when snapshot is empty
+                                hasLoadedFromCloud = false;
+                                setSyncStatus("No Cloud Data Found", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
+                                setSyncBanner(true, "Cloud document 'mainDocV2' was not found. Editing is locked to prevent accidental overwrite. Refresh or check Firebase Console.", true);
                             }
                         }, (err) => {
                             console.error("Firebase Read Error:", err);
-                            setSyncStatus("Sync Error", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
+                            hasLoadedFromCloud = false;
+                            setSyncStatus("Sync Error (Locked)", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
+                            setSyncBanner(true, "Unable to sync with Firebase. Editing is locked until connection is restored.", true);
                         });
                     }
                 });
             } catch (e) {
                 console.error("Firebase Init Error:", e);
-                setSyncStatus("Local Mode Only", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
-                sanitizeAppData();
-                updateTicker();
-                renderTable(); 
+                hasLoadedFromCloud = false;
+                setSyncStatus("Offline (Locked)", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
+                setSyncBanner(true, "Offline mode — cloud sync unavailable. Editing is locked to protect your database.", true);
             }
         }
 
         async function saveToCloud() {
+            if (!hasLoadedFromCloud) {
+                console.warn("Blocked saveToCloud(): initial cloud sync has not completed.");
+                return;
+            }
             if (db && currentUser) {
                 try {
+                    const newPayload = JSON.stringify(appData);
+
+                    // AUTOMATIC PRE-SAVE BACKUP: Save the previous live payload before overwriting mainDocV2
+                    if (lastCloudPayload && lastCloudPayload !== newPayload) {
+                        const backupRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'backupDocV2');
+                        await setDoc(backupRef, {
+                            payload: lastCloudPayload,
+                            backedUpAt: Date.now(),
+                            backedUpBy: currentUser.uid
+                        });
+                        try { localStorage.setItem('leeming_arrows_prev_backup', lastCloudPayload); } catch (_) {}
+                    }
+
                     const docRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'mainDocV2');
-                    await setDoc(docRef, { payload: JSON.stringify(appData), updatedAt: Date.now(), updatedBy: currentUser.uid });
+                    await setDoc(docRef, { payload: newPayload, updatedAt: Date.now(), updatedBy: currentUser.uid });
+                    lastCloudPayload = newPayload;
                 } catch (e) {
                     console.error("Save Error:", e);
+                    alert("Save failed — please check your internet connection and try again.");
                 }
             }
         }
