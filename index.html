@@ -16,13 +16,14 @@
     <meta name="theme-color" content="#020617">
     <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22RAF%20Leeming%20Arrows%22%2C%22short_name%22%3A%22Arrows%20Stats%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23020617%22%2C%22theme_color%22%3A%22%23020617%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%2C%7B%22src%22%3A%22logo.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D'>
 
-    <!-- Tailwind CSS, Google Fonts, Font Awesome, Chart.js -->
+    <!-- Tailwind CSS, Google Fonts, Font Awesome, Chart.js, Mammoth.js (.docx parser) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.13.0/mammoth.browser.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -133,7 +134,6 @@
                         <span class="font-display font-bold text-white tracking-wider text-[10px] sm:text-sm text-center block w-full uppercase">LOCAL TOURNAMENT</span>
                     </div>
                 </button>
-                <!-- New 100,000 Points Tracker -->
                 <button onclick="openExternalLink('https://townsendb102.github.io/100000points/', '100,000 Points Tracker')" class="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-indigo-400 shadow-lg transition-all hover:scale-105 flex flex-col items-center w-36 sm:w-48 h-24 sm:h-32">
                     <img src="100k.jpg" alt="100K Tracker" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x100/1e1b4b/818cf8?text=100K+Tracker'">
                     <div class="absolute bottom-0 w-full bg-black/80 py-1.5 border-t border-slate-700/50">
@@ -196,7 +196,7 @@
     <!-- MAIN DASHBOARD -->
     <main id="dashboardMain" class="flex-1 max-w-[1600px] w-full mx-auto px-4 py-6 space-y-6 opacity-0 hidden">
         
-        <!-- Sync Lock Warning Banner (shown while connecting or if sync fails) -->
+        <!-- Sync Lock Warning Banner -->
         <div id="syncLockBanner" class="bg-amber-500/20 border border-amber-500/50 text-amber-200 px-4 py-3 rounded-xl font-bold flex items-center gap-3 text-sm">
             <i class="fa-solid fa-circle-notch fa-spin text-amber-400 text-lg"></i>
             <span id="syncLockMessage">Syncing live data from cloud... Editing is temporarily locked to prevent overwriting stats.</span>
@@ -236,10 +236,12 @@
         <!-- Admin Toolbox -->
         <section id="adminToolbox" class="hidden bg-slate-900 border border-amber-500/50 rounded-xl p-3 shadow-lg flex flex-wrap items-center gap-3">
             <span class="text-xs font-bold text-amber-400 uppercase tracking-wider mr-2"><i class="fa-solid fa-toolbox mr-1"></i> Admin:</span>
+            <input type="file" id="docxFileInput" accept=".docx" class="hidden" onchange="handleDocxUpload(event)">
+            <button onclick="triggerDocxPicker()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 border border-sky-400 rounded text-xs font-bold text-white shadow transition"><i class="fa-solid fa-file-word mr-1"></i> Import Word Doc</button>
+
             <button onclick="promptEditAnnouncement()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-bullhorn mr-1 text-amber-400"></i> Edit Notice</button>
             <button onclick="promptAddPlayer()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-user-plus mr-1 text-sky-400"></i> Add Player</button>
             <button onclick="promptAddGame()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-xs font-bold text-white transition"><i class="fa-solid fa-calendar-plus mr-1 text-emerald-400"></i> Add Game</button>
-            
             <button onclick="openRosterModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-rose-500/50 rounded text-xs font-bold text-rose-400 transition"><i class="fa-solid fa-users-slash mr-1"></i> Archive/Restore Player</button>
             
             <button onclick="restoreLastBackup()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-amber-500/50 rounded text-xs font-bold text-amber-300 transition ml-auto"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Restore Backup</button>
@@ -282,6 +284,100 @@
     </main>
 
     <!-- MODALS -->
+
+    <!-- Word Doc Import Preview Modal -->
+    <div id="docxImportModal" class="fixed inset-0 z-[80] hidden bg-slate-950/95 backdrop-blur flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-sky-500/50 rounded-2xl w-full max-w-5xl p-4 sm:p-6 shadow-2xl relative my-auto max-h-[92vh] flex flex-col">
+            <button onclick="closeModal('docxImportModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
+            <div class="mb-4 border-b border-slate-800 pb-3 pr-8">
+                <h3 class="font-display text-2xl font-bold text-white uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-file-word text-sky-400"></i> Review Word Doc Import
+                </h3>
+                <p id="docxParsedSummary" class="text-xs text-slate-300 mt-1">Verify the extracted match details and stats below before saving to the cloud.</p>
+            </div>
+
+            <div class="overflow-y-auto flex-1 space-y-4 pr-1">
+                <!-- Fixture Details & Target Column -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <div>
+                        <label class="block text-[10px] font-bold text-sky-400 uppercase mb-1">Target Game Column</label>
+                        <select id="impTargetSlot" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white font-semibold focus:outline-none focus:border-sky-400"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-raf-light uppercase mb-1">Opponent / Title</label>
+                        <input id="impOpponent" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white font-semibold focus:outline-none focus:border-sky-400">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-raf-light uppercase mb-1">Match Date</label>
+                        <input id="impDate" type="date" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-raf-light uppercase mb-1">Venue</label>
+                        <select id="impVenue" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
+                            <option value="">N/A</option>
+                            <option value="Home">Home</option>
+                            <option value="Away">Away</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-raf-light uppercase mb-1">Match Result</label>
+                        <select id="impStatus" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-xs text-white font-bold focus:outline-none focus:border-sky-400">
+                            <option value="WIN">WIN</option>
+                            <option value="LOSS">LOSS</option>
+                            <option value="RESCHEDULE">RESCHEDULE</option>
+                            <option value="TBD">TBD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Import Options -->
+                <div class="flex flex-wrap gap-4 bg-slate-950/70 px-3 py-2.5 rounded-xl border border-slate-800 text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-200">
+                        <input type="checkbox" id="impAutoDnp" checked class="accent-sky-500 w-4 h-4">
+                        <span>Mark non-playing active roster as <strong>DNP</strong></span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-200">
+                        <input type="checkbox" id="impAddSinglesGW" checked onchange="refreshImportGWPreview()" class="accent-emerald-500 w-4 h-4">
+                        <span>Add <strong>Singles Wins</strong> to GW</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-200">
+                        <input type="checkbox" id="impAddDoublesGW" onchange="refreshImportGWPreview()" class="accent-emerald-500 w-4 h-4">
+                        <span>Add <strong>Doubles Wins</strong> to GW</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-200">
+                        <input type="checkbox" id="impUpdateHonours" checked class="accent-amber-500 w-4 h-4">
+                        <span>Add <strong>180s</strong> &amp; update <strong>High Out</strong> (if higher)</span>
+                    </label>
+                </div>
+
+                <!-- Extracted Players Table -->
+                <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-[10px] uppercase text-slate-400 bg-slate-900/80">
+                                <th class="py-2.5 px-2 text-center">Use</th>
+                                <th class="py-2.5 px-2">Sheet Name &amp; Role</th>
+                                <th class="py-2.5 px-2">Map to Roster Player</th>
+                                <th class="py-2.5 px-2 text-center">Singles Ave</th>
+                                <th class="py-2.5 px-2 text-center">+GW</th>
+                                <th class="py-2.5 px-2 text-center">+180s</th>
+                                <th class="py-2.5 px-2 text-center">High Out</th>
+                            </tr>
+                        </thead>
+                        <tbody id="docxImportTbody" class="divide-y divide-slate-800/70"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-end gap-3">
+                <button onclick="closeModal('docxImportModal')" class="px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold transition">Cancel</button>
+                <button onclick="applyDocxImport()" class="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold shadow-lg flex items-center gap-2 transition">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Confirm &amp; Save to Cloud
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Roster Management (Archive/Restore) Modal -->
     <div id="rosterModal" class="fixed inset-0 z-[70] hidden bg-slate-950/90 backdrop-blur flex items-center justify-center p-4">
@@ -326,10 +422,8 @@
                         <div><p class="text-[10px] text-raf-light font-bold uppercase tracking-wider">Darts Setup</p><p id="pDisplayDarts" class="text-sm font-semibold text-slate-200">-</p></div>
                     </div>
                     
-                    <!-- Edit Profile Form (Unlocked for all users once synced) -->
+                    <!-- Edit Profile Form -->
                     <div id="profileDetailsEdit" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 bg-slate-950 p-3 rounded-xl border border-amber-500/30">
-                        
-                        <!-- Admin: Edit Name Box -->
                         <div id="adminNameEditDiv" class="hidden sm:col-span-3 mb-2 border-b border-slate-800 pb-3">
                             <label class="text-[10px] text-rose-400 font-bold uppercase block mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Admin: Fix Player Name</label>
                             <input id="pEditName" type="text" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-sm text-white font-bold">
@@ -508,8 +602,8 @@
         let sortMode = 'roster'; 
         let viewingArchive = null; 
         let activeProfileView = null;
+        let pendingImportPlayers = [];  // Holds extracted .docx rows during preview
 
-        // Start empty until cloud responds so stale defaults can never be accidentally rendered & saved
         let appData = {
             players: [],
             archivedPlayers: [],
@@ -534,6 +628,7 @@
         };
 
         const escapeAttr = (str) => String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+        const escapeHtml = (str) => String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
         const assertCloudReady = () => {
             if (!hasLoadedFromCloud) {
@@ -603,6 +698,572 @@
         });
 
         // ==========================================
+        // WORD DOCUMENT (.DOCX) RESULT SHEET IMPORTER
+        // ==========================================
+        window.triggerDocxPicker = () => {
+            if (!assertCloudReady() || !isAdmin || viewingArchive) return;
+            const input = document.getElementById('docxFileInput');
+            input.value = '';
+            input.click();
+        };
+
+        const cleanCellText = (txt) => (txt || '')
+            .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        const parseFloatSafe = (txt) => {
+            const m = cleanCellText(txt).match(/-?\d+(?:\.\d+)?/);
+            return m ? parseFloat(m[0]) : null;
+        };
+
+        const parseIntSafe = (txt) => {
+            const m = cleanCellText(txt).match(/\d+/);
+            return m ? parseInt(m[0], 10) : null;
+        };
+
+        const parseMaxCheckout = (txt) => {
+            const nums = (cleanCellText(txt).match(/\d+/g) || [])
+                .map(n => parseInt(n, 10))
+                .filter(n => n > 0 && n <= 170);
+            return nums.length ? Math.max(...nums) : 0;
+        };
+
+        const stripRank = (name) => cleanCellText(name)
+            .replace(/^(?:sac\(t\)|sac|as1\(t\)|as1|as2|lac|ac|cpl|sgt|fs|f\/s|flt\s*sgt|chf\s*tech|ct|wo|macr|plt\s*off|fg\s*off|flt\s*lt|sqn\s*ldr|wg\s*cdr|gp\s*capt|air\s*cdre)\.?\s+/i, '')
+            .trim();
+
+        const levenshtein = (a, b) => {
+            const m = a.length, n = b.length;
+            const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+            for (let i = 0; i <= m; i++) dp[i][0] = i;
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+            for (let i = 1; i <= m; i++) {
+                for (let j = 1; j <= n; j++) {
+                    const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+                    dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+                }
+            }
+            return dp[m][n];
+        };
+
+        const matchPlayerToRoster = (rawName) => {
+            const cleaned = stripRank(rawName);
+            if (!cleaned) return null;
+            const lower = cleaned.toLowerCase();
+            const norm = lower.replace(/[^a-z0-9]/g, '');
+
+            // 1. Exact case-insensitive match
+            const exact = appData.players.find(p => p.toLowerCase() === lower);
+            if (exact) return exact;
+
+            // 2. Normalized alphanumeric match
+            const normMatch = appData.players.find(p => p.toLowerCase().replace(/[^a-z0-9]/g, '') === norm);
+            if (normMatch) return normMatch;
+
+            // 3. Initial + Surname match (e.g. "B Townsend" or "B. Townsend")
+            const parts = lower.replace(/\./g, '').split(/\s+/).filter(Boolean);
+            if (parts.length >= 2) {
+                const firstInit = parts[0][0];
+                const lastName = parts[parts.length - 1];
+                const initMatches = appData.players.filter(p => {
+                    const pp = p.toLowerCase().split(/\s+/).filter(Boolean);
+                    return pp.length >= 2 && pp[0][0] === firstInit && levenshtein(pp[pp.length - 1], lastName) <= 1;
+                });
+                if (initMatches.length === 1) return initMatches[0];
+            }
+
+            // 4. Close Levenshtein match (handles minor typos like Blackmoore -> Blackmore)
+            let bestPlayer = null, bestDist = 3;
+            appData.players.forEach(p => {
+                const d = levenshtein(p.toLowerCase().replace(/\s+/g, ''), lower.replace(/\s+/g, ''));
+                if (d < bestDist) { bestDist = d; bestPlayer = p; }
+            });
+            if (bestPlayer) return bestPlayer;
+
+            // 5. Unique surname-only match
+            if (parts.length === 1 && parts[0].length >= 4) {
+                const surMatches = appData.players.filter(p => {
+                    const pp = p.toLowerCase().split(/\s+/).filter(Boolean);
+                    return pp.length >= 2 && levenshtein(pp[pp.length - 1], parts[0]) <= 1;
+                });
+                if (surMatches.length === 1) return surMatches[0];
+            }
+
+            return null;
+        };
+
+        const expandTableToGrid = (tableEl) => {
+            const grid = [];
+            const rows = Array.from(tableEl.querySelectorAll('tr'));
+            rows.forEach((tr, rIdx) => {
+                if (!grid[rIdx]) grid[rIdx] = [];
+                let cIdx = 0;
+                Array.from(tr.children).forEach(cell => {
+                    while (grid[rIdx][cIdx] !== undefined) cIdx++;
+                    const text = cleanCellText(cell.textContent);
+                    const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10);
+                    const colspan = parseInt(cell.getAttribute('colspan') || '1', 10);
+                    for (let r = 0; r < rowspan; r++) {
+                        if (!grid[rIdx + r]) grid[rIdx + r] = [];
+                        for (let c = 0; c < colspan; c++) {
+                            grid[rIdx + r][cIdx + c] = text;
+                        }
+                    }
+                    cIdx += colspan;
+                });
+            });
+            return grid;
+        };
+
+        const extractDateFromFilename = (filename) => {
+            // Try YYYY-MM-DD first
+            const isoMatches = filename.match(/\b(20\d{2})[-_.](\d{2})[-_.](\d{2})\b/g);
+            if (isoMatches && isoMatches.length) {
+                const m = isoMatches[isoMatches.length - 1].match(/(20\d{2})[-_.](\d{2})[-_.](\d{2})/);
+                return `${m[1]}-${m[2]}-${m[3]}`;
+            }
+            // Try 8-digit dates (preferring the last one in filename, e.g. DATEOFMATCH)
+            const eightDigit = filename.match(/\d{8}/g);
+            if (eightDigit && eightDigit.length) {
+                const s = eightDigit[eightDigit.length - 1];
+                if (s.startsWith('20')) {
+                    return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`;
+                } else {
+                    const dd = s.slice(0, 2), mm = s.slice(2, 4), yyyy = s.slice(4, 8);
+                    if (Number(yyyy) >= 2020 && Number(mm) >= 1 && Number(mm) <= 12 && Number(dd) >= 1 && Number(dd) <= 31) {
+                        return `${yyyy}-${mm}-${dd}`;
+                    }
+                }
+            }
+            return '';
+        };
+
+        window.handleDocxUpload = async (event) => {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            if (typeof window.mammoth === 'undefined') {
+                alert("Word document parser library is still loading. Please check your internet connection and try again.");
+                return;
+            }
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await window.mammoth.convertToHtml({ arrayBuffer });
+                const parser = new DOMParser();
+                const htmlDoc = parser.parseFromString(result.value, 'text/html');
+                const tables = Array.from(htmlDoc.querySelectorAll('table'));
+
+                if (!tables.length) {
+                    alert("No tables were found inside this Word document.");
+                    return;
+                }
+
+                // Flatten all tables into expanded logical grids
+                const allRows = [];
+                tables.forEach(t => {
+                    expandTableToGrid(t).forEach(r => allRows.push(r));
+                });
+
+                let homeTeam = '', awayTeam = '', homeMatches = null, awayMatches = null;
+                let section = 'top';
+                let sCols = { match: 0, team: 1, name: 2, avg: 3, c180: 6, highOut: 9, legs: 10 };
+                let dCols = { match: 0, team: 1, name: 2, c180: 3, highOut: 7, legs: 8 };
+
+                const singlesGroups = [];
+                let currentSinglesGroup = null;
+                const doublesGroups = [];
+                let currentDoublesGroup = null;
+
+                for (let r = 0; r < allRows.length; r++) {
+                    const row = allRows[r];
+                    const rowJoined = row.filter(Boolean).join(' ').toLowerCase();
+                    if (!rowJoined) continue;
+
+                    // Detect Scoreboard Header
+                    if (section === 'top' && rowJoined.includes('home team') && rowJoined.includes('away team')) {
+                        const homeTeamCol = row.findIndex(c => /home\s*team/i.test(c || ''));
+                        const awayTeamCol = row.findIndex(c => /away\s*team/i.test(c || ''));
+                        const wonCols = [];
+                        row.forEach((c, idx) => {
+                            if (/matches\s*won/i.test(c || '') && (wonCols.length === 0 || wonCols[wonCols.length - 1] !== idx - 1)) {
+                                wonCols.push(idx);
+                            }
+                        });
+                        const nextRow = allRows[r + 1] || [];
+                        if (homeTeamCol >= 0) homeTeam = nextRow[homeTeamCol] || '';
+                        if (awayTeamCol >= 0) awayTeam = nextRow[awayTeamCol] || '';
+                        if (wonCols.length >= 1) homeMatches = parseIntSafe(nextRow[wonCols[0]]);
+                        if (wonCols.length >= 2) awayMatches = parseIntSafe(nextRow[wonCols[1]]);
+                        r++; // skip values row
+                        continue;
+                    }
+
+                    // Detect Section Switches
+                    if (rowJoined.includes('singles matches')) {
+                        section = 'singles_header';
+                        continue;
+                    }
+                    if (rowJoined.includes('doubles matches')) {
+                        section = 'doubles_header';
+                        continue;
+                    }
+                    if (rowJoined.includes('match summary') || rowJoined.includes('new members')) {
+                        section = 'done';
+                        break;
+                    }
+
+                    // Singles Header Row
+                    if (section === 'singles_header' && (rowJoined.includes('full name') || rowJoined.includes('average'))) {
+                        const findCol = (re, fallback) => {
+                            const i = row.findIndex(c => re.test(c || ''));
+                            return i >= 0 ? i : fallback;
+                        };
+                        sCols = {
+                            match: findCol(/^match$/i, 0),
+                            team: findCol(/^team$/i, 1),
+                            name: findCol(/full\s*name|name/i, 2),
+                            avg: findCol(/average|avg/i, 3),
+                            c180: findCol(/180/i, 6),
+                            highOut: findCol(/checkout|high/i, 9),
+                            legs: findCol(/legs/i, 10)
+                        };
+                        section = 'singles';
+                        continue;
+                    }
+
+                    // Doubles Header Row
+                    if (section === 'doubles_header' && (rowJoined.includes('full name') || rowJoined.includes('180'))) {
+                        const findCol = (re, fallback) => {
+                            const i = row.findIndex(c => re.test(c || ''));
+                            return i >= 0 ? i : fallback;
+                        };
+                        dCols = {
+                            match: findCol(/^match$/i, 0),
+                            team: findCol(/^team$/i, 1),
+                            name: findCol(/full\s*name|name/i, 2),
+                            c180: findCol(/180/i, 3),
+                            highOut: findCol(/checkout|high/i, 7),
+                            legs: findCol(/legs/i, 8)
+                        };
+                        section = 'doubles';
+                        continue;
+                    }
+
+                    // Parse Singles Rows
+                    if (section === 'singles') {
+                        const matchId = row[sCols.match] || '';
+                        const teamRaw = (row[sCols.team] || '').toLowerCase();
+                        const side = teamRaw.includes('home') ? 'home' : (teamRaw.includes('away') ? 'away' : '');
+                        if (!side) continue;
+
+                        if (!currentSinglesGroup || (matchId && currentSinglesGroup.matchId !== matchId) || currentSinglesGroup[side]) {
+                            currentSinglesGroup = { matchId: matchId || String(singlesGroups.length + 1), home: null, away: null };
+                            singlesGroups.push(currentSinglesGroup);
+                        }
+                        currentSinglesGroup[side] = {
+                            name: row[sCols.name] || '',
+                            avg: parseFloatSafe(row[sCols.avg]),
+                            c180: parseIntSafe(row[sCols.c180]) || 0,
+                            highOut: parseMaxCheckout(row[sCols.highOut]),
+                            legs: parseIntSafe(row[sCols.legs])
+                        };
+                        continue;
+                    }
+
+                    // Parse Doubles Rows
+                    if (section === 'doubles') {
+                        const matchId = row[dCols.match] || '';
+                        const teamRaw = (row[dCols.team] || '').toLowerCase();
+                        const side = teamRaw.includes('home') ? 'home' : (teamRaw.includes('away') ? 'away' : '');
+                        if (!side) continue;
+
+                        if (!currentDoublesGroup || (matchId && currentDoublesGroup.matchId !== matchId)) {
+                            currentDoublesGroup = { matchId: matchId || String(doublesGroups.length + 1), home: [], away: [], homeLegs: null, awayLegs: null };
+                            doublesGroups.push(currentDoublesGroup);
+                        }
+                        const legsVal = parseIntSafe(row[dCols.legs]);
+                        if (side === 'home' && legsVal !== null && currentDoublesGroup.homeLegs === null) currentDoublesGroup.homeLegs = legsVal;
+                        if (side === 'away' && legsVal !== null && currentDoublesGroup.awayLegs === null) currentDoublesGroup.awayLegs = legsVal;
+
+                        const pName = row[dCols.name] || '';
+                        if (pName) {
+                            currentDoublesGroup[side].push({
+                                name: pName,
+                                c180: parseIntSafe(row[dCols.c180]) || 0,
+                                highOut: parseMaxCheckout(row[dCols.highOut])
+                            });
+                        }
+                    }
+                }
+
+                // Determine which side is Leeming
+                let leemingSide = 'home';
+                if (/leeming/i.test(awayTeam) && !/leeming/i.test(homeTeam)) {
+                    leemingSide = 'away';
+                }
+                const oppSide = leemingSide === 'home' ? 'away' : 'home';
+                const venue = leemingSide === 'home' ? 'Home' : 'Away';
+                let opponent = (leemingSide === 'home' ? awayTeam : homeTeam).replace(/^raf\s+/i, '').trim();
+                if (/^x+$/i.test(opponent)) opponent = '';
+
+                const leemingMatchesWon = leemingSide === 'home' ? homeMatches : awayMatches;
+                const oppMatchesWon = leemingSide === 'home' ? awayMatches : homeMatches;
+                let status = 'TBD';
+                if (leemingMatchesWon !== null && oppMatchesWon !== null) {
+                    if (leemingMatchesWon > oppMatchesWon) status = 'WIN';
+                    else if (leemingMatchesWon < oppMatchesWon) status = 'LOSS';
+                }
+
+                // Merge Leeming players from Singles and Doubles
+                const mergedMap = new Map();
+                const getOrCreateEntry = (rawName) => {
+                    const matched = matchPlayerToRoster(rawName);
+                    const cleaned = stripRank(rawName);
+                    const key = matched ? `ROSTER:${matched}` : `RAW:${cleaned.toLowerCase()}`;
+                    if (!mergedMap.has(key)) {
+                        mergedMap.set(key, {
+                            rawName: cleaned,
+                            matchedRoster: matched || '__NEW__',
+                            roles: [],
+                            isReserveOnly: true,
+                            singlesAvg: null,
+                            singlesWon: 0,
+                            doublesWon: 0,
+                            c180s: 0,
+                            highOut: 0
+                        });
+                    }
+                    return mergedMap.get(key);
+                };
+
+                singlesGroups.forEach(g => {
+                    const lee = g[leemingSide];
+                    const opp = g[oppSide];
+                    if (!lee || !lee.name) return;
+
+                    const isReserve = /^r(eserve)?$/i.test(g.matchId);
+                    const entry = getOrCreateEntry(lee.name);
+                    entry.roles.push(isReserve ? 'Singles (Reserve)' : `Singles #${g.matchId}`);
+                    if (!isReserve) entry.isReserveOnly = false;
+                    if (lee.avg !== null) entry.singlesAvg = lee.avg;
+                    entry.c180s += lee.c180;
+                    if (lee.highOut > entry.highOut) entry.highOut = lee.highOut;
+                    if (!isReserve && lee.legs !== null && opp && opp.legs !== null && lee.legs > opp.legs) {
+                        entry.singlesWon += 1;
+                    }
+                });
+
+                doublesGroups.forEach(g => {
+                    const leePlayers = g[leemingSide] || [];
+                    const leeLegs = leemingSide === 'home' ? g.homeLegs : g.awayLegs;
+                    const oppLegs = leemingSide === 'home' ? g.awayLegs : g.homeLegs;
+                    const wonDoubles = (leeLegs !== null && oppLegs !== null && leeLegs > oppLegs) ? 1 : 0;
+
+                    leePlayers.forEach(p => {
+                        const entry = getOrCreateEntry(p.name);
+                        entry.roles.push(`Doubles #${g.matchId}`);
+                        entry.isReserveOnly = false;
+                        entry.c180s += p.c180;
+                        if (p.highOut > entry.highOut) entry.highOut = p.highOut;
+                        entry.doublesWon += wonDoubles;
+                    });
+                });
+
+                pendingImportPlayers = Array.from(mergedMap.values());
+
+                // Populate Preview Modal
+                const scoreText = (leemingMatchesWon !== null && oppMatchesWon !== null)
+                    ? `Leeming ${leemingMatchesWon} – ${oppMatchesWon} ${opponent || 'Opponent'} (${venue})`
+                    : `${homeTeam || 'Home'} vs ${awayTeam || 'Away'}`;
+                document.getElementById('docxParsedSummary').textContent = `Parsed from "${file.name}": ${scoreText} • ${pendingImportPlayers.length} Leeming player(s) detected.`;
+
+                // Target slot selector (auto-select first TBD game, or opponent match with no scores, else New Game)
+                const slotSel = document.getElementById('impTargetSlot');
+                let slotHTML = `<option value="__NEW__">+ Add as New Game (Game ${appData.games.length + 1})</option>`;
+                let defaultSlot = '__NEW__';
+                appData.games.forEach((g, idx) => {
+                    const hasScores = Object.keys(g.scores || {}).length > 0;
+                    slotHTML += `<option value="${idx}">Overwrite Game ${idx + 1}: ${escapeHtml(g.title)} (${g.status})</option>`;
+                    if (defaultSlot === '__NEW__' && opponent && g.title.toLowerCase().includes(opponent.toLowerCase()) && !hasScores) {
+                        defaultSlot = String(idx);
+                    }
+                });
+                if (defaultSlot === '__NEW__') {
+                    const firstTbdIdx = appData.games.findIndex(g => g.status === 'TBD' && Object.keys(g.scores || {}).length === 0);
+                    if (firstTbdIdx >= 0) defaultSlot = String(firstTbdIdx);
+                }
+                slotSel.innerHTML = slotHTML;
+                slotSel.value = defaultSlot;
+
+                document.getElementById('impOpponent').value = opponent;
+                document.getElementById('impDate').value = extractDateFromFilename(file.name);
+                document.getElementById('impVenue').value = venue;
+                document.getElementById('impStatus').value = status;
+                document.getElementById('impAutoDnp').checked = true;
+                document.getElementById('impAddSinglesGW').checked = true;
+                document.getElementById('impAddDoublesGW').checked = false;
+                document.getElementById('impUpdateHonours').checked = true;
+
+                renderImportPreviewRows();
+                document.getElementById('docxImportModal').classList.remove('hidden');
+            } catch (err) {
+                console.error("DOCX Parse Error:", err);
+                alert("Could not read this Word document. Make sure it is a valid .docx file.");
+            }
+        };
+
+        const renderImportPreviewRows = () => {
+            const tbody = document.getElementById('docxImportTbody');
+            if (!pendingImportPlayers.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">No player rows were found on the Leeming side of this sheet. You can still save the fixture details above.</td></tr>`;
+                return;
+            }
+
+            const addS = document.getElementById('impAddSinglesGW').checked;
+            const addD = document.getElementById('impAddDoublesGW').checked;
+
+            tbody.innerHTML = pendingImportPlayers.map((p, idx) => {
+                const defaultUse = !p.isReserveOnly;
+                const gwVal = (addS ? p.singlesWon : 0) + (addD ? p.doublesWon : 0);
+                const rosterOpts = [
+                    ...appData.players.map(rp => `<option value="${escapeHtml(rp)}" ${p.matchedRoster === rp ? 'selected' : ''}>${escapeHtml(rp)}</option>`),
+                    `<option value="__NEW__" ${p.matchedRoster === '__NEW__' ? 'selected' : ''}>+ Add "${escapeHtml(p.rawName)}" to Roster</option>`,
+                    `<option value="__SKIP__">-- Ignore Player --</option>`
+                ].join('');
+
+                const currentHighOut = (p.matchedRoster !== '__NEW__' && appData.playerDetails[p.matchedRoster])
+                    ? (appData.playerDetails[p.matchedRoster].highOut || 0) : 0;
+                const highOutHint = (p.highOut > currentHighOut && p.highOut > 0)
+                    ? `<span class="block text-[9px] text-amber-400">New PB! (was ${currentHighOut})</span>` : '';
+
+                return `<tr class="hover:bg-slate-900/50">
+                    <td class="py-2 px-2 text-center">
+                        <input type="checkbox" id="impUse_${idx}" ${defaultUse ? 'checked' : ''} class="accent-sky-500 w-4 h-4">
+                    </td>
+                    <td class="py-2 px-2">
+                        <div class="font-bold text-white">${escapeHtml(p.rawName)}</div>
+                        <div class="text-[10px] ${p.isReserveOnly ? 'text-amber-400' : 'text-slate-400'}">${escapeHtml(p.roles.join(' • '))}</div>
+                    </td>
+                    <td class="py-2 px-2">
+                        <select id="impMap_${idx}" class="w-full bg-slate-900 border ${p.matchedRoster === '__NEW__' ? 'border-amber-500/70 text-amber-300' : 'border-slate-700 text-white'} rounded px-2 py-1 text-xs focus:outline-none">
+                            ${rosterOpts}
+                        </select>
+                    </td>
+                    <td class="py-2 px-2 text-center">
+                        <input type="number" step="0.01" id="impAvg_${idx}" value="${p.singlesAvg !== null ? p.singlesAvg : ''}" placeholder="DNP" class="w-20 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-right font-mono text-white">
+                    </td>
+                    <td class="py-2 px-2 text-center">
+                        <input type="number" step="1" min="0" id="impGW_${idx}" value="${gwVal}" class="w-14 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-center font-mono text-sky-400 font-bold">
+                    </td>
+                    <td class="py-2 px-2 text-center">
+                        <input type="number" step="1" min="0" id="imp180_${idx}" value="${p.c180s}" class="w-14 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-center font-mono text-emerald-400 font-bold">
+                    </td>
+                    <td class="py-2 px-2 text-center">
+                        <input type="number" step="1" min="0" max="170" id="impHO_${idx}" value="${p.highOut || ''}" placeholder="-" class="w-16 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-center font-mono text-amber-400 font-bold">
+                        ${highOutHint}
+                    </td>
+                </tr>`;
+            }).join('');
+        };
+
+        window.refreshImportGWPreview = () => {
+            const addS = document.getElementById('impAddSinglesGW').checked;
+            const addD = document.getElementById('impAddDoublesGW').checked;
+            pendingImportPlayers.forEach((p, idx) => {
+                const el = document.getElementById(`impGW_${idx}`);
+                if (el) el.value = (addS ? p.singlesWon : 0) + (addD ? p.doublesWon : 0);
+            });
+        };
+
+        window.applyDocxImport = async () => {
+            if (!assertCloudReady()) return;
+
+            const slotVal = document.getElementById('impTargetSlot').value;
+            const opponent = document.getElementById('impOpponent').value.trim() || `Game ${appData.games.length + 1}`;
+            const date = document.getElementById('impDate').value;
+            const venue = document.getElementById('impVenue').value;
+            const status = document.getElementById('impStatus').value;
+            const autoDnp = document.getElementById('impAutoDnp').checked;
+            const updateHonours = document.getElementById('impUpdateHonours').checked;
+
+            let targetGame;
+            if (slotVal === '__NEW__') {
+                targetGame = { title: opponent, status, date, venue, scores: {} };
+                appData.games.push(targetGame);
+            } else {
+                const idx = parseInt(slotVal, 10);
+                targetGame = appData.games[idx];
+                targetGame.title = opponent;
+                targetGame.status = status;
+                targetGame.date = date;
+                targetGame.venue = venue;
+                targetGame.scores = {};
+            }
+
+            const playedNames = new Set();
+
+            pendingImportPlayers.forEach((p, idx) => {
+                const useRow = document.getElementById(`impUse_${idx}`)?.checked;
+                if (!useRow) return;
+
+                let mappedName = document.getElementById(`impMap_${idx}`)?.value;
+                if (!mappedName || mappedName === '__SKIP__') return;
+
+                if (mappedName === '__NEW__') {
+                    mappedName = p.rawName;
+                    if (!appData.players.includes(mappedName)) {
+                        appData.players.push(mappedName);
+                    }
+                }
+
+                const avgStr = document.getElementById(`impAvg_${idx}`)?.value.trim();
+                const addGW = parseInt(document.getElementById(`impGW_${idx}`)?.value || '0', 10) || 0;
+                const add180 = parseInt(document.getElementById(`imp180_${idx}`)?.value || '0', 10) || 0;
+                const highOut = parseInt(document.getElementById(`impHO_${idx}`)?.value || '0', 10) || 0;
+
+                if (avgStr !== '') {
+                    const numAvg = Number(avgStr);
+                    if (!isNaN(numAvg)) {
+                        targetGame.scores[mappedName] = numAvg;
+                        playedNames.add(mappedName);
+                    }
+                }
+
+                if (addGW > 0) {
+                    if (!appData.playerWins) appData.playerWins = {};
+                    appData.playerWins[mappedName] = (Number(appData.playerWins[mappedName]) || 0) + addGW;
+                }
+
+                if (updateHonours && (add180 > 0 || highOut > 0)) {
+                    if (!appData.playerDetails[mappedName]) {
+                        appData.playerDetails[mappedName] = { nickname: '', walkon: '', darts: '', max180s: 0, highOut: 0 };
+                    }
+                    if (add180 > 0) {
+                        appData.playerDetails[mappedName].max180s = (Number(appData.playerDetails[mappedName].max180s) || 0) + add180;
+                    }
+                    if (highOut > (Number(appData.playerDetails[mappedName].highOut) || 0)) {
+                        appData.playerDetails[mappedName].highOut = highOut;
+                    }
+                }
+            });
+
+            // Explicitly mark active roster members who didn't play Singles as DNP
+            if (autoDnp) {
+                appData.players.forEach(pName => {
+                    if (!playedNames.has(pName)) {
+                        targetGame.scores[pName] = "DNP";
+                    }
+                });
+            }
+
+            closeModal('docxImportModal');
+            renderTable();
+            await saveToCloud();
+        };
+
+        // ==========================================
         // DATA RENDERING & ARCHIVES
         // ==========================================
         const getActiveGames = () => {
@@ -661,7 +1322,6 @@
             const playerStats = {};
             appData.players.forEach(p => playerStats[p] = { played: 0, sum: 0, high: 0, ave: 0 });
 
-            // Analyze Match Data & build statistics
             gamesToRender.forEach(g => {
                 if (g.status === 'WIN') wins++;
                 if (g.status === 'LOSS') losses++;
@@ -695,18 +1355,15 @@
                 }
             });
 
-            // UPDATE DOM HEADERS IMMEDIATELY
             document.getElementById('statWins').textContent = wins;
             document.getElementById('statLosses').textContent = losses;
             document.getElementById('statReschedule').textContent = reschedules;
             document.getElementById('statBestSingle').textContent = bestSingleGame.toFixed(2);
             document.getElementById('statBestSinglePlayer').textContent = bestSinglePlayer;
             document.getElementById('statTeamAve').textContent = totalScoreCount > 0 ? (totalScoreSum / totalScoreCount).toFixed(2) : "0.00";
-            
             document.getElementById('statBestOverall').textContent = highestSeasonAve > 0 ? highestSeasonAve.toFixed(2) : "0.00";
             document.getElementById('statBestOverallPlayer').textContent = highestSeasonPlayer;
 
-            // Sorting logic
             let displayOrder = [...appData.players];
             if (sortMode === 'ranked') {
                 displayOrder.sort((a, b) => playerStats[b].ave - playerStats[a].ave);
@@ -754,7 +1411,6 @@
                 totalWinsSum += Number(gwDisplay);
                 
                 const gwClick = canEdit ? `onclick="openEditGW('${safePlayer}')"` : '';
-                
                 const nameTrophy = (sortMode === 'ranked' && rankIdx === 0 && stat.played > 0) 
                     ? `<i class="fa-solid fa-trophy text-amber-400 ml-2 shadow-sm" title="#1 Ranked"></i>` : '';
 
@@ -1164,9 +1820,9 @@
             if (!game.scores) game.scores = {};
             
             if (valueStr === null) {
-                game.scores[player] = "DNP"; // Explicitly save DNP
+                game.scores[player] = "DNP";
             } else if (valueStr.trim() === "") {
-                delete game.scores[player];  // Clear cell back to empty
+                delete game.scores[player];
             } else {
                 game.scores[player] = Number(valueStr);
             }
@@ -1275,7 +1931,6 @@
                                 lastCloudPayload = rawPayload;
                                 hasLoadedFromCloud = true;
 
-                                // Keep a local rolling copy on this device as extra protection
                                 try { localStorage.setItem('leeming_arrows_last_sync', rawPayload); } catch (_) {}
 
                                 setSyncBanner(false);
@@ -1285,7 +1940,6 @@
                                 renderTable();
                                 setSyncStatus("Live Sync On", "fa-satellite-dish animate-pulse", "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40");
                             } else {
-                                // SAFEGUARD: Never auto-overwrite when snapshot is empty
                                 hasLoadedFromCloud = false;
                                 setSyncStatus("No Cloud Data Found", "fa-triangle-exclamation", "bg-rose-500/20 text-rose-400 border border-rose-500/40");
                                 setSyncBanner(true, "Cloud document 'mainDocV2' was not found. Editing is locked to prevent accidental overwrite. Refresh or check Firebase Console.", true);
@@ -1315,7 +1969,6 @@
                 try {
                     const newPayload = JSON.stringify(appData);
 
-                    // AUTOMATIC PRE-SAVE BACKUP: Save the previous live payload before overwriting mainDocV2
                     if (lastCloudPayload && lastCloudPayload !== newPayload) {
                         const backupRef = doc(db, 'artifacts', 'leeming-arrows', 'public', 'data', 'dartsData', 'backupDocV2');
                         await setDoc(backupRef, {
